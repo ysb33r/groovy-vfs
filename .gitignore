@@ -1,2 +1,3 @@
-plugins/core/ 
-web-app/WEB-INF 
+KroovyBan/web-app/WEB-INF/
+KroovyBan/plugins/core/
+KroovyBan/stacktrace.log
