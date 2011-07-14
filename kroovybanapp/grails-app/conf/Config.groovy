@@ -88,3 +88,10 @@ log4j = {
 
     warn   'org.mortbay.log'
 }
+
+// Added by the Spring Security Core plugin:
+grails.plugins.springsecurity.userLookup.userDomainClassName = 'org.kroovyban.User'
+grails.plugins.springsecurity.userLookup.authorityJoinClassName = 'org.kroovyban.UserAuthority'
+grails.plugins.springsecurity.authority.className = 'org.kroovyban.Authority'
+grails.plugins.springsecurity.requestMap.className = 'org.kroovyban.RequestMap'
+grails.plugins.springsecurity.securityConfigType = 'Requestmap'
