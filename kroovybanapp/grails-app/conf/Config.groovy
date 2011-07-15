@@ -119,7 +119,9 @@ environments {
     test {
         grails.serverURL = "http://localhost:8080/${appName}"
 		grails.plugins.springsecurity.providerNames = ['daoAuthenticationProvider','rememberMeAuthenticationProvider']
-		
+        grails.plugins.springsecurity.openid.active = false
+        grails.plugins.springsecurity.ldap.active = false	
+        grails.plugins.springsecurity.openid.userLookup.openIdsPropertyName=null
     }
 
 }

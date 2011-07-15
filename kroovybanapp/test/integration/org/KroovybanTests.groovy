@@ -1,6 +1,5 @@
-package org.kroovyban
+package org
 
-import org.kroovyban.Authority
 
 import grails.test.mixin.*
 import grails.test.mixin.support.*
@@ -10,7 +9,7 @@ import org.junit.*
  * See the API for {@link grails.test.mixin.support.GrailsUnitTestMixin} for usage instructions
  */
 @TestMixin(GrailsUnitTestMixin)
-class AuthorityTests {
+class KroovybanTests {
 
     @Before
     void setUp() {
@@ -23,8 +22,7 @@ class AuthorityTests {
     }
 
     @Test
-    void testAuthority() {
-		def a = new Authority(authority:"ROLE_SYSADMIN") 
-        assert a.authority == "ROLE_SYSADMIN"
+    void testSomething() {
+
     }
 }
