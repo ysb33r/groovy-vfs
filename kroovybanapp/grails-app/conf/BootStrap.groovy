@@ -8,8 +8,8 @@ import org.codehaus.groovy.grails.commons.*
 
 class BootStrap {
 
-	def SprintSecurityService
-	
+	def springSecurityService
+
     def init = { servletContext ->
 		if (Authority.count()==0)
 		{
@@ -26,7 +26,9 @@ class BootStrap {
         }
         else
         {
-            def u = new User( username : initUser, password : 'password', enabled : true ).save(flush:true)
+            def u = new User( username : initUser, 
+                              password : springSecurityService.encodePassword('password',initUser) , 
+                              enabled : true ).save(flush:true)
             UserAuthority.create(u, Authority.get(1), true)
         }
         

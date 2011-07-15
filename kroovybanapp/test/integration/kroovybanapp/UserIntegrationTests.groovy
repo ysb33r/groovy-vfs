@@ -24,11 +24,15 @@ class UserIntegrationTests {
 
     @Test
     void testBootStrap() {
+        def sprintSecurityService
+
         def username = grailsApplication.config.bootstrap.init.sysadmin
+        def password = sprintSecurityService.encodePassword( 'password',username )
         assert User.count() == 1 : "Expecting only 1 user to be added during bootStrap"
 
         def a = User.get(1)
         assert a != null
         assert a.username == username : "Expecting only initial role to be 'sysadmin'"
+        assert a.password == password : "Expecting initial password for initial user to be encoded version of 'password'"
     }
 }
