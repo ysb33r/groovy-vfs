@@ -4,7 +4,7 @@
 	<classpathentry kind="src" path="src/groovy"/>
 	<classpathentry kind="src" path="grails-app/conf"/>
 	<classpathentry kind="src" path="grails-app/controllers"/>
-	<classpathentry kind="src" path="grails-app/domain"/>
+	<classpathentry excluding="org/kroovyban/" kind="src" path="grails-app/domain"/>
 	<classpathentry kind="src" path="grails-app/services"/>
 	<classpathentry kind="src" path="grails-app/taglib"/>
 	<classpathentry kind="src" path="grails-app/utils"/>

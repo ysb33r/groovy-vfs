@@ -17,6 +17,18 @@ environments {
             url = "jdbc:h2:mem:devDb"
         }
     }
+    development_ldap {
+        dataSource {
+            dbCreate = "create-drop" // one of 'create', 'create-drop','update'
+            url = "jdbc:h2:mem:devDb"
+        }
+    }
+    development_openid {
+        dataSource {
+            dbCreate = "create-drop" // one of 'create', 'create-drop','update'
+            url = "jdbc:h2:mem:devDb"
+        }
+    }
     test {
         dataSource {
             dbCreate = "update"
@@ -24,6 +36,18 @@ environments {
         }
     }
     production {
+        dataSource {
+            dbCreate = "update"
+            url = "jdbc:h2:prodDb"
+        }
+    }
+    production_ldap {
+        dataSource {
+            dbCreate = "update"
+            url = "jdbc:h2:prodDb"
+        }
+    }
+    production_openid {
         dataSource {
             dbCreate = "update"
             url = "jdbc:h2:prodDb"

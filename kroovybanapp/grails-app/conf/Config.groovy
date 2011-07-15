@@ -55,12 +55,71 @@ grails.exceptionresolver.params.exclude = ['password']
 environments {
     production {
         grails.serverURL = "http://www.changeme.com"
+		grails.plugins.springsecurity.providerNames = ['daoAuthenticationProvider','rememberMeAuthenticationProvider']
+    }
+    production_ldap {
+        grails.serverURL = "http://www.changeme.com"
+		grails.plugins.springsecurity.providerNames = ['daoAuthenticationProvider','rememberMeAuthenticationProvider']
+		grails.plugins.springsecurity.ldap.context.managerDn = '[distinguishedName]'
+		grails.plugins.springsecurity.ldap.context.managerPassword = '[password]'
+		grails.plugins.springsecurity.ldap.context.server = 'ldap://127.0.0.1:387/'
+		grails.plugins.springsecurity.ldap.authorities.ignorePartialResultException = true // typically needed for Active Directory
+		grails.plugins.springsecurity.ldap.search.base = '[the base directory to start the search.  usually something like dc=mycompany,dc=com]'
+		grails.plugins.springsecurity.ldap.search.filter="sAMAccountName={0}" // for Active Directory you need this
+		grails.plugins.springsecurity.ldap.search.searchSubtree = true
+		grails.plugins.springsecurity.ldap.auth.hideUserNotFoundExceptions = false
+		grails.plugins.springsecurity.ldap.search.attributesToReturn = ['mail', 'displayName'] // extra attributes you want returned; see below for custom classes that access this data
+		grails.plugins.springsecurity.providerNames = ['ldapAuthProvider', 'anonymousAuthenticationProvider'] // specify this when you want to skip attempting to load from db and only use LDAP
+		grails.plugins.springsecurity.ldap.useRememberMe = false 
+		grails.plugins.springsecurity.ldap.authorities.retrieveGroupRoles = false 
+		//grails.plugins.springsecurity.ldap.authorities.groupSearchBase ='[the base directory to start the search. usually something like dc=mycompany,dc=com]' 
+		//grails.plugins.springsecurity.ldap.authorities.groupSearchFilter = 
+    }
+    production_openid {
+        grails.serverURL = "http://www.changeme.com"
+		grails.plugins.springsecurity.providerNames = ['daoAuthenticationProvider','rememberMeAuthenticationProvider']
     }
     development {
         grails.serverURL = "http://localhost:8080/${appName}"
+		grails.plugins.springsecurity.providerNames = ['daoAuthenticationProvider','rememberMeAuthenticationProvider']
+		grails.plugins.springsecurity.openid.active = false
+		grails.plugins.springsecurity.ldap.active = false
+		grails.plugins.springsecurity.openid.userLookup.openIdsPropertyName=null
+//		grails.plugins.springsecurity.openid.domainClass = 'org.kroovyban.openID'
+    }
+    development_ldap {
+        grails.serverURL = "http://localhost:8080/${appName}"
+		grails.plugins.springsecurity.providerNames = ['daoAuthenticationProvider','rememberMeAuthenticationProvider']
+		grails.plugins.springsecurity.openid.active = false
+		grails.plugins.springsecurity.ldap.active = true
+		grails.plugins.springsecurity.ldap.context.managerDn = '[distinguishedName]'
+		grails.plugins.springsecurity.ldap.context.managerPassword = '[password]'
+		grails.plugins.springsecurity.ldap.context.server = 'ldap://127.0.0.1:387/'
+		grails.plugins.springsecurity.ldap.authorities.ignorePartialResultException = true // typically needed for Active Directory
+		grails.plugins.springsecurity.ldap.search.base = '[the base directory to start the search.  usually something like dc=mycompany,dc=com]'
+		grails.plugins.springsecurity.ldap.search.filter="sAMAccountName={0}" // for Active Directory you need this
+		grails.plugins.springsecurity.ldap.search.searchSubtree = true
+		grails.plugins.springsecurity.ldap.auth.hideUserNotFoundExceptions = false
+		grails.plugins.springsecurity.ldap.search.attributesToReturn = ['mail', 'displayName'] // extra attributes you want returned; see below for custom classes that access this data
+		grails.plugins.springsecurity.providerNames = ['ldapAuthProvider', 'anonymousAuthenticationProvider'] // specify this when you want to skip attempting to load from db and only use LDAP
+		grails.plugins.springsecurity.ldap.useRememberMe = false
+		grails.plugins.springsecurity.ldap.authorities.retrieveGroupRoles = false
+		//grails.plugins.springsecurity.ldap.authorities.groupSearchBase ='[the base directory to start the search. usually something like dc=mycompany,dc=com]'
+		//grails.plugins.springsecurity.ldap.authorities.groupSearchFilter =		
+    }
+    development_openid {
+        grails.serverURL = "http://localhost:8080/${appName}"
+		grails.plugins.springsecurity.openid.active = true
+		grails.plugins.springsecurity.ldap.active = false
+		grails.plugins.springsecurity.providerNames = ['daoAuthenticationProvider','rememberMeAuthenticationProvider']
+		grails.plugins.springsecurity.openid.userLookup.openIdsPropertyName='openID'
+		grails.plugins.springsecurity.openid.domainClass = 'org.kroovyban.openID'
+		
     }
     test {
         grails.serverURL = "http://localhost:8080/${appName}"
+		grails.plugins.springsecurity.providerNames = ['daoAuthenticationProvider','rememberMeAuthenticationProvider']
+		
     }
 
 }
@@ -89,8 +148,6 @@ log4j = {
     warn   'org.mortbay.log'
 }
 
-// Select one of the following options to configure your authentication mechanism
-grails.plugins.springsecurity.providerNames = ['daoAuthenticationProvider','rememberMeAuthenticationProvider']
 
 // Added by the Spring Security Core plugin:
 grails.plugins.springsecurity.userLookup.userDomainClassName = 'org.kroovyban.User'
@@ -99,25 +156,4 @@ grails.plugins.springsecurity.authority.className = 'org.kroovyban.Authority'
 grails.plugins.springsecurity.requestMap.className = 'org.kroovyban.RequestMap'
 grails.plugins.springsecurity.securityConfigType = 'Requestmap'
 
-// LDAP config
-grails.plugins.springsecurity.ldap.context.managerDn = '[distinguishedName]'
-grails.plugins.springsecurity.ldap.context.managerPassword = '[password]'
-grails.plugins.springsecurity.ldap.context.server = 'ldap://[ip]:[port]/'
-grails.plugins.springsecurity.ldap.authorities.ignorePartialResultException = true // typically needed for Active Directory
-grails.plugins.springsecurity.ldap.search.base = '[the base directory to start the search.  usually something like dc=mycompany,dc=com]'
-grails.plugins.springsecurity.ldap.search.filter="sAMAccountName={0}" // for Active Directory you need this
-grails.plugins.springsecurity.ldap.search.searchSubtree = true
-grails.plugins.springsecurity.ldap.auth.hideUserNotFoundExceptions = false
-grails.plugins.springsecurity.ldap.search.attributesToReturn = ['mail', 'displayName'] // extra attributes you want returned; see below for custom classes that access this data
-grails.plugins.springsecurity.providerNames = ['ldapAuthProvider', 'anonymousAuthenticationProvider'] // specify this when you want to skip attempting to load from db and only use LDAP
 
-// role-specific LDAP config 
-grails.plugins.springsecurity.ldap.useRememberMe = false 
-grails.plugins.springsecurity.ldap.authorities.retrieveGroupRoles = false 
-//grails.plugins.springsecurity.ldap.authorities.groupSearchBase ='[the base directory to start the search. usually something like dc=mycompany,dc=com]' 
-//grails.plugins.springsecurity.ldap.authorities.groupSearchFilter = 
-
-// Open ID config
-//grails.plugins.springsecurity.openid.userLookup.openIdsPropertyName='openIds'
-grails.plugins.springsecurity.openid.userLookup.openIdsPropertyName=null
-grails.plugins.springsecurity.openid.domainClass = 'org.kroovyban.openID'
