@@ -1,4 +1,5 @@
-kroovybanapp/web-app/WEB-INF/
+kroovybanapp/web-app/WEB-INF/classes
+kroovybanapp/web-app/WEB-INF/tld
 kroovybanapp/plugins/core/
 kroovybanapp/stacktrace.log
 kroovybanapp/target/stacktrace.log
