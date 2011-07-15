@@ -11,10 +11,9 @@ class BootStrap {
 	def springSecurityService
 
     def init = { servletContext ->
-		if (Authority.count()==0)
-		{
-			def sysadminRole = new Authority(authority:'sysadmin').save(flush:true)
-		}
+        def sysadminRole = 
+            Authority.findByAuthority('ROLE_SYSADMIN') ?:
+            new Authority(authority:'ROLE_SYSADMIN').save(flush:true,failOnError:true)
 		
 		// Depending on whether we are working with LDAP/OpenID or Local DB we must 
         // bootstrap a username to be an initial sysadmin
@@ -26,13 +25,21 @@ class BootStrap {
         }
         else
         {
-            def u = new User( username : initUser, 
-                              password : springSecurityService.encodePassword('password',initUser) , 
-                              enabled : true ).save(flush:true)
-            UserAuthority.create(u, Authority.get(1), true)
+            def u = 
+                User.findByUsername(initUser) ?:
+                new User( username : initUser, 
+                          password : springSecurityService.encodePassword('password') , 
+                          enabled : true ).save(flush:true,failOnError:true)
+                          
+                if(!u.authorities.contains(sysadminRole))
+                {
+                    UserAuthority.create(u, sysadminRole, true)
+                }
         }
         
     }
-    def destroy = {
+    
+    def destroy = 
+    {
     }
 }

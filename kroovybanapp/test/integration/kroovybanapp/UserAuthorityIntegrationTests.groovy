@@ -30,6 +30,6 @@ class UserAuthorityIntegrationTests {
         def a = UserAuthority.get(1,1)
         assert a != null
         assert a.user.username == username : "Expecting user name to be " + username 
-        assert a.authority.authority == "sysadmin" : "Expecting initial user to be a 'sysadmin'"
+        assert a.authority.authority == "ROLE_SYSADMIN" : "Expecting initial user to be a 'ROLE_SYSADMIN'"
     }
 }

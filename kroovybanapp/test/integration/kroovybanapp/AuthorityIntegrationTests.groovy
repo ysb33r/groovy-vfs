@@ -28,6 +28,6 @@ class AuthorityIntegrationTests {
 
         def a = Authority.get(1)
         assert a != null
-        assert a.authority == "sysadmin" : "Expecting only initial role to be 'sysadmin'"
+        assert a.authority == "ROLE_SYSADMIN" : "Expecting only initial role to be 'ROLE_SYSADMIN'"
     }
 }
