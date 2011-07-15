@@ -1,6 +1,6 @@
 package kroovybanapp
 
-import org.kroovyban.Authority
+import org.kroovyban.User
 
 import grails.test.mixin.*
 import grails.test.mixin.support.*
@@ -10,7 +10,7 @@ import org.junit.*
  * See the API for {@link grails.test.mixin.support.GrailsUnitTestMixin} for usage instructions
  */
 @TestMixin(GrailsUnitTestMixin)
-class AuthorityIntegrationTests {
+class UserIntegrationTests {
 
     @Before
     void setUp() {
@@ -24,10 +24,11 @@ class AuthorityIntegrationTests {
 
     @Test
     void testBootStrap() {
-        assert Authority.count() == 1 : "Expecting only role to be added during bootStrap"
+        def username = grailsApplication.config.bootstrap.init.sysadmin
+        assert User.count() == 1 : "Expecting only 1 user to be added during bootStrap"
 
-        def a = Authority.get(1)
+        def a = User.get(1)
         assert a != null
-        assert a.authority == "sysadmin" : "Expecting only initial role to be 'sysadmin'"
+        assert a.username == username : "Expecting only initial role to be 'sysadmin'"
     }
 }
