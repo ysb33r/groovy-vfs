@@ -14,6 +14,9 @@ class User {
 		password blank: false
 	}
 
+    // Required for OpenID
+    //static hasMany = [openIds: openID]
+
 	static mapping = {
 		password column: '`password`'
 	}
