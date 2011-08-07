@@ -2,15 +2,15 @@ package kroovybanapp
 
 import org.kroovyban.UserAuthority
 
-import grails.test.mixin.*
-import grails.test.mixin.support.*
+import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.junit.*
 
 /**
  * See the API for {@link grails.test.mixin.support.GrailsUnitTestMixin} for usage instructions
  */
-@TestMixin(GrailsUnitTestMixin)
 class UserAuthorityIntegrationTests {
+
+    def grailsApplication
 
     @Before
     void setUp() {
@@ -21,9 +21,9 @@ class UserAuthorityIntegrationTests {
     void tearDown() {
         // Tear down logic here
     }
-
     @Test
     void testBootStrap() {
+
         def username = grailsApplication.config.bootstrap.init.sysadmin
         assert UserAuthority.count() == 1 : "Expecting only 1 user to be mapped to be added during bootStrap"
 

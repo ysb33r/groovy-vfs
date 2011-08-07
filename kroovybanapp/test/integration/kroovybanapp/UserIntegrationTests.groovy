@@ -2,19 +2,19 @@ package kroovybanapp
 
 import org.kroovyban.User
 
-import grails.test.mixin.*
-import grails.test.mixin.support.*
 import org.junit.*
 import grails.plugins.springsecurity.SpringSecurityService 
+import org.codehaus.groovy.grails.commons.GrailsApplication
+
 
 /**
  * See the API for {@link grails.test.mixin.support.GrailsUnitTestMixin} for usage instructions
  */
-@TestMixin(GrailsUnitTestMixin)
 class UserIntegrationTests {
 
     def springSecurityService
-
+    def grailsApplication
+	
     @Before
     void setUp() {
         // Setup logic here
