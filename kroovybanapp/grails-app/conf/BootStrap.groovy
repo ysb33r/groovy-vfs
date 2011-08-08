@@ -1,6 +1,7 @@
 import org.kroovyban.User
 import org.kroovyban.UserAuthority
 import org.kroovyban.Authority
+import org.kroovyban.State
 import org.kroovyban.SystemState
 import org.kroovyban.WorkflowState
 import grails.util.Environment               
@@ -38,10 +39,11 @@ class BootStrap {
                     UserAuthority.create(u, sysadminRole, true)
                 }
         }
-/*       
-		def systemState = State.findByName('UNCONFIRMED') ?:
-			new SystemState( name : 'UNCONFIRMED', isInitial:true ).save(flush:true,failOnError:true)
+
+//		def systemState = State.findByName('UNCONFIRMED') ?:
+def ss=			new SystemState( name : 'UNCONFIRMED', isInitial:true ).save(flush:true,failOnError:true)
 			
+/*       
 		systemState = State.findByName('COMPLETED') ?:
 			new SystemState( name:'COMPLETED', isTerminal:true ).save(flush:true,failOnError:true)
 		

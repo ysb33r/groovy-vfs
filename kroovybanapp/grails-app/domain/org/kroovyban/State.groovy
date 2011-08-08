@@ -5,11 +5,10 @@ class State {
 	String name
     
 	static constraints = {
-		name blank:false, unique:true, maxSize:25 
-		// TODO: Add only uppercase and underscore
+		name blank:false, unique:true, maxSize:25 , matches: '^[A-Z_0-9]+$', nullable:false
     }
 	
-	boolean isSystem  = { false; }
+	def isSystem  = { false; }
 	
 	// Add one db table
 }
@@ -21,7 +20,7 @@ class SystemState extends State {
 	boolean canPromote = false
 	boolean canBatchPromote = false
 	
-	boolean isSystem = { true; }
+    def isSystem = { true; }
 }
 
 class WorkflowState extends State {

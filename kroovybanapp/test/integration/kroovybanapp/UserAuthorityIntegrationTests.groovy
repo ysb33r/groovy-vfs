@@ -25,7 +25,7 @@ class UserAuthorityIntegrationTests {
     void testBootStrap() {
 
         def username = grailsApplication.config.bootstrap.init.sysadmin
-        assert UserAuthority.count() == 1 : "Expecting only 1 user to be mapped to be added during bootStrap"
+        assert UserAuthority.count() == 1 : "Expecting only 1 user mapping mapped to be added during bootStrap"
 
         def a = UserAuthority.get(1,1)
         assert a != null
