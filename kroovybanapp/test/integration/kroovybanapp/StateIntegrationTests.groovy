@@ -24,32 +24,57 @@ class StateIntegrationTests {
     @Test
     void testBootstrap() {
 
+
         assert State.count() == 8
-/*       
-        def systemState = State.findByName('UNCONFIRMED') ?:
-            new SystemState( name : 'UNCONFIRMED', isInitial:true ).save(flush:true,failOnError:true)
-            
-        systemState = State.findByName('COMPLETED') ?:
-            new SystemState( name:'COMPLETED', isTerminal:true ).save(flush:true,failOnError:true)
-        
-        systemState = State.findByName('PROMOTED') ?:
-            new SystemState( name:'PROMOTED', isTerminal:true, canPromote = true ).save(flush:true,failOnError:true)
-            
-        systemState = State.findByName('BATCH_PROMOTED') ?:
-            new SystemState( name:'BATCH_PROMOTED', isTerminal:true, canBatchPromote = true ).save(flush:true,failOnError:true)
 
-        def newState = State.findByName('READY') ?:
-            new WorkflowState( name:'READY', hasCompleted:false ).save(flush:true,failOnError:true)
+        // Check that we can find all of the state via the base class
+        [ 'UNCONFIRMED','COMPLETED','PROMOTED','BATCH_PROMOTED','READY','SPEC','DEVTEST','VERIFY' ]
+            .each({ 
+                def s = State.findByName(it)
+                assert s != null : "Needs a state called '${it}'"
+        })
 
-        newState = State.findByName('SPEC') ?:
-            new WorkflowState( name:'SPEC', hasCompleted:true ).save(flush:true,failOnError:true)
 
-        newState = State.findByName('DEVTEST') ?:
-            new WorkflowState( name:'DEVTEST', hasCompleted:true ).save(flush:true,failOnError:true)
+        // Check that the following are system states
+        [ 'UNCONFIRMED','COMPLETED','PROMOTED','BATCH_PROMOTED' ]
+            .each({ 
+                def s = State.findByName(it)
+                assert s.isSystem() : "The state called '${it}' is expected to be a system state"
+        })
 
-        newState = State.findByName('VERIFY') ?:
-            new WorkflowState( name:'VERIFY', hasCompleted:true ).save(flush:true,failOnError:true)
-*/          
+        // Check that the following are not system states
+        [ 'READY','SPEC','DEVTEST','VERIFY' ]
+            .each({ 
+                def s = State.findByName(it)
+                assert !s.isSystem() : "The state called '${it}' is expected not to be a system state"
+        })
+
+
+        fail "The following tests need checking when GRAILS-7870 is fixed"
+
+        def ss=SystemState.findByName('UNCONFIRMED')
+        assert ss.effect == 'INITIAL' 
+
+        ss=SystemState.findByName('COMPLETED')
+        assert ss.effect == 'FINAL' 
+
+        ss=SystemState.findByName('PROMOTED')
+        assert ss.effect == 'PROMOTE' 
+
+        ss=SystemState.findByName('BATCH_PROMOTED')
+        assert ss.effect == 'BATCH_PROMOTE' 
+
+
+        def ws=WorkflowState.findByName('READY')
+        assert !ws.hasCompleted
+
+        [ 'SPEC','DEVTEST','VERIFY' ]
+            .each({
+                ws=WorkflowState.findByName(it)
+                assert ws.hasCompleted : "State '${it}' is expected to have a hasCompleted flag"
+            })
+
+
 
     }
 }

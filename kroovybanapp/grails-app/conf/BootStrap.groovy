@@ -40,18 +40,19 @@ class BootStrap {
                 }
         }
 
-//		def systemState = State.findByName('UNCONFIRMED') ?:
-def ss=			new SystemState( name : 'UNCONFIRMED', isInitial:true ).save(flush:true,failOnError:true)
-			
+		
 /*       
+        def systemState = State.findByName('UNCONFIRMED') ?:
+            new SystemState( name : 'UNCONFIRMED',effect : "INITIAL" ).save(flush:true,failOnError:true)
+
 		systemState = State.findByName('COMPLETED') ?:
-			new SystemState( name:'COMPLETED', isTerminal:true ).save(flush:true,failOnError:true)
+			new SystemState( name:'COMPLETED', effect : "TERMINAL" ).save(flush:true,failOnError:true)
 		
 		systemState = State.findByName('PROMOTED') ?:
-			new SystemState( name:'PROMOTED', isTerminal:true, canPromote = true ).save(flush:true,failOnError:true)
+			new SystemState( name:'PROMOTED', effect : "PROMOTED" ).save(flush:true,failOnError:true)
 			
 		systemState = State.findByName('BATCH_PROMOTED') ?:
-			new SystemState( name:'BATCH_PROMOTED', isTerminal:true, canBatchPromote = true ).save(flush:true,failOnError:true)
+			new SystemState( name:'BATCH_PROMOTED', effect : "BATCH_PROMOTED" ).save(flush:true,failOnError:true)
 
 		def newState = State.findByName('READY') ?:
 			new WorkflowState( name:'READY', hasCompleted:false ).save(flush:true,failOnError:true)

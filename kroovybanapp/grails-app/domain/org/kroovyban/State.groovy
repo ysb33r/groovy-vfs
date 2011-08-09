@@ -1,6 +1,6 @@
 package org.kroovyban
 
-class State {
+abstract class State {
 
 	String name
     
@@ -8,18 +8,22 @@ class State {
 		name blank:false, unique:true, maxSize:25 , matches: '^[A-Z_0-9]+$', nullable:false
     }
 	
+    static mapping = {
+        tablePerHierarchy false
+    }
+
 	def isSystem  = { false; }
 	
-	// Add one db table
 }
 
 class SystemState extends State {
 	
-	boolean isTerminal = false
-	boolean isInitial = false
-	boolean canPromote = false
-	boolean canBatchPromote = false
-	
+	String effect 
+
+    static constraints = {
+        effect nullable:false, inList : [ 'INITIAL','TERMINAL','PROMOTE','BATCH_PROMOTE' ]
+    }
+
     def isSystem = { true; }
 }
 
