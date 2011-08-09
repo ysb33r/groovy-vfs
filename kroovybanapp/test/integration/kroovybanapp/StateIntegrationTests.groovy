@@ -28,7 +28,7 @@ class StateIntegrationTests {
         assert State.count() == 8
 
         // Check that we can find all of the state via the base class
-        [ 'UNCONFIRMED','COMPLETED','PROMOTED','BATCH_PROMOTED','READY','SPEC','DEVTEST','VERIFY' ]
+        [ 'UNCONFIRMED','COMPLETED','REJECTED','PROMOTED','BATCH_PROMOTED','READY','SPEC','DEVTEST','VERIFY','DEPLOY' ]
             .each({ 
                 def s = State.findByName(it)
                 assert s != null : "Needs a state called '${it}'"
@@ -36,14 +36,14 @@ class StateIntegrationTests {
 
 
         // Check that the following are system states
-        [ 'UNCONFIRMED','COMPLETED','PROMOTED','BATCH_PROMOTED' ]
+        [ 'UNCONFIRMED','COMPLETED','REJECTED','PROMOTED','BATCH_PROMOTED' ]
             .each({ 
                 def s = State.findByName(it)
                 assert s.isSystem() : "The state called '${it}' is expected to be a system state"
         })
 
         // Check that the following are not system states
-        [ 'READY','SPEC','DEVTEST','VERIFY' ]
+        [ 'READY','SPEC','DEVTEST','VERIFY','DEPLOY' ]
             .each({ 
                 def s = State.findByName(it)
                 assert !s.isSystem() : "The state called '${it}' is expected not to be a system state"
@@ -55,8 +55,11 @@ class StateIntegrationTests {
         def ss=SystemState.findByName('UNCONFIRMED')
         assert ss.effect == 'INITIAL' 
 
-        ss=SystemState.findByName('COMPLETED')
-        assert ss.effect == 'FINAL' 
+        [ 'COMPLETED','REJECTED' ]
+            .each({
+                ss=SystemState.findByName(it)
+                assert ss.effect == 'FINAL' : "The state called '${it}' is expected to be a FINAL state"
+            })
 
         ss=SystemState.findByName('PROMOTED')
         assert ss.effect == 'PROMOTE' 
@@ -68,7 +71,7 @@ class StateIntegrationTests {
         def ws=WorkflowState.findByName('READY')
         assert !ws.hasCompleted
 
-        [ 'SPEC','DEVTEST','VERIFY' ]
+        [ 'SPEC','DEVTEST','VERIFY','DEPLOY' ]
             .each({
                 ws=WorkflowState.findByName(it)
                 assert ws.hasCompleted : "State '${it}' is expected to have a hasCompleted flag"

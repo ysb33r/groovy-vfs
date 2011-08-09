@@ -1,0 +1,108 @@
+-- Data model
+
+/* DONE!!
+user:
+    name        : text  
+    email       : text
+    login       : text,unique
+    sysadmin    : bool
+    enabled     : bool
+*/  
+
+swimlane:
+    name            : text,unique
+    processUrl      : text,optional
+    classOfService  : array of allowed service classes
+    workflow        : workflow_state:
+                        state       : reference to a defined state
+                        wiplimit    : nonNegativeInteger
+                        next        : array of next workflow_state,required for all non-terminal states
+                        promotion   : array of swimlanes that this state can promote to, only required for specific terminal states
+    enabled         : bool
+    admins          : array of user references
+    users           : array of user references
+
+/* DONE!!
+state:
+    name        : text, unique
+    description : text
+    has_complete: bool // Has a complete flag, only applies to non-system states
+    system      : bool // Is a system state
+    init        : bool // Is an initial system state
+    terminal    : bool // Is a terminal state
+    promotable  : bool // Is a terminal state, which can promote to another swimlane
+    batchable   : bool // Is a terminal state, which allows grouping of cards before promoting to another swimlane
+
+    // System states to be added
+    'UNCONFIRMED','Job card under development', 
+        'N','Y','Y','N','N','N' 
+    'COMPLETED',  'All work has been completed',
+        'N','Y','N','Y','N','N'
+    'PROMOTED',   'All work has been completed and promoted to another swimlane',
+        'N','Y','N','Y','Y','N'
+    'BATCHED',   'All work has been completed and batched to another swimlane',
+        'N','Y','N','Y','Y','Y'
+    'REJECTED',  'This card has been rejected',
+        'N','Y','N','Y','N','N'
+
+    // Default non-system states to be added
+    'READY','Job card ready for consumption',
+        'N','N','N','N','N'
+    'SPEC','Specification phase',
+        'Y','N','N','N','N'
+    'DEVTEST','Development & testing phase',
+        'Y','N','N','N','N'
+    'VERIFY','Verification phase',
+        'Y','N','N','N','N'
+    'DEPLOY','Deploy to production',
+        'Y','N','N','N','N'
+*/
+
+card:
+    name            : text
+    swimlane        : references a swimlane
+    classOfService  : any one service class referenced from swimlane
+    priority        : float
+    state           : workflow_state
+    blockers        : array of blocker
+    urls            : array of linkedUrl,optional
+    entities        : array of linkedEntity,optional
+    owners          : array of user, optional
+
+linkedUrl:
+    card        : references card 
+    linktext    : text
+    description : text
+
+linkedEntity:
+
+blocker:
+
+cardlog:
+    card        : references a card
+    user        : references user (which caused the event)
+    timestamp   : utc_timestamp
+    event       : 
+            PULLED [old_state_name,new_state_name]
+            BLOCKED [reason]
+            UNBLOCKED [reason]
+            FLAGGED_COMPLETE,
+            COMPLETED,
+            REJECTED [reason],
+            URL_ADDED,
+            URL_REMOVED,
+            ENTITY_ADDED,
+            ENTITY_REMOVED,
+            ASSIGNED [user],
+            UNASSIGNED [user],
+            PULLED_REVERTED [old_state_name,new_state_name,reason],
+            FLAGGED_COMPLETE_REVERTED [reason]
+    
+swimlanelog:
+
+
+
+
+
+
+

@@ -46,13 +46,16 @@ class BootStrap {
             new SystemState( name : 'UNCONFIRMED',effect : "INITIAL" ).save(flush:true,failOnError:true)
 
 		systemState = State.findByName('COMPLETED') ?:
-			new SystemState( name:'COMPLETED', effect : "TERMINAL" ).save(flush:true,failOnError:true)
+			new SystemState( name:'COMPLETED', effect : "FINAL" ).save(flush:true,failOnError:true)
 		
+        systemState = State.findByName('REJECTED') ?:
+            new SystemState( name:'REJECTED', effect : "FINAL" ).save(flush:true,failOnError:true)
+        
 		systemState = State.findByName('PROMOTED') ?:
-			new SystemState( name:'PROMOTED', effect : "PROMOTED" ).save(flush:true,failOnError:true)
+			new SystemState( name:'PROMOTED', effect : "PROMOTE" ).save(flush:true,failOnError:true)
 			
 		systemState = State.findByName('BATCH_PROMOTED') ?:
-			new SystemState( name:'BATCH_PROMOTED', effect : "BATCH_PROMOTED" ).save(flush:true,failOnError:true)
+			new SystemState( name:'BATCH_PROMOTED', effect : "BATCH_PROMOTE" ).save(flush:true,failOnError:true)
 
 		def newState = State.findByName('READY') ?:
 			new WorkflowState( name:'READY', hasCompleted:false ).save(flush:true,failOnError:true)
@@ -65,6 +68,9 @@ class BootStrap {
 
 		newState = State.findByName('VERIFY') ?:
 			new WorkflowState( name:'VERIFY', hasCompleted:true ).save(flush:true,failOnError:true)
+
+        newState = State.findByName('DEPLOY') ?:
+            new WorkflowState( name:'DEPLOY', hasCompleted:true ).save(flush:true,failOnError:true)
 */			
 }
     
