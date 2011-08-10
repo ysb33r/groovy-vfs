@@ -30,6 +30,5 @@ class SwimlaneTests {
 		assert !a.validate()
 		assert a.errors["processUrl"] == "url"
 		
-        fail "complete implementation"
     }
 }

@@ -6,6 +6,6 @@ class ClassOfServiceDelivery {
     String description
 
     static constraints = {
-        username blank: false, unique: true
+        name blank: false, unique: true
     }
 }
