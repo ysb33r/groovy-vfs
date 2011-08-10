@@ -30,12 +30,20 @@ class Swimlane {
         SwimlaneServiceClass.findAllBySwimlane(this)
     }
 
+	def getUserAuthorityName() {
+		"ROLE_SWIMLANE_USER_${name}"
+	}
+	
+	def getAdminAuthorityName() {
+		"ROLE_SWIMLANE_ADMIN_${name}"
+	}
+	
     def getAdmins() {
-        SwimlaneAdmin.findAllBySwimlane(this)
+		UserAuthority.findByAuthority( Authority.findByAuthority(getAdminAuthorityName()) ).collect({it.user})
     }
 
     def getUsers() {
-        SwimlaneAdmin.findAllByUser(this)   
+		UserAuthority.findByAuthority( Authority.findByAuthority(getUserAuthorityName()) ).collect({it.user})
     }
 }
 

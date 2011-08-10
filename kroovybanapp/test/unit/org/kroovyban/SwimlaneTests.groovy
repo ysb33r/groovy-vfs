@@ -18,8 +18,18 @@ class SwimlaneTests {
         def a = new Swimlane()
         assert !a.validate()
         assert a.errors["name"] == "nullable"
-//        assert a.errors["admins"] == "minSize"
 
+		a = new Swimlane( name : "MySwimlane" )
+		assert a.validate()
+		assert a.enabled == true
+		assert a.processUrl == null
+		assert a.getUserAuthorityName() == "ROLE_SWIMLANE_USER_MySwimlane"
+		assert a.getAdminAuthorityName() == "ROLE_SWIMLANE_ADMIN_MySwimlane"
+
+		a = new Swimlane( name : "MySwimlane", processUrl : "abcde+" )
+		assert !a.validate()
+		assert a.errors["processUrl"] == "url"
+		
         fail "complete implementation"
     }
 }
