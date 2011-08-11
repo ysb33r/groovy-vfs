@@ -28,15 +28,39 @@ class SwimlaneIntegrationTests {
     }
 
     @Test
-    void testBasicSwimlane() {
-		def u = new User ( name:"joe" ).save()
-		def swimlane = new Swimlane( name : "MySwimlane" )		.save()
-		def role = new Authority( name: swimlane.getUserAuthorityName() ).save()
-		UserAuthority.create(u,role)
-		
-		def su = swimlane.getUsers()
-		assert su.size() == 1
-		
-		fail "Complete integration tests for swimlane"
+    void testSwimlaneUsers() {
+        def u = User.create ( "joe" )
+        def swimlane = new Swimlane( name : "MySwimlane" ).save()
+        def role = new Authority( authority: swimlane.getUserAuthorityName() ).save()     
+        assert role != null
+        
+        def ua = UserAuthority.create(u,role)
+        assert ua != null    
+        
+        def su = swimlane.getUsers()
+        assert su.size() == 1
+        assert su.get(0).username == "joe"
+
+    }
+
+    @Test
+    void testSwimlaneAdmins() {
+        def u = User.create ( "joe" )
+        def swimlane = new Swimlane( name : "MySwimlane" ).save()
+        def role = new Authority( authority: swimlane.getAdminAuthorityName() ).save()     
+        assert role != null
+        
+        def ua = UserAuthority.create(u,role)
+        assert ua != null    
+        
+        def su = swimlane.getUsers()
+        assert su.size() == 1
+        assert su.get(0).username == "joe"
+    }
+    
+    @Test
+    void testMore()
+    {        
+        fail "Complete integration tests for swimlane"
     }
 }

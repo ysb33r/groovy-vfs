@@ -18,6 +18,11 @@ class User {
 		password column: '`password`'
 	}
 
+        static User create( String name, String pw = 'x',boolean flush = false )
+        {
+            new User( username:name, password: pw ).save (flush : flush)
+        }
+        
 	Set<Authority> getAuthorities() {
 		UserAuthority.findAllByUser(this).collect { it.authority } as Set
 	}

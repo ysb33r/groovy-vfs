@@ -4,5 +4,7 @@ kroovybanapp/plugins/core/
 kroovybanapp/stacktrace.log
 kroovybanapp/target/stacktrace.log
 kroovybanapp/target
+kroovybanapp/cobertura.ser
 *~
 
+/kroovybanapp/.settings/
