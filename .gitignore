@@ -8,3 +8,7 @@ kroovybanapp/cobertura.ser
 *~
 
 /kroovybanapp/.settings/
+dsl/vfs/build
+dsl/vfs/bin
+dsl/vfs/dist
+dsl/vfs/.*

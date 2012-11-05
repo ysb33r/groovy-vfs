@@ -1,3 +1,10 @@
+// ============================================================================
+// Copyright (C) Schalk W. Cronje 2012
+//
+// This software is licensed under the Apche License 2.0
+// See http://www.apache.org/licenses/LICENSE-2.0 for license details
+// ============================================================================
+
 /**
  * 
  */
@@ -189,6 +196,14 @@ class VFS {
 	 */
 	def cat ( properties=[:],uri ) { cat(properties,uri,null) }
 
+	/** Creates a folder on any VFS that allows this functionality
+	 * @param properties Any additional vfs properties
+	 * @param uri Folder that needs to be created
+	 */
+	def mkdir ( properties=[:],uri ) {
+		resolveURI(properties,uri).createFolder()
+	}
+
 /*		
 
 	def cp = { properties=[:],from,to,Closure c=null ->
@@ -199,14 +214,7 @@ class VFS {
 	   println "mv ${from} -> ${to}"
 	}
 	
-	// parents:true
-	def mkdir ( properties=[:],uri ) {
-	}
 	
-	def mkdir_p( properties=[:],uri ) {
-		properties['parents']=true 
-		mkdir(properties,uri)
-	}
 	
 	def friendlyURI( uri ) {
 		
