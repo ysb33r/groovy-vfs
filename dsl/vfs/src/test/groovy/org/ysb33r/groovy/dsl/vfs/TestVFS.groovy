@@ -121,6 +121,26 @@ import org.junit.Ignore
 		
 	}
 	
+	@Test
+	void creatingDirectoryShouldCreateParentsToo() {
+		def vfs = new VFS()
+		
+		assertTrue !(new File("${testFsWriteRoot}/one/two/three").exists()) 
+		vfs.mkdir("${testFsWriteURI}/one/two/three")
+		assertTrue new File("${testFsWriteRoot}/one/two/three").exists() 
+	}
+	
+	@Test
+	void copyFileToExistingDirectoryAddsToDirectory() {
+		
+	} 
+	
+	// void copyFileOverExistingDirectoryWithOverwriteWithoutSmashFails() {
+	// void copyFileOverExistingDirectoryWithOverwriteWithSmashReplacesDirectoryWithFile() {
+	// void copyDirectoryToDirectoryAddsToDirectory()
+	// void copyDirectoryOverExistingDirectoryWithoutOverwriteFails()
+	// void copyDirectoryOverExistingDirectoryWithOverwriteReplacesDirectory() 
+	// void copyDirectoryWIthFilterSelectivelyCopiesFilesToNewDestination()
 	
 	@Test
 	void scriptAndLeftShiftShouldExecuteMultipleStatement() {
@@ -145,6 +165,8 @@ import org.junit.Ignore
 					assertEquals file.text,it.text
 				}
 			}
+			mkdir "${testFsWriteURI}/one/two/three"
+			assertEquals 1,ls ("${testFsWriteURI}/one/two", filter:~/three/) .size()
 		}
 /*		
 		vfs << {

@@ -18,6 +18,7 @@ import org.apache.commons.vfs2.FileSelector
 import org.apache.commons.vfs2.FileSystemManager
 import org.apache.commons.vfs2.FileSystemOptions
 import org.apache.commons.vfs2.impl.StandardFileSystemManager
+import org.ysb33r.groovy.dsl.vfs.impl.CopyMoveOperations;
 import org.ysb33r.groovy.dsl.vfs.impl.Util
 
 
@@ -181,6 +182,7 @@ class VFS {
 	 * 
 	 */
 	def cat ( properties=[:],uri,Closure c ) {
+		assert properties != null
 		def istream=resolveURI(properties,uri).content.inputStream
 		c ? istream.withStream(c) : istream
 	}
@@ -201,14 +203,68 @@ class VFS {
 	 * @param uri Folder that needs to be created
 	 */
 	def mkdir ( properties=[:],uri ) {
+		assert properties != null
 		resolveURI(properties,uri).createFolder()
 	}
 
+	/**
+	 * @param from URI to copy from. If source is a folder all descendents will be copied recursively.
+	 * See filter property for selectively copying descendents
+	 * @param to URI to copy to. If destination is a folder, it will be placed inside folder. 
+	 * If destination is a file it weill be replaced if overwrite property is true. 
+	 * @param properties 
+	 * @li overwrite. Set to true to force overwrite of an existing target
+	 * @li filter.  A filter to select which file objects to copy
+	 * @li smash. Set to true, to replace an existing target file with a source directory
+	 * 
+	 * The following rules apply, if no filter is provided:
+	 * 
+	 * <table>
+	 * <tr><th>From FileType</th><th>To FileType><th>Overwrite?</th><th>Smash?</th><th>Action</th></tr>
+	 * <tr>
+	 *   <td>FILE</td><td>IMAGINARY</td><td>No</td><td>No</td><td>Copy (create file)</td>
+	 * </tr><tr>
+	 *   <td>FILE</td><td>FILE</td><td>No</td><td>-</td><td>Don't copy</td>
+	 * </tr><tr>
+	 *   <td>FILE</td><td>FILE</td><td>Yes</td><td>-</td><td>Overwrite file</td>
+	 * </tr><tr>
+	 *   <td>FILE</td><td>FOLDER</td><td>No</td><td>No</td><td>If a same-named file does not exist in the folder, copy it, otherwise don't copy</td>
+	 * </tr><tr>
+	 *   <td>FILE</td><td>FOLDER</td><td>Yes</td><td>No</td><td>Create same-named file in the folder, even it exists. If same-named directory exists, fail</td>
+	 * </tr><tr>
+	 *   <td>FILE</td><td>FOLDER</td><td>-</td><td>Yes</td><td>Replace same-named folder with a filename</td>
+	 * </tr><tr>
+	 *   <td>FOLDER</td><td>IMAGINARY</td><td>No</td><td>No</td><td>Copy directory and descendants</td>
+	 * </tr><tr>
+	 *   <td>FOLDER</td><td>FILE</td><td>No</td><td>No</td><td> ??? </td>
+	 * </tr><tr>
+	 *   <td>FOLDER</td><td>FILE</td><td>Yes</td><td>No</td><td> ??? </td>
+	 * </tr><tr>
+	 *   <td>FOLDER</td><td>FILE</td><td>-</td><td>Yes</td><td> ??? </td>
+	 * </tr><tr>
+	 *   <td>FOLDER</td><td>FOLDER</td><td>No</td><td>No</td><td> ??? </td>
+	 * </tr><tr>
+	 *   <td>FOLDER</td><td>FOLDER</td><td>Yes</td><td>No</td><td> ??? </td>
+	 * </tr><tr>
+	 *   <td>FOLDER</td><td>FOLDER</td><td>-</td><td>Yes</td><td> ??? </td>
+	 * </tr>
+	 * </table>
+	 *    
+	 */
+	def cp ( properties=[:],from,to ) {
+		assert properties != null
+		
+		CopyMoveOperations.Copy(
+			resolveURI(properties,from),
+			resolveURI(properties,to),
+			properties.smash ?: false,
+			properties.overwrite ?: false,
+			properties.filter
+		)
+	}
+ 
 /*		
 
-	def cp = { properties=[:],from,to,Closure c=null ->
-	   println "cp ${from} -> ${to}"
-	}
 	
 	def mv = { properties=[:],from,to,Closure c=null ->
 	   println "mv ${from} -> ${to}"
@@ -216,12 +272,16 @@ class VFS {
 	
 	
 	
-	def friendlyURI( uri ) {
-		
-	}
-	
 */	
 
+	def friendlyURI( FileObject uri ) {
+		return uri.name.friendlyURI
+	}
+	
+	def friendlyURI( URI uri ) {
+		return friendlyURI(resolveURI(uri))
+	}
+	
 	private def resolveURI (properties=[:],uri) {
 		if (uri instanceof FileObject) {
 			properties.size() ?	Util.resolveURI(properties,fsMgr,uri.fileSystem.fileSystemOptions,uri.getURI()) : uri	
