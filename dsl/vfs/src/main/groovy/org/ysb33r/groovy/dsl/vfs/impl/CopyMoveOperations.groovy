@@ -6,6 +6,8 @@
 // ============================================================================
 package org.ysb33r.groovy.dsl.vfs.impl
 
+import java.util.regex.Pattern;
+
 import org.apache.commons.vfs2.FileObject
 import org.apache.commons.vfs2.FileType
 import org.apache.commons.vfs2.FileSelector
@@ -19,7 +21,16 @@ class CopyMoveOperations {
 		return uri.name.friendlyURI
 	}
 
-	static def copy( FileObject from,FileObject to,boolean smash,boolean overwrite,filter=null ) {
+	/**
+	 * 
+	 * @param from
+	 * @param to
+	 * @param smash
+	 * @param overwrite
+	 * @param filter Optional filter to apply. If the from type is a file, then the filter is ignored.
+	 * @return
+	 */
+	static def copy( FileObject from,FileObject to,boolean smash,boolean overwrite,boolean recursive,filter=null ) {
 
 		def fromType= from.type
 		def toType= to.type
@@ -29,38 +40,67 @@ class CopyMoveOperations {
 			throw new FileActionException("Source '${from.friendlyURI}' does not exist")
 		}
 
-		def selector
-
-		switch(filter) {			
-			case null:
-				selector=Selectors.SELECT_ALL
-				break
-			default:
-				// TODO: Handle specific filter types
-				assert "NEEDS IMPLEMENTATION"
-		}		
-
+		def selector= fromType == FileType.FILE ? Selectors.SELECT_ALL : _createSelector(filter)
+		
+		
 		switch(fromType) {
 			case FileType.FILE:
-				_copyFromSourceFile(from,to,smash,overwrite,selector)
+				_copyFromSourceFile(from,to,smash,_overwritePolicy(overwrite),selector)
 				break					
 			case FileType.FOLDER:
-				_copyFromSourceDir(from,to,smash,overwrite,selector)
+				_copyFromSourceDir(from,to,smash,_overwritePolicy(overwrite),recursive,selector)
 				break
 		}		
 		
-		// void copyFileOverExistingDirectoryWithOverwriteWithoutSmashFails() {
-		// void copyFileOverExistingDirectoryWithOverwriteWithSmashReplacesDirectoryWithFile() {
-		// void copyDirectoryToDirectoryAddsToDirectory()
-		// void copyDirectoryOverExistingDirectoryWithoutOverwriteFails()
-		// void copyDirectoryOverExistingDirectoryWithOverwriteReplacesDirectory()
-		// void copyDirectoryWIthFilterSelectivelyCopiesFilesToNewDestination()
 	}
 
+	/** Creates a VFS selector from a passed in filter
+	 * @todo NEEDS A LOT OF WORK
+	 * @return
+	 */
+	static def _createSelector(filter) {
+		
+		def selector
+		switch (filter) {
+			case null:
+				selector=Selectors.SELECT_ALL
+				break				
+			case Pattern :
+				assert false
+			/*
+				selector = [
+					'includeFile' : { fsi -> fsi.file.name.baseName ==~ properties.filter },
+					'traverseDescendents' : traverse
+				]
+			*/
+				break
+			case FileSelector:
+				selector=filter
+				break
+			case Closure:
+				assert false
+				/*
+				selector = [
+					'includeFile' : { fsi -> properties.filter.call(fsi) },
+					'traverseDescendents' : traverse
+				]
+				*/
+				break
+			default:
+				assert false
+				/*
+				selector = [
+					'includeFile' : { fsi -> fsi.file.name.baseName ==~ /"${properties.filter.toString()}"/ },
+					'traverseDescendents' : traverse
+				]
+				*/
+		}
+	}
+	
 	/** Implements copying from a source file
 	 * 
 	 */
-	private static def _copyFromSourceFile(FileObject from,FileObject to,boolean smash,boolean overwrite,FileSelector selector) {
+	private static def _copyFromSourceFile(FileObject from,FileObject to,boolean smash,Closure overwrite,FileSelector selector) {
 		def toType= to.type
 		assert toType != FileType.FILE_OR_FOLDER
 
@@ -71,7 +111,7 @@ class CopyMoveOperations {
 					target=to.resolveFile(from.name.baseName)
 					if(target.type == FileType.FOLDER) {
 						throw new FileActionException("Destination directory '${this.friendlyURI(to)}' contains directory with the same name as the source file '${from.name.baseName}'") 
-					} else if (target.type == FileType.FILE && !overwrite && target.exists()) {
+					} else if (target.type == FileType.FILE && target.exists() && !overwrite(from,target) ) {
 						throw new FileActionException("'${this.friendlyURI(target)}' exists and overwrite mode is not set")
 					}					
 				} else {
@@ -80,14 +120,14 @@ class CopyMoveOperations {
 
 				break
 			case FileType.FILE:
-				if(!overwrite && to.exists()) {
+				if(to.exists() && !overwrite(from,to)) {
 					throw new FileActionException("'${this.friendlyURI(to)}' exists and overwrite mode is not set")							
 				}
 			case FileType.IMAGINARY:
 				target=to
 				break
 			default:
-				assert "Should never get here"
+				assert false,"Should never get here"
 		}
 
 		target.copyFrom(from,selector)
@@ -97,14 +137,86 @@ class CopyMoveOperations {
 	/** Implements copying from a source directory
 	 * 
 	 */
-	private static def _copyFromSourceDir(FileObject from,FileObject to,boolean smash,boolean overwrite,FileSelector selector) {
+	private static def _copyFromSourceDir(FileObject from,FileObject to,boolean smash,Closure overwrite,boolean recursive,FileSelector selector) {
 		def toType= to.type
-		def target
+		FileObject target
+		
 		if(toType == FileType.FILE && !smash) {
-			throw new FileActionException("${this.friendlyURI(from)} is a directory, ${this.friendlyURI(to)} is afile, and smash is not set")
+			throw new FileActionException("${this.friendlyURI(from)} is a directory, ${this.friendlyURI(to)} is a file, and smash is not set")
 		}
 		
-		assert "NEEDS IMPLEMENTATION"
-		target.copyFrom(from,selector)
+		switch(toType) {
+			case FileType.FILE:
+				if(!smash) {
+					throw new FileActionException("${this.friendlyURI(from)} is a directory, ${this.friendlyURI(to)} is a file, and smash is not set")				
+				}
+				to.copyFrom(from,selector)
+				break
+			case FileType.FOLDER:
+				if(smash) {					
+					def original=to.parent.resolveFile('$'*10+"${to.name.baseName}"+'$'*10)
+					target=to
+					to.moveTo(original)
+					try {
+						target.copyFrom(from,selector)						
+					}
+					finally {
+						original.delete(Selectors.SELECT_ALL)
+					}
+					return 
+				} else if (recursive) {
+					target=to.resolveFile(from.name.baseName) 
+					
+					_recursiveDirCopy(from,target,selector,overwrite)
+				} else {
+					throw new FileActionException( "Attempt to copy from folder '${friendlyURI(from)}' to folder '${friendlyURI(to)}', but recursive and smash are not set")
+				}
+			case FileType.IMAGINARY:
+				if(recursive) {
+					to.copyFrom(from,selector)
+				} else {
+					throw new FileActionException( "Attemping to copy ${friendlyURI(from)} to ${friendlyURI(to)}, but recursive is off" )
+				}
+				break
+			default:
+				assert false,"Should never get here"			
+		}			
+	}
+	
+	/** Performs a recursive directory to directory copy, applying an overwrite policy
+	 * 
+	 * @param from
+	 * @param to
+	 * @param overwrite
+	 * @return
+	 */
+	private static def _recursiveDirCopy(FileObject from,FileObject to,FileSelector selector,Closure overwrite) {
+		FileSelector combinedSelector=[ 
+			includeFile : {
+				if (!selector.includeFile(it)) {
+					return false
+				}
+				return overwrite(it.file,to.resolveFile(it.file.name.getRelativeName(it.baseFolder.name)))
+			},
+			traverseDescendents : {selector.traverseDescendents(it)}
+		] as FileSelector
+		to.copyFrom(from,combinedSelector )
+	}
+	
+	/** Returns a closure which can be prompted on a file-by-file basis about overwriting
+	 * 
+	 * @param overwrite
+	 * @return
+	 */
+	private static def _overwritePolicy(overwrite) {
+		switch(overwrite) {
+			case true:
+				return {f,t->true}
+			case Closure:
+				return overwrite
+			case false:
+			default:
+				return {f,t->false}
+		}
 	}
 }

@@ -17,10 +17,11 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelector
 import org.apache.commons.vfs2.FileSystemManager
 import org.apache.commons.vfs2.FileSystemOptions
+import org.apache.commons.vfs2.Selectors;
 import org.apache.commons.vfs2.impl.StandardFileSystemManager
-import org.ysb33r.groovy.dsl.vfs.impl.CopyMoveOperations;
+import org.ysb33r.groovy.dsl.vfs.impl.CopyMoveOperations
 import org.ysb33r.groovy.dsl.vfs.impl.Util
-
+import org.apache.commons.logging.Log
 
 /**
  * @author Schalk W. Cronjé
@@ -72,6 +73,7 @@ class VFS {
 		
 		fsMgr.setLogger( properties.containsKey('logger') ? properties['logger'] : new NoOpLog() )
 		fsMgr.init()
+		fsMgr.metaClass.loggerInstance = {->getLogger()}
 		
 		defaultFSOptions = Util.buildOptions(properties,fsMgr)
 	}
@@ -146,6 +148,7 @@ class VFS {
 						'includeFile' : { fsi -> properties.filter.call(fsi) },
 						'traverseDescendents' : traverse
 					]
+					break
 				default:
 					selector = [
 						'includeFile' : { fsi -> fsi.file.name.baseName ==~ /"${properties.filter.toString()}"/ },
@@ -156,7 +159,7 @@ class VFS {
 			children=ruri.findFiles(selector as FileSelector)
 			 	
 		} else if (recurse) {
-			children= ruri.findFiles( new AllFileSelector() )
+			children= ruri.findFiles( Selectors.SELECT_ALL )
 		}
 		else {
 			children= ruri.children			
@@ -208,45 +211,52 @@ class VFS {
 	}
 
 	/**
-	 * @param from URI to copy from. If source is a folder all descendents will be copied recursively.
-	 * See filter property for selectively copying descendents
+	 * @param from URI to copy from. If source is a folder all descendants will be copied recursively.
+	 * See filter property for selectively copying descendants
 	 * @param to URI to copy to. If destination is a folder, it will be placed inside folder. 
 	 * If destination is a file it weill be replaced if overwrite property is true. 
 	 * @param properties 
-	 * @li overwrite. Set to true to force overwrite of an existing target
-	 * @li filter.  A filter to select which file objects to copy
+	 * @li overwrite. Set to true to force overwrite of an existing target. Set to false, not to allow overwrites. 
+	 * Can also be a closure, in which case it needs to be of interface boolean(from,to).
+	 * @li filter.  A filter to select which file objects to copy. The filter is ignored if teh source is a file.
 	 * @li smash. Set to true, to replace an existing target file with a source directory
+	 * @li recursive. Used when source is a directory to indicate that directories should be copied recursively. 
+	 *     Like -r/--recursive in POSIX cp.  
 	 * 
 	 * The following rules apply, if no filter is provided:
 	 * 
 	 * <table>
-	 * <tr><th>From FileType</th><th>To FileType><th>Overwrite?</th><th>Smash?</th><th>Action</th></tr>
+	 * <tr><th>From FileType</th><th>To FileType><th>Overwrite?</th><th>Smash?</th><th>Recursive</th><th>Action</th></tr>
 	 * <tr>
-	 *   <td>FILE</td><td>IMAGINARY</td><td>No</td><td>No</td><td>Copy (create file)</td>
+	 *   <td>FILE</td>  <td>IMAGINARY</td><td>No</td> <td>No</td><td>-</td>   <td>Copy (create file)</td>
 	 * </tr><tr>
-	 *   <td>FILE</td><td>FILE</td><td>No</td><td>-</td><td>Don't copy</td>
+	 *   <td>FILE</td>  <td>FILE</td>     <td>No</td> <td>-</td> <td>-</td>   <td>Don't copy</td>
 	 * </tr><tr>
-	 *   <td>FILE</td><td>FILE</td><td>Yes</td><td>-</td><td>Overwrite file</td>
+	 *   <td>FILE</td>  <td>FILE</td>     <td>Yes</td><td>-</td> <td>-</td>   <td>Overwrite file</td>
 	 * </tr><tr>
-	 *   <td>FILE</td><td>FOLDER</td><td>No</td><td>No</td><td>If a same-named file does not exist in the folder, copy it, otherwise don't copy</td>
+	 *   <td>FILE</td>  <td>FOLDER</td>   <td>No</td> <td>No</td> <td>-</td>  <td>If a same-named file does not exist in the folder, copy it, otherwise don't copy</td>
 	 * </tr><tr>
-	 *   <td>FILE</td><td>FOLDER</td><td>Yes</td><td>No</td><td>Create same-named file in the folder, even it exists. If same-named directory exists, fail</td>
+	 *   <td>FILE</td>  <td>FOLDER</td>   <td>Yes</td><td>No</td> <td>-</td>  <td>Create same-named file in the folder, even it exists. If same-named directory exists, fail</td>
 	 * </tr><tr>
-	 *   <td>FILE</td><td>FOLDER</td><td>-</td><td>Yes</td><td>Replace same-named folder with a filename</td>
+	 *   <td>FILE</td>  <td>FOLDER</td>   <td>-</td>  <td>Yes</td><td>-</td>  <td>Replace same-named folder with a filename</td>
 	 * </tr><tr>
-	 *   <td>FOLDER</td><td>IMAGINARY</td><td>No</td><td>No</td><td>Copy directory and descendants</td>
+	 *   <td>FOLDER</td><td>IMAGINARY</td><td>No</td> <td>No</td> <td>No</td> <td>Don't copy</td>
 	 * </tr><tr>
-	 *   <td>FOLDER</td><td>FILE</td><td>No</td><td>No</td><td> ??? </td>
+	 *   <td>FOLDER</td><td>IMAGINARY</td><td>No</td> <td>No</td> <td>Yes</td><td>Copy directory and descendants</td>
 	 * </tr><tr>
-	 *   <td>FOLDER</td><td>FILE</td><td>Yes</td><td>No</td><td> ??? </td>
+	 *   <td>FOLDER</td><td>FILE</td>     <td>No</td> <td>No</td> <td>???</td><td>Don't copy </td>
 	 * </tr><tr>
-	 *   <td>FOLDER</td><td>FILE</td><td>-</td><td>Yes</td><td> ??? </td>
+	 *   <td>FOLDER</td><td>FILE</td>     <td>Yes</td><td>No</td> <td>???</td><td>Don't copy </td>
 	 * </tr><tr>
-	 *   <td>FOLDER</td><td>FOLDER</td><td>No</td><td>No</td><td> ??? </td>
+	 *   <td>FOLDER</td><td>FILE</td>     <td>-</td>  <td>Yes</td><td>???</td><td> Replace file with folder </td>
 	 * </tr><tr>
-	 *   <td>FOLDER</td><td>FOLDER</td><td>Yes</td><td>No</td><td> ??? </td>
+	 *   <td>FOLDER</td><td>FOLDER</td>   <td>No</td> <td>No</td> <td>No</td><td>Don't copy</td>
 	 * </tr><tr>
-	 *   <td>FOLDER</td><td>FOLDER</td><td>-</td><td>Yes</td><td> ??? </td>
+	 *   <td>FOLDER</td><td>FOLDER</td>   <td>No</td> <td>No</td> <td>Yes</td><td>Copy as a subfolder. Existing files will be skipped</td>
+	 * </tr><tr>
+	 *   <td>FOLDER</td><td>FOLDER</td>   <td>Yes</td><td>No</td> <td>Yes</td><td>Copy as subfolder, replacing any same-named files along the way. </td>
+	 * </tr><tr>
+	 *   <td>FOLDER</td><td>FOLDER</td>   <td>-</td>  <td>Yes</td><td>???</td><td>Replace existing folder and its contents with the content of the source folder </td>
 	 * </tr>
 	 * </table>
 	 *    
@@ -259,6 +269,7 @@ class VFS {
 			resolveURI(properties,to),
 			properties.smash ?: false,
 			properties.overwrite ?: false,
+			properties.recursive ?: false,
 			properties.filter
 		)
 	}
@@ -280,6 +291,10 @@ class VFS {
 	
 	def friendlyURI( URI uri ) {
 		return friendlyURI(resolveURI(uri))
+	}
+	
+	Log logger() {
+		fsMgr.loggerInstance()
 	}
 	
 	private def resolveURI (properties=[:],uri) {
