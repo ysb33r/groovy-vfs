@@ -166,8 +166,12 @@ class CopyMoveOperations {
 					return 
 				} else if (recursive) {
 					target=to.resolveFile(from.name.baseName) 
-					
-					_recursiveDirCopy(from,target,selector,overwrite)
+					if(target.exists()) {
+						assert false,"NEEDS TO BE IMPLEMENTED"
+						_recursiveDirCopy(from,target,selector,overwrite)
+					} else {
+						target.copyFrom(from,selector)
+					}
 				} else {
 					throw new FileActionException( "Attempt to copy from folder '${friendlyURI(from)}' to folder '${friendlyURI(to)}', but recursive and smash are not set")
 				}

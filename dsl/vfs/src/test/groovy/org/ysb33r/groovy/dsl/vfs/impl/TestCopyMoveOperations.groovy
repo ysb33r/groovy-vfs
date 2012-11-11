@@ -226,7 +226,19 @@ class TestCopyMoveOperations {
 
 	}
 
-	// void copyDirectoryToExistingDirectoryFailsIfOverwriteOffAndSameNameChildExists()
+	@Ignore
+	@Test
+	void copyDirectoryToExistingDirectoryWithSameNamedSubfolderPopulatesSubFolderIfRecursiveNoOverwriteNoSmash() {
+		fail "NOT IMPLEMENTED"
+	}
+
+	@Ignore
+	@Test
+	void copyDirectoryToExistingDirectoryWithSameNamedSubfolderPopulatesSubFolderFailsOnFirstSameNamedItemIfRecursiveNoOverwriteNoSmash() {
+		fail "NOT IMPLEMENTED"
+	}
+
+		// void copyDirectoryToExistingDirectoryFailsIfOverwriteOffAndSameNameChildExists()
 	// void copyDirectoryToExistingDirectoryAddsToChildIfOverwriteOnAndSameNameChildDirectoryExists()
 	// void copyDirectoryToExistingDirectoryFailsIfOverwriteOnAndSameNameChildFileExists()
 	// void copyDirectoryToExistingDirectoryReplacesTargetIfSmashOn()
