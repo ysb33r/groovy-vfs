@@ -314,15 +314,37 @@ class TestCopyMoveOperations {
 
 	}
 	
-	@Ignore
 	@Test
 	void copyDirectoryToExistingDirectorySameNamedSubfolder_RecursiveOnOverwriteOnSmashOff_PopulatesSubfolderOverwritingExistingFiles() {
-		fail "NOT IMPLEMENTED"
+		def vfs=VFS.manager
+		def srcDir=new File("${testFsReadOnlyRoot}/test-subdir")
+		def from=vfs.toFileObject(srcDir)
+		def to=vfs.toFileObject(testFsWriteRoot)
+		def targetDir="${testFsWriteRoot}/test-subdir"
+		new File(targetDir).mkdirs()
+
+		assertTrue "Target dir '${to}' must exist prior to testing copy function",to.exists()
+
+		CopyMoveOperations.copy(from,to,false,true,true)
+		def expected=to.resolveFile("test-subdir/file3.txt")
+		assertTrue "Expected ${targetDir}/file3.txt",expected.exists()
+
+		(3..4).each {
+			def f=new File("${targetDir}/file${it}.txt")
+			assertTrue new File("${targetDir}/file${it}.txt").text == new File("${srcDir}/file${it}.txt").text 
+			f.text = "${it}"
+			assertFalse f.text == new File("${srcDir}/file${it}.txt").text 
+		}
+		
+		CopyMoveOperations.copy(from,to,false,true,true)
+		(3..4).each {
+			assertTrue new File("${targetDir}/file${it}.txt").text == new File("${srcDir}/file${it}.txt").text 
+		}
 	}
 
 	@Ignore
 	@Test(expected=FileActionException)
-	void copyDirectoryToExistingDirectoryWithSameNamedSubfolder_RecursiveOverwriteOnSmashOff_PopulatesSubfolderOverwritingFilesButFailsIfSourceIsFailAndDestinationIsFolder() {
+	void copyDirectoryToExistingDirectoryWithSameNamedSubfolder_RecursiveOverwriteOnSmashOff_PopulatesSubfolderOverwritingFilesButFailsIfSourceIsFileAndDestinationIsFolder() {
 		fail "NOT IMPLEMENTED"
 		
 	}
