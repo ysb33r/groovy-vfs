@@ -34,7 +34,7 @@ import org.apache.commons.logging.Log
  * 
  * vfs.cp ftp://foo.example/myfile sftp://bar.example/yourfile
  * 
- * vfs.exec {
+ * vfs << {
  *   cp http://first.example/myfile, sftp://second.example/yourfile
  *   mv sftp://second.example/yourfile, ftp://third.example/theirfile
  *   

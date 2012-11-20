@@ -167,7 +167,6 @@ class CopyMoveOperations {
 				} else if (recursive) {
 					target=to.resolveFile(from.name.baseName) 
 					if(target.exists()) {
-						assert false,"NEEDS TO BE IMPLEMENTED"
 						_recursiveDirCopy(from,target,selector,overwrite)
 					} else {
 						target.copyFrom(from,selector)
@@ -175,6 +174,7 @@ class CopyMoveOperations {
 				} else {
 					throw new FileActionException( "Attempt to copy from folder '${friendlyURI(from)}' to folder '${friendlyURI(to)}', but recursive and smash are not set")
 				}
+				break
 			case FileType.IMAGINARY:
 				if(recursive) {
 					to.copyFrom(from,selector)
@@ -187,11 +187,15 @@ class CopyMoveOperations {
 		}			
 	}
 	
-	/** Performs a recursive directory to directory copy, applying an overwrite policy
+	/** Performs a recursive directory to directory copy, applying an overwrite
+	 * policy along the way. Only the descendants of the source directory are 
+	 * copied. If the overwrite closure returns 'false' at any point it, 
+	 * a FileActionException will be raised.
 	 * 
-	 * @param from
-	 * @param to
-	 * @param overwrite
+	 * @param from Source directory to copy from.
+	 * @param to Directory to copy to
+	 * @param selector A selector to choose which children from the source to copy
+	 * @param overwrite Closure that returns true or false whether a source should overwrite a target
 	 * @return
 	 */
 	private static def _recursiveDirCopy(FileObject from,FileObject to,FileSelector selector,Closure overwrite) {
@@ -200,11 +204,28 @@ class CopyMoveOperations {
 				if (!selector.includeFile(it)) {
 					return false
 				}
-				return overwrite(it.file,to.resolveFile(it.file.name.getRelativeName(it.baseFolder.name)))
+				def src= from.name.getRelativeName(it.file.name)
+				def target=to.resolveFile(src)
+
+				
+				if(target.exists()) {
+					if(!overwrite(it.file,target)) {
+						throw new FileActionException("Overwriting existing target '${friendlyURI(to)}' is not allowed")
+					}
+				}
+				return true
 			},
 			traverseDescendents : {selector.traverseDescendents(it)}
 		] as FileSelector
-		to.copyFrom(from,combinedSelector )
+	
+		from.children.each {
+			def nextTarget=to.resolveFile(it.name.baseName)
+			try {
+				nextTarget.copyFrom(it,combinedSelector)
+			} catch(Exception e) {
+				throw new FileActionException("Failing to create '${friendlyURI(nextTarget)}'. Maybe overwrite was not allowed.",nextTarget,e)
+			}
+		}
 	}
 	
 	/** Returns a closure which can be prompted on a file-by-file basis about overwriting
@@ -219,6 +240,7 @@ class CopyMoveOperations {
 			case Closure:
 				return overwrite
 			case false:
+				return {f,t->false}
 			default:
 				return {f,t->false}
 		}

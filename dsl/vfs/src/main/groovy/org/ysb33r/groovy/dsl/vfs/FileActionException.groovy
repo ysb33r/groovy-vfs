@@ -17,4 +17,8 @@ class FileActionException extends FileSystemException {
 	FileActionException(String s) {
 		super(s)
 	}
+	
+	FileActionException(String s,Object f,Throwable e) {
+		super(s,f,e)
+	}
 }
