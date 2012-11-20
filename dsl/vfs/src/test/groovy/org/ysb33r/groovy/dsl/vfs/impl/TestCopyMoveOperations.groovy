@@ -342,11 +342,17 @@ class TestCopyMoveOperations {
 		}
 	}
 
-	@Ignore
 	@Test(expected=FileActionException)
 	void copyDirectoryToExistingDirectoryWithSameNamedSubfolder_RecursiveOverwriteOnSmashOff_PopulatesSubfolderOverwritingFilesButFailsIfSourceIsFileAndDestinationIsFolder() {
-		fail "NOT IMPLEMENTED"
-		
+
+		def vfs=VFS.manager
+		def srcDir=new File("${testFsReadOnlyRoot}/test-subdir")
+		def from=vfs.toFileObject(srcDir)
+		def to=vfs.toFileObject(testFsWriteRoot)
+		def targetDir="${testFsWriteRoot}/test-subdir"
+		new File("${targetDir}/file4.txt").mkdirs()
+
+		CopyMoveOperations.copy(from,to,false,true,true)
 	}
 	
 
@@ -355,7 +361,7 @@ class TestCopyMoveOperations {
 	// ------------------------------------------------------------------------
 	@Ignore
 	@Test
-	void copyDirectoryToExistingFile_SmashOn_WithReplaceFileWithFolder() {
+	void copyDirectoryToExistingFile_SmashOn_WithReplaceFileWithFolder() {		
 		fail "NOT IMPLEMENTED"		
 	}
 	

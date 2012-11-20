@@ -167,7 +167,7 @@ class CopyMoveOperations {
 				} else if (recursive) {
 					target=to.resolveFile(from.name.baseName) 
 					if(target.exists()) {
-						_recursiveDirCopy(from,target,selector,overwrite)
+						_recursiveDirCopyNoSmash(from,target,selector,overwrite)
 					} else {
 						target.copyFrom(from,selector)
 					}
@@ -198,7 +198,7 @@ class CopyMoveOperations {
 	 * @param overwrite Closure that returns true or false whether a source should overwrite a target
 	 * @return
 	 */
-	private static def _recursiveDirCopy(FileObject from,FileObject to,FileSelector selector,Closure overwrite) {
+	private static def _recursiveDirCopyNoSmash(FileObject from,FileObject to,FileSelector selector,Closure overwrite) {
 		FileSelector combinedSelector=[ 
 			includeFile : {
 				if (!selector.includeFile(it)) {
@@ -211,6 +211,8 @@ class CopyMoveOperations {
 				if(target.exists()) {
 					if(!overwrite(it.file,target)) {
 						throw new FileActionException("Overwriting existing target '${friendlyURI(to)}' is not allowed")
+					} else if(target.type == FileType.FOLDER) {
+						throw new FileActionException("Replacing existing target folder '${friendlyURI(to)}' with a file is not allowed")
 					}
 				}
 				return true
