@@ -418,29 +418,75 @@ class TestCopyMoveOperations {
 	// ------------------------------------------------------------------------
 	// File -> Directory, With Filter
 	// ------------------------------------------------------------------------
-	@Ignore
 	@Test
 	void copyFileWithPatternFilterToExistingDirectory_AddsToDirectoryIfNonExistingFileNameSuppliedAndFilterMatches() {
-		fail "NOT IMPLEMENTED - FilterDoesNotMatch"		
-		fail "NOT IMPLEMENTED - FilterMatches"		
+		def vfs=VFS.manager
+		def from=vfs.toFileObject(new File("${testFsReadOnlyRoot}/file2.txt"))
+		def to=vfs.toFileObject(testFsWriteRoot)
+
+		CopyMoveOperations.copy(from,to,false,false,false,/file1\.txt/)
+		assertFalse new File("${testFsWriteRoot}/file2.txt").exists()
+		assertFalse new File("${testFsWriteRoot}/file1.txt").exists()
+	
+		CopyMoveOperations.copy(from,to,false,false,false,~/file2\.txt/)
+		assertTrue new File("${testFsWriteRoot}/file2.txt").exists()
+		assertFalse new File("${testFsWriteRoot}/file1.txt").exists()
 	}
 
-	@Ignore
 	@Test(expected=FileActionException)
 	void copyFileWithPatternToExistingDirectory_OverwriteOff_FailsIfTargetFileExistsAndFileMatches() {
-		fail "NOT IMPLEMENTED - FilterDoesNotMatch"		
-		fail "NOT IMPLEMENTED - FilterMatches"		
+		def vfs=VFS.manager
+		def from=vfs.toFileObject(new File("${testFsReadOnlyRoot}/file2.txt"))
+		def to=vfs.toFileObject(testFsWriteRoot)
+
+		CopyMoveOperations.copy(from,to,false,false,false)
+		assertTrue "The target file must exist, before running the filter test",
+			new File("${testFsWriteRoot}/file2.txt").exists()
+		
+		CopyMoveOperations.copy(from,to,false,false,false,/file1\.txt/)
+		assertFalse new File("${testFsWriteRoot}/file2.txt").exists()
+	
+		CopyMoveOperations.copy(from,to,false,false,false,~/file2\.txt/)
 	}
 
-	@Ignore
 	@Test
 	void copyFileWithPatternToExistingDirectory_OverwriteOn_ReplacesIfTargetFileExists() {
-		fail "NOT IMPLEMENTED - FilterDoesNotMatch"		
-		fail "NOT IMPLEMENTED - FilterMatches"		
-	}
+		def vfs=VFS.manager
+		def srcFile=new File("${testFsReadOnlyRoot}/file2.txt")
+		def from=vfs.toFileObject(srcFile)
+		def to=vfs.toFileObject(testFsWriteRoot)
 
+		CopyMoveOperations.copy(from,to,false,false,false)
+		def fileUnderTest=new File("${testFsWriteRoot}/file2.txt")
+		assertTrue "The target file must exist, before running the filter test",
+			fileUnderTest.exists()
+		fileUnderTest.text="FOOBAR"
+		assertNotEquals srcFile.text,fileUnderTest.text
+		
+		CopyMoveOperations.copy(from,to,false,true,false,/file1\.txt/)
+		assertNotEquals "If the filter does nto match, then file must not be overwritten",
+			srcFile.text,fileUnderTest.text
+	
+		CopyMoveOperations.copy(from,to,false,true,false,~/file2\.txt/)
+		assertEquals srcFile.text,fileUnderTest.text
+}
+
+	// TODO: What about using a closure as a filter?
+	// TODO: What about using with a normal selector from VFS
+	
 	// ------------------------------------------------------------------------
 	// Directory -> Directory, With Filter
 	// ------------------------------------------------------------------------
 
+	// ------------------------------------------------------------------------
+	// Miscellaneous tests
+	// ------------------------------------------------------------------------
+	@Test(expected=FileActionException)
+	void copyNonExistingSourceRaisesException() {
+		def vfs=VFS.manager
+		def from=vfs.toFileObject(new File("${testFsReadOnlyRoot}/non_existing_file"))
+		def to=vfs.toFileObject(testFsWriteRoot)
+
+		CopyMoveOperations.copy(from,to,false,false,false)
+	}
 }

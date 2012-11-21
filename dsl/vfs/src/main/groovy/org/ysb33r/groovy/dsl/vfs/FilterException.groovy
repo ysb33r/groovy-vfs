@@ -6,19 +6,13 @@
 // ============================================================================
 package org.ysb33r.groovy.dsl.vfs
 
-import org.apache.commons.vfs2.FileSystemException
 
-/** Thrown for when specific file update actions is not allowed
- * 
+/** Thrown for when specific filters cannot be created
  * @author Schalk W. Cronjé
  *
  */
-class FileActionException extends FileSystemException {
-	FileActionException(String s) {
+class FilterException extends Exception {
+	FilterException(String s) {
 		super(s)
-	}
-	
-	FileActionException(String s,Object f,Throwable e) {
-		super(s,f,e)
 	}
 }

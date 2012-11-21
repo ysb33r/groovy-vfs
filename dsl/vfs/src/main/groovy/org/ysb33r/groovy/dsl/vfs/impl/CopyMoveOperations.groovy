@@ -13,6 +13,7 @@ import org.apache.commons.vfs2.FileType
 import org.apache.commons.vfs2.FileSelector
 import org.apache.commons.vfs2.AllFileSelector
 import org.ysb33r.groovy.dsl.vfs.FileActionException
+import org.ysb33r.groovy.dsl.vfs.FilterException;
 import org.apache.commons.vfs2.Selectors
 
 class CopyMoveOperations {
@@ -37,11 +38,10 @@ class CopyMoveOperations {
 		assert fromType != FileType.FILE_OR_FOLDER
 		
 		if(!from.exists()) {
-			throw new FileActionException("Source '${from.friendlyURI}' does not exist")
+			throw new FileActionException("Source '${friendlyURI(from)}' does not exist")
 		}
 
-		def selector= fromType == FileType.FILE ? Selectors.SELECT_ALL : _createSelector(filter)
-		
+		def selector=_createSelector(filter)
 		
 		switch(fromType) {
 			case FileType.FILE:
@@ -55,46 +55,40 @@ class CopyMoveOperations {
 	}
 
 	/** Creates a VFS selector from a passed in filter
-	 * @todo NEEDS A LOT OF WORK
+	 * @todo Closure, Pattern, 
 	 * @return
 	 */
 	static def _createSelector(filter) {
-		
 		def selector
 		switch (filter) {
 			case null:
 				selector=Selectors.SELECT_ALL
-				break				
+				break		
+			case String :
+				selector=_createSelector(~/${filter}/)	
+				break	
 			case Pattern :
-				assert false
-			/*
 				selector = [
-					'includeFile' : { fsi -> fsi.file.name.baseName ==~ properties.filter },
-					'traverseDescendents' : traverse
-				]
-			*/
+					'includeFile' : { fsi -> fsi.file.name.baseName ==~ filter },
+					'traverseDescendents' : { fsi -> true }
+				] as FileSelector
 				break
 			case FileSelector:
-				selector=filter
 				break
 			case Closure:
-				assert false
+				assert false,"TODO: Using a closure as a filter NEEDS IMPLEMENTATION"
 				/*
 				selector = [
-					'includeFile' : { fsi -> properties.filter.call(fsi) },
+					'includeFile' : { fsi -> filter.call(fsi) },
 					'traverseDescendents' : traverse
-				]
+				] as FileSelector
 				*/
 				break
 			default:
-				assert false
-				/*
-				selector = [
-					'includeFile' : { fsi -> fsi.file.name.baseName ==~ /"${properties.filter.toString()}"/ },
-					'traverseDescendents' : traverse
-				]
-				*/
+				throw new FilterException("Supplied type (${filter?.class}) is not suitable for a filter")
 		}
+		
+		return selector
 	}
 	
 	/** Implements copying from a source file
@@ -127,7 +121,7 @@ class CopyMoveOperations {
 				target=to
 				break
 			default:
-				assert false,"Should never get here"
+				assert "Should never get here",false
 		}
 
 		target.copyFrom(from,selector)

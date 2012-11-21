@@ -10,7 +10,7 @@
 package org.ysb33r.groovy.dsl.vfs
 
 /**
- * @author scronje
+ * @author Schalk W. Cronjé
  *
  */
 class OptionException extends Exception {

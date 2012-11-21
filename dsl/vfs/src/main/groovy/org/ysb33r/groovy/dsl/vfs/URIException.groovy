@@ -8,8 +8,7 @@ package org.ysb33r.groovy.dsl.vfs
 
 /**
  * 
- * @author scronje
- *
+ * @author Schalk W. Cronjé
  */
 class URIException extends java.net.URISyntaxException {
 	URIException(String input,String reason) {
