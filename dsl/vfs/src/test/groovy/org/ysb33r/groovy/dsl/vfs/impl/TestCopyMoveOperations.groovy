@@ -344,7 +344,6 @@ class TestCopyMoveOperations {
 
 	@Test(expected=FileActionException)
 	void copyDirectoryToExistingDirectoryWithSameNamedSubfolder_RecursiveOverwriteOnSmashOff_PopulatesSubfolderOverwritingFilesButFailsIfSourceIsFileAndDestinationIsFolder() {
-
 		def vfs=VFS.manager
 		def srcDir=new File("${testFsReadOnlyRoot}/test-subdir")
 		def from=vfs.toFileObject(srcDir)
@@ -357,30 +356,63 @@ class TestCopyMoveOperations {
 	
 
 	// ------------------------------------------------------------------------
+	// Directory -> File, No Smash, No Filter
+	// ------------------------------------------------------------------------
+	@Test(expected=FileActionException)
+	void copyDirectoryToExistingFile_SmashOffOverwriteOnRecursiveOn_WillFail() {
+		def vfs=VFS.manager
+		def srcDir=new File("${testFsReadOnlyRoot}/test-subdir")
+		def targetDir="${testFsWriteRoot}/test-subdir"
+		new File(targetDir).text="FOO"
+		def from=vfs.toFileObject(srcDir)
+		def to=vfs.toFileObject(testFsWriteRoot)
+
+		CopyMoveOperations.copy(from,to,false,true,true)
+	}
+
+	// ------------------------------------------------------------------------
 	// Directory -> Directory/File, With Smash, No Filter
 	// ------------------------------------------------------------------------
-	@Ignore
 	@Test
-	void copyDirectoryToExistingFile_SmashOn_WithReplaceFileWithFolder() {		
-		fail "NOT IMPLEMENTED"		
+	void copyDirectoryToExistingFile_SmashOn_WithReplaceFileWithFolder() {
+		def vfs=VFS.manager
+		def srcDir=new File("${testFsReadOnlyRoot}/test-subdir")
+		def target="${testFsWriteRoot}/test-subdir"
+		new File(target).text="FOO"
+		def from=vfs.toFileObject(srcDir)
+		def to=vfs.toFileObject(new File(target))
+
+		assertEquals "Expects target to be a file before performing copy",FileType.FILE,to.type
+		
+		CopyMoveOperations.copy(from,to,true,false,false)
+		
+		assertEquals "Expects target to be a folder after performing copy",FileType.FOLDER,to.type
 	}
 	
-	@Ignore
 	@Test
-	void copyDirectoryToExistingDirectory_SmashOn_WillAddSubfolder() {
-		fail "NOT IMPLEMENTED"		
-	}
-	
-	@Ignore
-	@Test
-	void copyDirectoryToExistingDirectory_SmashOn_WillSmashSameNamedChildFile() {
-		fail "NOT IMPLEMENTED"		
-	}
-	
-	@Ignore
-	@Test
-	void copyDirectoryToExistingDirectory_SmashOn_WillSmashSameNamedChildFolder() {
-		fail "NOT IMPLEMENTED"		
+	void copyDirectoryToExistingDirectory_SmashOn_WillDeleteTargetFolderAndCopySourceFolder() {
+		def vfs=VFS.manager
+		def srcDir=new File("${testFsReadOnlyRoot}")
+		def targetDir=new File("${testFsWriteRoot}/do_not_smash_me")
+		def from=vfs.toFileObject(srcDir)
+		def to=vfs.toFileObject(targetDir)
+		
+		println """Smash copy from '${CopyMoveOperations.friendlyURI(from)}' 
+                   to '${CopyMoveOperations.friendlyURI(to)}' should result 
+                   in '${to.parent.resolveFile(from.name.baseName)}'"""
+		
+		targetDir.mkdirs()
+		assertTrue "Before copying, ensure that the target folder exists",to.exists()
+		
+		CopyMoveOperations.copy(from,to,true,false,false)
+		to=vfs.toFileObject(new File("${testFsWriteRoot}/${from.name.baseName}"))
+		assertTrue "After copying, the target folder should have the same base name as the source folder", to.exists()
+		assertEquals FileType.FOLDER,to.type
+		
+		from.children.each {
+			def expected=to.resolveFile(it.name.baseName)
+			assertTrue "Expected to see ${CopyMoveOperations.friendlyURI(expected)} in target folder",expected.exists()
+		}
 	}
 	
 	// ------------------------------------------------------------------------
@@ -388,21 +420,21 @@ class TestCopyMoveOperations {
 	// ------------------------------------------------------------------------
 	@Ignore
 	@Test
-	void copyFileWithFilterToExistingDirectory_AddsToDirectoryIfNonExistingFileNameSuppliedAndFilterMatches() {
+	void copyFileWithPatternFilterToExistingDirectory_AddsToDirectoryIfNonExistingFileNameSuppliedAndFilterMatches() {
 		fail "NOT IMPLEMENTED - FilterDoesNotMatch"		
 		fail "NOT IMPLEMENTED - FilterMatches"		
 	}
 
 	@Ignore
 	@Test(expected=FileActionException)
-	void copyFileWithFilterToExistingDirectory_OverwriteOff_FailsIfTargetFileExistsAndFileMatches() {
+	void copyFileWithPatternToExistingDirectory_OverwriteOff_FailsIfTargetFileExistsAndFileMatches() {
 		fail "NOT IMPLEMENTED - FilterDoesNotMatch"		
 		fail "NOT IMPLEMENTED - FilterMatches"		
 	}
 
 	@Ignore
 	@Test
-	void copyFileWithFilterToExistingDirectory_OverwriteOn_ReplacesIfTargetFileExists() {
+	void copyFileWithPatternToExistingDirectory_OverwriteOn_ReplacesIfTargetFileExists() {
 		fail "NOT IMPLEMENTED - FilterDoesNotMatch"		
 		fail "NOT IMPLEMENTED - FilterMatches"		
 	}

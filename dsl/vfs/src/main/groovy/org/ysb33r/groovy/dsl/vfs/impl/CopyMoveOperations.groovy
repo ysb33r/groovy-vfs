@@ -141,10 +141,6 @@ class CopyMoveOperations {
 		def toType= to.type
 		FileObject target
 		
-		if(toType == FileType.FILE && !smash) {
-			throw new FileActionException("${this.friendlyURI(from)} is a directory, ${this.friendlyURI(to)} is a file, and smash is not set")
-		}
-		
 		switch(toType) {
 			case FileType.FILE:
 				if(!smash) {
@@ -155,7 +151,7 @@ class CopyMoveOperations {
 			case FileType.FOLDER:
 				if(smash) {					
 					def original=to.parent.resolveFile('$'*10+"${to.name.baseName}"+'$'*10)
-					target=to
+					target=to.parent.resolveFile(from.name.baseName)
 					to.moveTo(original)
 					try {
 						target.copyFrom(from,selector)						
