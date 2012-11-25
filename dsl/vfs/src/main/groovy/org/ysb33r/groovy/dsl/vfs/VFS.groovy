@@ -264,7 +264,7 @@ class VFS {
 	def cp ( properties=[:],from,to ) {
 		assert properties != null
 		
-		CopyMoveOperations.Copy(
+		CopyMoveOperations.copy(
 			resolveURI(properties,from),
 			resolveURI(properties,to),
 			properties.smash ?: false,

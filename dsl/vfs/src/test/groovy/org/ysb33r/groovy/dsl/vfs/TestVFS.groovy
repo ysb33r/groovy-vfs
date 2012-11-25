@@ -10,6 +10,7 @@ package org.ysb33r.groovy.dsl.vfs
 import static org.junit.Assert.*
 
 import org.apache.commons.vfs2.FileSystemOptions
+import org.apache.commons.vfs2.FileType;
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Assert
@@ -32,12 +33,12 @@ import org.junit.Ignore
 		// 'mime'
 	]
 	
-	static def testFsReadOnlyRoot = new File('src/test/resources/test-files')
-	static def testFsURI
-	static def testFsWriteRoot
-	static def testFsWriteURI
+	static File testFsReadOnlyRoot = new File('src/test/resources/test-files')
+	static String testFsURI
+	static File testFsWriteRoot
+	static String testFsWriteURI
 	
-	static def expectedFiles= ['file1.txt','file2.txt']
+	static def expectedFiles= ['file1.txt','file2.txt', 'test-subdir/file3.txt','test-subdir/file4.txt']
 	
 	@BeforeClass
 	static void createFileStructure()  {
@@ -56,14 +57,12 @@ import org.junit.Ignore
 
 	@Before
 	void setUp() {
-		if (!testFsWriteRoot.exists()) {
-			testFsWriteRoot.mkdirs()
-		}
+		testFsWriteRoot.mkdirs()
 	}
 
 	@After
 	void tearDown() {
-		testFsWriteRoot.delete()
+		testFsWriteRoot.deleteDir()
 	}
 
 	@Test
@@ -85,11 +84,11 @@ import org.junit.Ignore
 
 		def files= vfs.ls uri		
 		files.each {   
-			assertTrue "${it} is not an expected file in ${testFsURI}",expectedFiles.contains(it.name.baseName) 
+			assertTrue "${it} is not an expected file in ${testFsURI}",expectedFiles.contains(it.name.baseName) || it.type == FileType.FOLDER
 		}				
 		
 		vfs.ls (uri) {
-			assertTrue "${it} is not an expected file in ${testFsURI}",expectedFiles.contains(it.name.baseName)			
+			assertTrue "${it} is not an expected file in ${testFsURI}",expectedFiles.contains(it.name.baseName) || it.type == FileType.FOLDER			
 		}
 		
 	}
@@ -125,14 +124,21 @@ import org.junit.Ignore
 	void creatingDirectoryShouldCreateParentsToo() {
 		def vfs = new VFS()
 		
-		assertTrue !(new File("${testFsWriteRoot}/one/two/three").exists()) 
+		def testDir=new File("${testFsWriteRoot}/one/two/three")
+		assertFalse testDir.exists() 
 		vfs.mkdir("${testFsWriteURI}/one/two/three")
-		assertTrue new File("${testFsWriteRoot}/one/two/three").exists() 
+		assertTrue testDir.exists() 
 	}
 	
 	@Test
-	void copyFileToExistingDirectoryAddsToDirectory() {
+	void copyFileToExistingDirectoryAddsToDirectoryIfRecursive() {
+		def vfs = new VFS()
+		vfs.cp( recursive:true, testFsURI, testFsWriteURI ) 
 		
+		expectedFiles.each {
+			def f=new File("${testFsWriteRoot}/test-files/${it}")
+			assertTrue "Expected to find ${f} on disk", f.exists()
+		} 
 	} 
 	
 	// void copyFileOverExistingDirectoryWithOverwriteWithoutSmashFails() {
@@ -151,7 +157,9 @@ import org.junit.Ignore
 		
 		vfs << {
 			ls (uri) {
-				assertTrue "${it} is not an expected file in ${testFsURI}",expectedFiles.contains(it.name.baseName)				
+				if(it.name.baseName != 'test-subdir') {
+					assertTrue "${it} is not an expected file in ${testFsURI}",expectedFiles.contains(it.name.baseName)
+				}				
 			}
 			
 			cat (file) {
@@ -167,7 +175,12 @@ import org.junit.Ignore
 			}
 			mkdir "${testFsWriteURI}/one/two/three"
 			assertEquals 1,ls ("${testFsWriteURI}/one/two", filter:~/three/) .size()
+			
+			cp testFsURI,"${testFsWriteURI}/one/two/three", recursive:true
+			assertEquals 2,ls ("${testFsWriteURI}/one/two/three/test-files", filter:~/file\d\.txt/) .size()
 		}
+		
+		
 /*		
 		vfs << {
 			ls (uri,filter:~/file1\.txt/) cat(it) { 
