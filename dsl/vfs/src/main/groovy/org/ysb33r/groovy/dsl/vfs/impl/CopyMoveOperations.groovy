@@ -54,6 +54,36 @@ class CopyMoveOperations {
 		
 	}
 
+	/**
+	 * 
+	 * @param from
+	 * @param to
+	 * @param smash
+	 * @param overwrite
+	 * @return
+	 */
+	static def move( FileObject from,FileObject to,boolean smash,boolean overwrite) {
+		def fromType= from.type
+		def toType= to.type
+		assert fromType != FileType.FILE_OR_FOLDER
+		
+		if(!from.exists()) {
+			throw new FileActionException("Source '${friendlyURI(from)}' does not exist")
+		}
+
+		if(!smash && (fromType==FileType.FOLDER && toType==FileType.FILE || fromType==FileType.FILE && toType==FileType.FOLDER)) {
+			throw new FileActionException("Cannot replace folder with file or file with folder if smash=='false'")
+		}
+		
+		def existing= to.exists()
+		if( !existing || ( (overwrite || smash) && !existing) ) {
+			from.moveTo(to)
+		} else {
+			throw new FileActionException("Replacing '${friendlyURI(to)}' with '${friendlyURI(from)}' is not allowed as both overwrite and smash are 'false'.")
+		}
+		
+	}
+	
 	/** Creates a VFS selector from a passed in filter
 	 * @todo Closure, Pattern, 
 	 * @return

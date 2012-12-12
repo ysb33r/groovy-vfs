@@ -141,13 +141,6 @@ import org.junit.Ignore
 		} 
 	} 
 	
-	// void copyFileOverExistingDirectoryWithOverwriteWithoutSmashFails() {
-	// void copyFileOverExistingDirectoryWithOverwriteWithSmashReplacesDirectoryWithFile() {
-	// void copyDirectoryToDirectoryAddsToDirectory()
-	// void copyDirectoryOverExistingDirectoryWithoutOverwriteFails()
-	// void copyDirectoryOverExistingDirectoryWithOverwriteReplacesDirectory() 
-	// void copyDirectoryWIthFilterSelectivelyCopiesFilesToNewDestination()
-	
 	@Test
 	void scriptAndLeftShiftShouldExecuteMultipleStatement() {
 
@@ -178,6 +171,10 @@ import org.junit.Ignore
 			
 			cp testFsURI,"${testFsWriteURI}/one/two/three", recursive:true
 			assertEquals 2,ls ("${testFsWriteURI}/one/two/three/test-files", filter:~/file\d\.txt/) .size()
+			
+			mv "${testFsWriteURI}/one/two/three","${testFsWriteURI}/one/two/four"
+			assertEquals 2,ls ("${testFsWriteURI}/one/two/four/test-files", filter:~/file\d\.txt/) .size()
+
 		}
 		
 		

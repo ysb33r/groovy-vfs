@@ -210,23 +210,27 @@ class VFS {
 		resolveURI(properties,uri).createFolder()
 	}
 
-	/**
+	/** Copies files.
 	 * @param from URI to copy from. If source is a folder all descendants will be copied recursively.
 	 * See filter property for selectively copying descendants
 	 * @param to URI to copy to. If destination is a folder, it will be placed inside folder. 
-	 * If destination is a file it weill be replaced if overwrite property is true. 
+	 * If destination is a file it will be replaced if overwrite property is true. 
 	 * @param properties 
 	 * @li overwrite. Set to true to force overwrite of an existing target. Set to false, not to allow overwrites. 
 	 * Can also be a closure, in which case it needs to be of interface boolean(from,to).
-	 * @li filter.  A filter to select which file objects to copy. The filter is ignored if teh source is a file.
-	 * @li smash. Set to true, to replace an existing target file with a source directory
+	 * @li filter.  A filter to select which file objects to copy. The filter is ignored if the source is a file.
+	 * @li smash. Set to true, to replace an existing target file/directory with a source directory/file
 	 * @li recursive. Used when source is a directory to indicate that directories should be copied recursively. 
 	 *     Like -r/--recursive in POSIX cp.  
 	 * 
-	 * The following rules apply, if no filter is provided:
+	 * The following rules apply, if no filter is provided or if the source matches the provided filter
 	 * 
 	 * <table>
-	 * <tr><th>From FileType</th><th>To FileType><th>Overwrite?</th><th>Smash?</th><th>Recursive</th><th>Action</th></tr>
+	 * <tr><th>From FileType</th><th>To FileType</th>
+	 *                                    <th>Overwrite?</th>
+	 *                                                <th>Smash?</th>
+	 *                                                          <th>Recursive</th>
+	 *                                                                        <th>Action</th></tr>
 	 * <tr>
 	 *   <td>FILE</td>  <td>IMAGINARY</td><td>No</td> <td>No</td><td>-</td>   <td>Copy (create file)</td>
 	 * </tr><tr>
@@ -244,11 +248,11 @@ class VFS {
 	 * </tr><tr>
 	 *   <td>FOLDER</td><td>IMAGINARY</td><td>No</td> <td>No</td> <td>Yes</td><td>Copy directory and descendants</td>
 	 * </tr><tr>
-	 *   <td>FOLDER</td><td>FILE</td>     <td>No</td> <td>No</td> <td>???</td><td>Don't copy </td>
+	 *   <td>FOLDER</td><td>FILE</td>     <td>No</td> <td>No</td> <td>No</td><td>Don't copy </td>
 	 * </tr><tr>
-	 *   <td>FOLDER</td><td>FILE</td>     <td>Yes</td><td>No</td> <td>???</td><td>Don't copy </td>
+	 *   <td>FOLDER</td><td>FILE</td>     <td>Yes</td><td>No</td> <td>No</td><td>Don't copy </td>
 	 * </tr><tr>
-	 *   <td>FOLDER</td><td>FILE</td>     <td>-</td>  <td>Yes</td><td>???</td><td> Replace file with folder </td>
+	 *   <td>FOLDER</td><td>FILE</td>     <td>-</td>  <td>Yes</td><td>--</td><td>Replace file with folder </td>
 	 * </tr><tr>
 	 *   <td>FOLDER</td><td>FOLDER</td>   <td>No</td> <td>No</td> <td>No</td><td>Don't copy</td>
 	 * </tr><tr>
@@ -256,7 +260,7 @@ class VFS {
 	 * </tr><tr>
 	 *   <td>FOLDER</td><td>FOLDER</td>   <td>Yes</td><td>No</td> <td>Yes</td><td>Copy as subfolder, replacing any same-named files along the way. </td>
 	 * </tr><tr>
-	 *   <td>FOLDER</td><td>FOLDER</td>   <td>-</td>  <td>Yes</td><td>???</td><td>Replace existing folder and its contents with the content of the source folder </td>
+	 *   <td>FOLDER</td><td>FOLDER</td>   <td>--</td> <td>Yes</td><td>--</td><td>Replace existing folder and its contents with the content of the source folder </td>
 	 * </tr>
 	 * </table>
 	 *    
@@ -273,17 +277,63 @@ class VFS {
 			properties.filter
 		)
 	}
- 
-/*		
 
-	
-	def mv = { properties=[:],from,to,Closure c=null ->
-	   println "mv ${from} -> ${to}"
+	/**
+	 * @param from Source URI to move.
+	 * @param to Source URI to move to 
+	 * If destination is a file it will be replaced if overwrite property is true. 
+	 * @param properties 
+	 * @li overwrite. Set to true to force overwrite of an existing target. Set to false, not to allow overwrites. 
+	 * Can also be a closure, in which case it needs to be of interface boolean(from,to).
+	 * @li filter.  A filter to select which file objects to copy. The filter is ignored if the source is a file.
+	 * @li smash. Set to true, to replace an existing target file/directory with a source directory/file.
+     *
+	 * The following rules apply, if no filter is provided or if the source matches the provided filter
+	 * 
+	 * <table>
+	 * <tr><th>From FileType</th><th>To FileType</th>
+	 *                                    <th>Overwrite?</th>
+	 *                                                <th>Smash?</th>
+	 *                                                           <th>Action</th></tr>
+	 * <tr>
+	 *   <td>FILE</td>  <td>IMAGINARY</td><td>No</td> <td>No</td> <td>Create new file, delete old file</td>
+	 * </tr><tr>
+	 *   <td>FILE</td>  <td>FILE</td>     <td>No</td> <td>No</td> <td>Don't move</td>
+	 * </tr><tr>
+	 *   <td>FILE</td>  <td>FILE</td>     <td>Yes</td><td>No</td> <tdOverwirte existing file with source, delete old file></td>
+	 * </tr><tr>
+	 *   <td>FILE</td>  <td>FOLDER</td>   <td>No</td> <td>No</td> <td>Move file into folder except if same-name target file exists</td>
+	 * </tr><tr>
+	 *   <td>FILE</td>  <td>FOLDER</td>   <td>Yes</td><td>No</td> <td>Move file into folder, replacing any existing same-name target file</td>
+	 * </tr><tr>
+	 *   <td>FILE</td>  <td>FOLDER</td>   <td>-</td>  <td>Yes</td><td>Replace fodler with file</td>
+	 * </tr><tr>
+	 *   <td>FOLDER</td><td>IMAGINARY</td><td>No</td> <td>No</td> <td>Create new folder with content. Delete old folder</td>
+	 * </tr><tr>
+	 *   <td>FOLDER</td><td>FILE</td>     <td>No</td> <td>No</td> <td>Don't move</td>
+	 * </tr><tr>
+	 *   <td>FOLDER</td><td>FILE</td>     <td>Yes</td><td>No</td> <td>Don't move</td>
+	 * </tr><tr>
+	 *   <td>FOLDER</td><td>FILE</td>     <td>-</td>  <td>Yes</td><td>Replace file with folder</td>
+	 * </tr><tr>
+	 *   <td>FOLDER</td><td>FOLDER</td>   <td>No</td> <td>No</td> <td>Move folder as a sub-folder of destination. Fails if same-name target exists</td>
+	 * </tr><tr>
+	 *   <td>FOLDER</td><td>FOLDER</td>   <td>Yes</td><td>No</td> <td>Move folder as a sub-folder of destination. Fails is same-name target exists and not empty.</td>
+	 * </tr><tr>
+	 *   <td>FOLDER</td><td>FOLDER</td>   <td>--</td> <td>Yes</td><td>Delete old folder. Move source folder in place.</td>
+	 * </tr>
+	 * </table>
+	 */
+	def mv ( properties=[:],from,to ) {
+		assert properties != null
+		
+		CopyMoveOperations.move(
+			resolveURI(properties,from),
+			resolveURI(properties,to),
+			properties.smash ?: false,
+			properties.overwrite ?: false
+		)
 	}
-	
-	
-	
-*/	
 
 	def friendlyURI( FileObject uri ) {
 		return uri.name.friendlyURI
