@@ -12,3 +12,6 @@ dsl/vfs/build
 dsl/vfs/bin
 dsl/vfs/dist
 dsl/vfs/.*
+.settings
+.classpath
+.project
