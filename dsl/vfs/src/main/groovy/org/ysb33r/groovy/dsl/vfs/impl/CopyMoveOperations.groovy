@@ -16,8 +16,13 @@ import org.ysb33r.groovy.dsl.vfs.FileActionException
 import org.ysb33r.groovy.dsl.vfs.FilterException;
 import org.apache.commons.vfs2.Selectors
 
+import groovy.transform.TypeChecked
+import groovy.transform.CompileStatic
+
+
 class CopyMoveOperations {
 
+	@CompileStatic
 	static def friendlyURI( FileObject uri ) {
 		return uri.name.friendlyURI
 	}
@@ -255,6 +260,7 @@ class CopyMoveOperations {
 	 * @param overwrite
 	 * @return
 	 */
+	@CompileStatic
 	private static def _overwritePolicy(overwrite) {
 		switch(overwrite) {
 			case true:

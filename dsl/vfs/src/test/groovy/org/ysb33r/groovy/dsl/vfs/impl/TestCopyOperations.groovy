@@ -19,7 +19,7 @@ import org.apache.commons.vfs2.VFS
 import org.apache.commons.vfs2.FileType
 import org.apache.commons.vfs2.AllFileSelector
 
-class TestMoveOperations {
+class TestCopyOperations {
 
 	static def testFsReadOnlyRoot = new File('src/test/resources/test-files')
 	static def testFsWriteRoot

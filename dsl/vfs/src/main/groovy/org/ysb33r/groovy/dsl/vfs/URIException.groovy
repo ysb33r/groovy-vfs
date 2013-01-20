@@ -6,10 +6,13 @@
 // ============================================================================
 package org.ysb33r.groovy.dsl.vfs
 
+import groovy.transform.CompileStatic
+
 /**
  * 
  * @author Schalk W. Cronjé
  */
+@CompileStatic
 class URIException extends java.net.URISyntaxException {
 	URIException(String input,String reason) {
 		super(input,reason)

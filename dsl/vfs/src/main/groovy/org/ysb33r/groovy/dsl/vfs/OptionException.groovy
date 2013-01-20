@@ -8,11 +8,13 @@
  * 
  */
 package org.ysb33r.groovy.dsl.vfs
+import groovy.transform.CompileStatic
 
 /**
  * @author Schalk W. Cronjé
  *
  */
+@CompileStatic
 class OptionException extends Exception {
 
 	/**

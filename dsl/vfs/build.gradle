@@ -7,7 +7,10 @@
 apply plugin: 'groovy'
 apply plugin: 'eclipse'
 
-sourceCompatibility = 1.7
+def jdkVer = project.properties.BUILD_FOR_JAVA6 ? 1.6 : 1.7
+sourceCompatibility = jdkVer
+targetCompatibility = jdkVer
+
 version = '0.9-SNAPSHOT'
 
 jar {
@@ -21,7 +24,7 @@ repositories {
 }
 
 dependencies {
-	groovy group: 'org.codehaus.groovy', name: 'groovy', version: '2.+'
+	groovy group: 'org.codehaus.groovy', name: 'groovy', version: '2.1.+'
 	
 	compile group: 'org.codehaus.groovy.modules.http-builder', name: 'http-builder', version: '0.5+'
 	compile group: 'org.apache.commons',    name: 'commons-vfs2', version: '2.0'

@@ -1,18 +1,18 @@
 // ============================================================================
 // Copyright (C) Schalk W. Cronje 2012
 //
-// This software is licensed under the Apche License 2.0
+// This software is licensed under the Apache License 2.0
 // See http://www.apache.org/licenses/LICENSE-2.0 for license details
 // ============================================================================
 package org.ysb33r.groovy.dsl.vfs
 
 import groovyx.net.http.URIBuilder
 import groovy.transform.EqualsAndHashCode
+import groovy.transform.TypeChecked
 import java.net.URISyntaxException
-
-import org.apache.commons.vfs2.FileName;
-import org.apache.commons.vfs2.FileObject;
-
+import groovy.transform.CompileStatic
+import org.apache.commons.vfs2.FileName
+import org.apache.commons.vfs2.FileObject
 
 @EqualsAndHashCode
 class URI {
@@ -82,6 +82,7 @@ class URI {
 		uri= f.getURI()
 	} 
 	
+	@TypeChecked
 	String toString() {
 		return uri
 	}
@@ -98,7 +99,7 @@ class URI {
 				}
 			}
 			
-			tmpuri.query = q.minus(p)
+			tmpuri.setQuery q.minus(p)
 			
 			if(p) {
 				p.each { k,v ->
@@ -119,6 +120,7 @@ class URI {
 		return tmpuri
 	}
 
+	@TypeChecked
 	private def checkScheme (URIBuilder tmpuri) { 
 		if(!tmpuri.scheme || !tmpuri.scheme.size()) {
 			throw new URIException("${tmpuri}","URI must be created with a scheme")

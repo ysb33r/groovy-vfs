@@ -7,12 +7,14 @@
 package org.ysb33r.groovy.dsl.vfs
 
 import org.apache.commons.vfs2.FileSystemException
+import groovy.transform.CompileStatic
 
 /** Thrown for when specific file update actions is not allowed
  * 
  * @author Schalk W. Cronjé
  *
  */
+@CompileStatic
 class FileActionException extends FileSystemException {
 	FileActionException(String s) {
 		super(s)

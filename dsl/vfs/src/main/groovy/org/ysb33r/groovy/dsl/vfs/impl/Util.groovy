@@ -12,6 +12,8 @@ import org.apache.commons.vfs2.FileSystemOptions
 import org.apache.commons.vfs2.FileSystemManager
 import org.ysb33r.groovy.dsl.vfs.OptionException
 import org.ysb33r.groovy.dsl.vfs.URI;
+import groovy.transform.TypeChecked
+import groovy.transform.CompileStatic
 
 class Util {
 

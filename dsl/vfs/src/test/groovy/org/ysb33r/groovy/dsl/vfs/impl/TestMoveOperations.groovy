@@ -19,7 +19,7 @@ import org.apache.commons.vfs2.VFS
 import org.apache.commons.vfs2.FileType
 import org.apache.commons.vfs2.AllFileSelector
 
-class TestCopyOperations {
+class TestMoveOperations {
 
 	static def testFsReadOnlyRoot = new File('src/test/resources/test-files')
 	static def testFsReadRoot
@@ -58,6 +58,7 @@ class TestCopyOperations {
 	// File -> Directory, No Filter
 	// ------------------------------------------------------------------------
 	@Test
+	@Ignore
 	void MoveFileToNonExistingTargetWithiExistingParentTree_MovesFile() {
 		def vfs=VFS.manager
 		def from=vfs.resolveFile(testFsReadOnlyRoot,expectedFiles[0])
@@ -94,5 +95,5 @@ class TestCopyOperations {
 	 * </tr><tr>
 	 *   <td>FOLDER</td><td>FOLDER</td>   <td>--</td> <td>Yes</td><td>Delete old folder. Move source folder in place.</td>
 	 * </tr>
-*/
+**/
 }
