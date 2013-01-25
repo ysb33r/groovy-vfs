@@ -11,7 +11,14 @@ according to that spec.
 
 Instructions to build:
 =====================
-
+( For Windows just change path names to contain \ instead of / )
+```
+  git clone git://github.com/ysb33r/KroovyBan.git 
+  cd KroovyBan
+  git config core.sparsecheckout true
+  echo SampleProjects/EnglishNumberFormatter/ > .git/info/sparse-checkout
+  cd SampleProjects/EnglishNumberFormatter
   gradle build
+```
   
   
