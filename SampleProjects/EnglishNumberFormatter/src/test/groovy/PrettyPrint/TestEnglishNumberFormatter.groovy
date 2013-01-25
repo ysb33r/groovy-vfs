@@ -88,18 +88,25 @@ class TestEnglishNumberFormatter {
     @Test
     void whenTheMillionsMultiplierIsNotMultipleOfHundredThenAndIsUsedInForm_VALUE_HUNDRED_AND_SOMETHING_MILLION () {
         _assert 123_000_010, "one hundred and twenty three million and ten"
-        _assert 234_010_010, "two hundred and thirty four million ten thousand and ten"
-        _assert 234_110_023, "two hundred and thirty four million one hundred and ten thousand and twenty three"
     }
     
     @Test
     void andIsOnlyUsedToJoinLessThanHundredValuesToHundredsAndThousandsAndMillions() {
         _assert   2_000_005, "two million and five"
         _assert   3_000_025, "three million and twenty five"
-        _assert  55_000_333, "fifty five million three hundred and thirty three"
-        _assert  78_004_000, "seventy eight million four thousand"
-        _assert  78_004_344, "seventy eight million four thousand three hundred and fourty four"
-        _assert  78_123_456, "seventy eight million one hundred and twenty three thousand four hundred and fifty six"
+    }
+    
+    // This is here as after writing it I noticed that the original s[ec had an 'and'
+    // between millions and thousands in its example. That is not correct English as
+    // far as I am concerned, but nevertheless it is what the spec requires. 
+    @Test
+    void andIsAlsoUsedToJoinMillionsToThousands() {
+        _assert  55_000_333, "fifty five million and three hundred and thirty three"
+        _assert  78_004_000, "seventy eight million and four thousand"
+        _assert  78_004_344, "seventy eight million and four thousand three hundred and fourty four"
+        _assert  78_123_456, "seventy eight million and one hundred and twenty three thousand four hundred and fifty six"
+        _assert 234_010_010, "two hundred and thirty four million and ten thousand and ten"
+        _assert 234_110_023, "two hundred and thirty four million and one hundred and ten thousand and twenty three"
     }
     
     @Test(expected=java.lang.NumberFormatException)
@@ -114,7 +121,7 @@ class TestEnglishNumberFormatter {
 
     @Test 
     void maxNumberPrints() {
-        _assert 999_999_999, "nine hundred and ninety nine million nine hundred and ninety nine thousand nine hundred and ninety nine"
+        _assert 999_999_999, "nine hundred and ninety nine million and nine hundred and ninety nine thousand and nine hundred and ninety nine"
     }
     
     @Test(expected=java.lang.NumberFormatException)
