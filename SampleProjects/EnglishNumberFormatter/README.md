@@ -8,3 +8,10 @@ I have been asked to produce the example code according to a small specification
 
 I don't believe 56945781's wording is actually correct English. However I have done the implementation 
 according to that spec.
+
+Instructions to build:
+=====================
+
+  gradle build
+  
+  
