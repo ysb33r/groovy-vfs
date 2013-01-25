@@ -68,17 +68,15 @@ class EnglishNumberFormatter {
         } 
         
         if ( value < 1000G ) {
-            def ret = "${fmt(base100)} ${fixedBaseNames[100G]}" 
-            return mod100 ? "${ret} and ${fmt(mod100)}": ret
+            return this.delegateFmt (100G , base100, mod100 )
         }
                 
         if ( value < 1_000_000G ) {
-            def ret = "${fmt(base1000)} ${fixedBaseNames[1000G]}"
-            return mod1000 ? "${ret}${mod1000<100G ? ' and ' : ' '}${fmt(mod1000)}": ret   
+            return delegateFmt (1000G , base1000, mod1000 )
         }
         
-        def ret = "${fmt(base1e6)} ${fixedBaseNames[1_000_000G]}"
-        return mod1e6 ? "${ret}${mod1e6<100G ? ' and ' : ' '}${fmt(mod1e6)}": ret    
+        return delegateFmt (1_000_000G , base1e6, mod1e6 )
+   
     }
     
     static String fmt(String value) {
@@ -87,5 +85,10 @@ class EnglishNumberFormatter {
         }    
         
         return fmt(value.toBigInteger())
-    }        
+    }    
+    
+    private static String delegateFmt( BigInteger level, BigInteger base, BigInteger modulus) {
+        def ret = "${fmt(base)} ${fixedBaseNames[level]}"
+        return modulus ? "${ret} and ${fmt(modulus)}": ret
+    }    
 }

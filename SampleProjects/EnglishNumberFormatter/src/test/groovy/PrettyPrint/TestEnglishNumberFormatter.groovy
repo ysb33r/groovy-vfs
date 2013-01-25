@@ -68,14 +68,14 @@ class TestEnglishNumberFormatter {
     
     @Test 
     void andIsNotUsedToJoinThousandToHundred() {
-        _assert 6500, "six thousand five hundred"
-        _assert 7623, "seven thousand six hundred and twenty three"
+        _assert 6500, "six thousand and five hundred"
+        _assert 7623, "seven thousand and six hundred and twenty three"
     }
     
     @Test
     void whenTheThousandsMultiplierIsNotMultipleOfHundredThenAndIsUsedInForm_VALUE_HUNDRED_AND_SOMETHING_THOUSAND () {
         _assert     120_023, "one hundred and twenty thousand and twenty three"
-        _assert     323_423, "three hundred and twenty three thousand four hundred and twenty three"
+        _assert     323_423, "three hundred and twenty three thousand and four hundred and twenty three"
     }
     
     @Test
@@ -103,8 +103,8 @@ class TestEnglishNumberFormatter {
     void andIsAlsoUsedToJoinMillionsToThousands() {
         _assert  55_000_333, "fifty five million and three hundred and thirty three"
         _assert  78_004_000, "seventy eight million and four thousand"
-        _assert  78_004_344, "seventy eight million and four thousand three hundred and fourty four"
-        _assert  78_123_456, "seventy eight million and one hundred and twenty three thousand four hundred and fifty six"
+        _assert  78_004_344, "seventy eight million and four thousand and three hundred and fourty four"
+        _assert  78_123_456, "seventy eight million and one hundred and twenty three thousand and four hundred and fifty six"
         _assert 234_010_010, "two hundred and thirty four million and ten thousand and ten"
         _assert 234_110_023, "two hundred and thirty four million and one hundred and ten thousand and twenty three"
     }
@@ -131,7 +131,7 @@ class TestEnglishNumberFormatter {
     
     @Test
     void passingStringWithNumberShouldBeParsedAndPrinted() {
-        assertEquals "nine hundred and ninety nine million nine hundred and ninety nine thousand nine hundred and ninety nine",
+        assertEquals "nine hundred and ninety nine million and nine hundred and ninety nine thousand and nine hundred and ninety nine",
             EnglishNumberFormatter.fmt("999999999")
     } 
 }
