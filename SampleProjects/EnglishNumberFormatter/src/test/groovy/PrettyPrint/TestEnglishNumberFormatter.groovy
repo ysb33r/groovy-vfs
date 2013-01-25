@@ -10,7 +10,7 @@ import org.junit.Test
 class TestEnglishNumberFormatter {
 
     void _assert( BigInteger value, String expected ) {
-        assertEquals expected,EnglishNumberFormatter.fmt(value)    
+        assertEquals "Tested ${} == '${expected}'", expected,EnglishNumberFormatter.fmt(value)    
     }
     
     @Test
@@ -25,6 +25,7 @@ class TestEnglishNumberFormatter {
     
     @Test
     void anyMultipleOfTenUpToNinetyPrintsFixedName() {
+         _assert 20, "twenty"  
          _assert 30, "thirty"  
          _assert 90, "ninety"  
     }
@@ -39,17 +40,36 @@ class TestEnglishNumberFormatter {
     void anyMultipleofHundredBelowThousandIsOfForm_MULTIPLIER_HUNDRED() {
         _assert 100, "one hundred"
         _assert 500, "five hundred"
-        _assert 900, "none hundred"        
+        _assert 900, "nine hundred"        
     }
     
     @Test
-    void anyMultipleOfThousandBelowMillionIsOfForm_MULTIPLIER_THOUSAND() {
+    void andIsUsedtoJoinHundredOfFrom_MULTIPLIER_HUNDRED_AND_MODULO() {
+        _assert 105, "one hundred and five"
+        _assert 598, "five hundred and ninety eight"
+    }
+    
+    @Test
+    void anyMultipleOfThousandBelowHundredThousandIsOfForm_MULTIPLIER_THOUSAND() {
         _assert   1_000, "one thousand"
         _assert  10_000, "ten thousand"
         _assert  15_000, "fifteen thousand"
+        _assert  78_000, "seventy eight thousand"
         _assert  90_000, "ninety thousand"
+    }
+    
+    @Test
+    void andIsUsedtoJoinThousandOfFrom_MULTIPLIER_THOUSAND_AND_MODULO() {
+        _assert 3003, "three thousand and three"
+        _assert 4056, "four thousand and fifty six"
         _assert 100_000, "one hundred thousand"
         _assert 900_000, "nine hundred thousand"        
+    }
+    
+    @Test 
+    void andIsNotUsedToJoinThousandToHundred() {
+        _assert 6500, "six thousand five hundred"
+        _assert 7623, "seven thousand six hundred and twenty three"
     }
     
     @Test
@@ -60,12 +80,6 @@ class TestEnglishNumberFormatter {
     
     @Test
     void andIsOnlyUsedToJoinLessThanHundredValuesToHundredsAndThousandsAndMillions() {
-        _assert         105, "one hundred and five"
-        _assert         598, "five hundred and ninety eight"
-        _assert        3003, "three thousand and three"
-        _assert        4056, "four thousand and fifty six"
-        _assert        6500, "six thousand five hundred"
-        _assert        7623, "seven thousand six hundred and twenty three"
         _assert     120_023, "one hundred and twenty thousand and twenty three"
         _assert     323_423, "three hundred and twenty three thousand four hundred and twenty three"
         _assert   2_000_005, "two million and five"
@@ -79,14 +93,14 @@ class TestEnglishNumberFormatter {
         _assert 234_110_023, "two hundred and thirty four million one hundred and ten thousand and twenty three"
     }
     
-    @Test(expected=java.lang.Exception)
+    @Test(expected=java.lang.NumberFormatException)
     void decimalsNotAllowed () {
         EnglishNumberFormatter.fmt("99.99")
     } 
 
-    @Test(expected=java.lang.Exception)
+    @Test(expected=java.lang.NumberFormatException)
     void negativesNotAllowed () {
-        EnglishNumberFormatter.fmt(-1)
+        EnglishNumberFormatter.fmt(-1G)
     }
 
     @Test 
@@ -94,8 +108,8 @@ class TestEnglishNumberFormatter {
         _assert 999_999_999, "nine hundred and ninety nine million nine hundred and ninety nine thousand nine hundred and ninety nine"
     }
     
-    @Test(expected=Exception)
+    @Test(expected=java.lang.NumberFormatException)
     void maxNumberIs999999999() {
-        EnglishNumberFormatter(1_000_000_000)
+        EnglishNumberFormatter.fmt(1_000_000_000G)
     }
 }
