@@ -121,4 +121,10 @@ class TestEnglishNumberFormatter {
     void maxNumberIs999999999() {
         EnglishNumberFormatter.fmt(1_000_000_000G)
     }
+    
+    @Test
+    void passingStringWithNumberShouldBeParsedAndPrinted() {
+        assertEquals "nine hundred and ninety nine million nine hundred and ninety nine thousand nine hundred and ninety nine",
+            EnglishNumberFormatter.fmt("999999999")
+    } 
 }

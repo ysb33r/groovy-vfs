@@ -82,8 +82,10 @@ class EnglishNumberFormatter {
     }
     
     static String fmt(String value) {
+        if(!value.isBigInteger()) {
+            throw new java.lang.NumberFormatException("Argument '${value}' cannot be parsed as an English number expression")
+        }    
         
-    }
-    
-    
+        return fmt(value.toBigInteger())
+    }        
 }
