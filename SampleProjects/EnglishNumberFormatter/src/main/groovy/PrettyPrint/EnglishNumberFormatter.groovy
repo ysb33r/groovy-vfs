@@ -68,16 +68,17 @@ class EnglishNumberFormatter {
         } 
         
         if ( value < 1000G ) {
-            def ret="${fmt(base100)} ${fixedBaseNames[100G]}" 
+            def ret = "${fmt(base100)} ${fixedBaseNames[100G]}" 
             return mod100 ? "${ret} and ${fmt(mod100)}": ret
         }
                 
         if ( value < 1_000_000G ) {
-            def ret= "${fmt(base1000)} ${fixedBaseNames[1000G]}"
-            return mod1000 ? "${ret} ${mod1000<100G?'and ':''}${fmt(mod1000)}": ret   
+            def ret = "${fmt(base1000)} ${fixedBaseNames[1000G]}"
+            return mod1000 ? "${ret}${mod1000<100G ? ' and ' : ' '}${fmt(mod1000)}": ret   
         }
         
-        return ""        
+        def ret = "${fmt(base1e6)} ${fixedBaseNames[1_000_000G]}"
+        return mod1e6 ? "${ret}${mod1e6<100G ? ' and ' : ' '}${fmt(mod1e6)}": ret    
     }
     
     static String fmt(String value) {

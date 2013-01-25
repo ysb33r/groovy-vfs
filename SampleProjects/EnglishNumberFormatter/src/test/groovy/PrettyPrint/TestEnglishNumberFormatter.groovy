@@ -73,24 +73,33 @@ class TestEnglishNumberFormatter {
     }
     
     @Test
+    void whenTheThousandsMultiplierIsNotMultipleOfHundredThenAndIsUsedInForm_VALUE_HUNDRED_AND_SOMETHING_THOUSAND () {
+        _assert     120_023, "one hundred and twenty thousand and twenty three"
+        _assert     323_423, "three hundred and twenty three thousand four hundred and twenty three"
+    }
+    
+    @Test
     void anyMultipleOfMillionIsOfForm_MULTIPLIER_MILLION() {
         _assert   1_000_000, "one million"
         _assert 900_000_000, "nine hundred million"    
     }
     
+    
+    @Test
+    void whenTheMillionsMultiplierIsNotMultipleOfHundredThenAndIsUsedInForm_VALUE_HUNDRED_AND_SOMETHING_MILLION () {
+        _assert 123_000_010, "one hundred and twenty three million and ten"
+        _assert 234_010_010, "two hundred and thirty four million ten thousand and ten"
+        _assert 234_110_023, "two hundred and thirty four million one hundred and ten thousand and twenty three"
+    }
+    
     @Test
     void andIsOnlyUsedToJoinLessThanHundredValuesToHundredsAndThousandsAndMillions() {
-        _assert     120_023, "one hundred and twenty thousand and twenty three"
-        _assert     323_423, "three hundred and twenty three thousand four hundred and twenty three"
         _assert   2_000_005, "two million and five"
         _assert   3_000_025, "three million and twenty five"
         _assert  55_000_333, "fifty five million three hundred and thirty three"
         _assert  78_004_000, "seventy eight million four thousand"
         _assert  78_004_344, "seventy eight million four thousand three hundred and fourty four"
         _assert  78_123_456, "seventy eight million one hundred and twenty three thousand four hundred and fifty six"
-        _assert 123_000_010, "one hundred and twenty three million and ten"
-        _assert 234_010_010, "two hundred and thirty four million ten thousand and ten"
-        _assert 234_110_023, "two hundred and thirty four million one hundred and ten thousand and twenty three"
     }
     
     @Test(expected=java.lang.NumberFormatException)
