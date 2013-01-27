@@ -18,7 +18,22 @@ Instructions to build:
   git config core.sparsecheckout true
   echo SampleProjects/EnglishNumberFormatter/ > .git/info/sparse-checkout
   cd SampleProjects/EnglishNumberFormatter
-  gradle build
+  gradle build distZip
 ```
-  
-  
+
+The above will build, test and package the library. The final artefact
+will be written to 
+```
+  build/distributions/EnglishNumberFormatter-0.1.zip
+```
+
+Instructions to run a sample conversion:
+=======================================  
+
+The JAR has a simple main function to show the conversion in action. To use it
+unpack the built zip and then run script with a number i.e
+
+```
+  cd EnglishNumberFormatter-0.1
+  bin/EnglishNumberFormatter 56945781 
+```
