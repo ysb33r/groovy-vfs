@@ -1,7 +1,7 @@
 A DSL for Groovy to wrap around the Apache VFS libraries
 
 =====================
-```
+```groovy
   import org.ysb33r.groovy.dsl.vfs.VFS
 
   def vfs = new VFS()
