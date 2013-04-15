@@ -36,7 +36,8 @@ if (project.properties.BUILD_FOR_JAVA6) {
 } else {
     sourceCompatibility = 1.7
     targetCompatibility = 1.7
-    version = '0.9-SNAPSHOT'
+    //version = '0.9-SNAPSHOT'
+    version = '0.01'
 }
 
 
@@ -80,6 +81,16 @@ test {
     systemProperties 'property': 'value'
 }
 */
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar 
+    //TODO: archives javadocJar
+}
 
 
 

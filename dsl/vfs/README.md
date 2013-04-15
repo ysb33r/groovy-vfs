@@ -2,6 +2,7 @@ A DSL for Groovy to wrap around the Apache VFS libraries
 
 =====================
 ```groovy
+  @GrabResolver(name='grysb33r', root='https://bintray.com/user/profile/ysb33r')
   import org.ysb33r.groovy.dsl.vfs.VFS
 
   def vfs = new VFS()
