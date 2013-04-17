@@ -18,7 +18,7 @@ buildscript {
         mavenRepo(url: 'http://jcenter.bintray.com')
     }
     dependencies {
-        classpath 'org.codehaus.groovy.modules.http-builder:http-builder:0.6+'
+        classpath 'org.codehaus.groovy.modules.http-builder:http-builder:0.6'
     }
 }
 

@@ -15,3 +15,5 @@ dsl/vfs/.*
 .settings
 .classpath
 .project
+
+SampleProjects/*/.gradle
