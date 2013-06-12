@@ -17,3 +17,4 @@ dsl/vfs/.*
 .project
 
 SampleProjects/*/.gradle
+.gradle
