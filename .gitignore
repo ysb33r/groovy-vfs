@@ -1,20 +1,12 @@
-kroovybanapp/web-app/WEB-INF/classes
-kroovybanapp/web-app/WEB-INF/tld
-kroovybanapp/plugins/core/
-kroovybanapp/stacktrace.log
-kroovybanapp/target/stacktrace.log
-kroovybanapp/target
-kroovybanapp/cobertura.ser
 *~
 
 /kroovybanapp/.settings/
-dsl/vfs/build
-dsl/vfs/bin
-dsl/vfs/dist
-dsl/vfs/.*
+dsl/build
+dsl/bin
+dsl/dist
+dsl/.*
 .settings
 .classpath
 .project
 
-SampleProjects/*/.gradle
 .gradle
