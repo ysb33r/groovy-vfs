@@ -35,36 +35,6 @@ class Util {
 		fsMgr.resolveFile(u.toString(), properties ? this.buildOptions(properties,fsMgr,fo) : fo )
 	}
 
-    /** Sets a single option on a FileSystemOptions instance
-     * @param scheme The protocol scheme to set the option on i.e. 'ftp'
-     * @param opt The specific option to set i.e. 'passiveMode'
-     * @param fsMgr The current virtual file system instance that is in use
-     * @param fsOpt The file system options instance associated with the VFS that needs updating
-     * @param v The object value that the option needs to be updated to
-     */
-    static def setOption = { String scheme, String opt, FileSystemManager fsMgr, FileSystemOptions fsOpt, Object... v ->
-        def builder = fsMgr.getFileSystemConfigBuilder(scheme)
-        if(builder) {
-            def setterName = "set${opt.capitalize()}"
-            if (builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,String) ) {
-                this.setValue( builder,setterName,fsOpt,v[0] )
-            } else if ( builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,Integer) ) {
-                this.setValue( builder,setterName,fsOpt,v[0] as Integer )
-            } else if ( builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,Boolean) ) {
-                this.setBooleanValue( builder,setterName,fsOpt,v[0] )
-            } else if (builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,String[]) ) {
-                // vfs.ftp.shortMonthNames
-                throw new java.lang.Exception("Cannot support arrays as yet")
-                // TODO: vfs.http.cookies org.apache.commons.httpclient.Cookie[]
-                // TODO: vfs.http.proxyAuthenticator org.apache.commons.vfs2.UserAuthenticator
-                // TODO: vfs.res.classLoader java.lang.ClassLoader
-            } else {
-                this.log(fsMgr,"'${opt}' is not a valid property for '${scheme}'")
-            }
-        }
-        return fsOpt
-    }
-    
 	/** Traverses a map extracting keys in the form of 'vfs.SCHEME.FSOPTION'.
 	 * Keys not of this form or not supported by the current file system 
 	 * manager will be ignored.
@@ -87,6 +57,36 @@ class Util {
 		return fsOpt
 	}
 
+    /** Sets a single option on a FileSystemOptions instance
+     * @param scheme The protocol scheme to set the option on i.e. 'ftp'
+     * @param opt The specific option to set i.e. 'passiveMode'
+     * @param fsMgr The current virtual file system instance that is in use
+     * @param fsOpt The file system options instance associated with the VFS that needs updating
+     * @param v The object value that the option needs to be updated to
+     */
+    static def setOption ( String scheme, String opt, FileSystemManager fsMgr, FileSystemOptions fsOpt,  v ) {
+        def builder = fsMgr.getFileSystemConfigBuilder(scheme)
+        if(builder) {
+            def setterName = "set${opt.capitalize()}"
+            if (builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,String) ) {
+                this.setValue( builder,setterName,fsOpt,v )
+            } else if ( builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,Integer) ) {
+                this.setValue( builder,setterName,fsOpt,v as Integer )
+            } else if ( builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,Boolean) ) {
+                this.setBooleanValue( builder,setterName,fsOpt,v )
+            } else if (builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,String[]) ) {
+                // vfs.ftp.shortMonthNames
+                throw new java.lang.Exception("Cannot support arrays as yet")
+                // TODO: vfs.http.cookies org.apache.commons.httpclient.Cookie[]
+                // TODO: vfs.http.proxyAuthenticator org.apache.commons.vfs2.UserAuthenticator
+                // TODO: vfs.res.classLoader java.lang.ClassLoader
+            } else {
+                this.log(fsMgr,"'${opt}' is not a valid property for '${scheme}'")
+            }
+        }
+        return fsOpt
+    }
+    
 	private static def setValue = { builder,operation,fsOpts,value ->
 		builder."${operation}"(fsOpts,value)
 	}

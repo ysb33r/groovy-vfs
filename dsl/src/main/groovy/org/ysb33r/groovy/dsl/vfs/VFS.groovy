@@ -85,18 +85,7 @@ class VFS {
 		fsMgr.metaClass.loggerInstance = {->getLogger()}
 		
 		defaultFSOptions = Util.buildOptions(properties,fsMgr)
-        
-        configDelegator = new Expando()
-        fsMgr.schemes.each {
-            configDelegator."${it}" = { Closure props ->
-                // At this point when props is called, we need to delegate each
-                // item to SOMETHING(PROTOCOL,) 
-                // that will produce the following call
-                // this.options 'vfs.PROTOCOL.OPTION' : Value
-                // defaultFSOptions= Util.setOption( "${it}",option,fsMgr,defaultFSOptions,VALUE )
-            }
-        }
-	}
+  	}
 
 	/**
 	 * Executes a sequence of operations on the same VFS

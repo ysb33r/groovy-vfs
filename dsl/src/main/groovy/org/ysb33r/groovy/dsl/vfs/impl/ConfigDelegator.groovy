@@ -35,16 +35,17 @@ class ConfigDelegator {
     def propertyMissing(String property) { property }
     
     def methodMissing(String method, args) {
+        println "*** ${method}"
         def object = args[0]
        
-        object.case {
-            when Closure then {
+        switch (object) {
+            case Closure :
                 if (scheme != null ) {
                     throw new SyntaxException("Syntax issue in VFS options configuration DSL")
                 } 
 
-                if( ! fsMgr.getFileSystemConfigBuilder(scheme) ) {
-                    throw new SyntaxException("'${scheme}' is not currently supported in this DSL. Maybe you are missing a third-party dependency")
+                if( ! fsManager.getFileSystemConfigBuilder(method) ) {
+                    throw new SyntaxException("'${method}' is not currently supported in this DSL. Maybe you are missing a third-party dependency")
                 }
                 
                 scheme = method
@@ -52,15 +53,14 @@ class ConfigDelegator {
                 object.resolveStrategy = Closure.DELEGATE_FIRST
                 object()
                 scheme= null
-            }
-            otherwise {
-                
+                break
+            default:
+                println "********* ${args}"
                 if( scheme == null ) {
                     throw new SyntaxException("Syntax issue in VFS options configuration DSL. '${method}' is not valid in this context.")
                 }
                 
-                fsOpts= Util.setOption( scheme, method, fsManager, fsOpts, args )
-            }
+                fsOpts= Util.setOption( scheme, method, fsManager, fsOpts, args[0] )
         }
     }
 }
