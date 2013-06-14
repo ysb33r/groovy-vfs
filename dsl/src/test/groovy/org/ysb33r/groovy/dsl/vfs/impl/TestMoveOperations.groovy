@@ -21,7 +21,7 @@ import org.apache.commons.vfs2.AllFileSelector
 
 class TestMoveOperations {
 
-	static def testFsReadOnlyRoot = new File('src/test/resources/test-files')
+	static def testFsReadOnlyRoot = new File("${System.getProperty('TESTFSREADROOT')}/src/test/resources/test-files")
 	static def testFsReadRoot
 	static def testFsWriteRoot
 	

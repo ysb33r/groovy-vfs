@@ -21,15 +21,16 @@ import org.apache.commons.vfs2.Selectors;
 import org.apache.commons.vfs2.impl.StandardFileSystemManager
 import org.ysb33r.groovy.dsl.vfs.impl.CopyMoveOperations
 import org.ysb33r.groovy.dsl.vfs.impl.Util
+import org.ysb33r.groovy.dsl.vfs.impl.ConfigDelegator
 import org.apache.commons.logging.Log
 
 /**
- * @author Schalk W. Cronjé
+ * @author Schalk W. CronjÃ©
  *
  * {@code
  * import org.ysb33r.groovy.dsl.vfs.VFS
  * 
- * def vfs = VFS.manager( ..... )
+ * def vfs = new VFS()
  * 
  * 
  * vfs.cp ftp://foo.example/myfile sftp://bar.example/yourfile
@@ -38,9 +39,17 @@ import org.apache.commons.logging.Log
  *   cp http://first.example/myfile, sftp://second.example/yourfile
  *   mv sftp://second.example/yourfile, ftp://third.example/theirfile
  *   
+ *   options {
+ *      ftp {
+ *          passive true
+ *      }
+ *   }
+ *   
  *   ls http://first.example {
  *   }
  *    
+ *   options 'vfs.ftp.passive' : true
+ *   
  *   cat http://first.example/myfile {
  *   }
  * }
@@ -51,7 +60,7 @@ class VFS {
 
 	private def fsMgr
 	private FileSystemOptions defaultFSOptions
-
+    
 	/**
 	 * @param properties - Default properties for initialising the system 
 	 * @li cacheStrategy - Sets the cache strategy to use when dealing with file object data
@@ -76,6 +85,17 @@ class VFS {
 		fsMgr.metaClass.loggerInstance = {->getLogger()}
 		
 		defaultFSOptions = Util.buildOptions(properties,fsMgr)
+        
+        configDelegator = new Expando()
+        fsMgr.schemes.each {
+            configDelegator."${it}" = { Closure props ->
+                // At this point when props is called, we need to delegate each
+                // item to SOMETHING(PROTOCOL,) 
+                // that will produce the following call
+                // this.options 'vfs.PROTOCOL.OPTION' : Value
+                // defaultFSOptions= Util.setOption( "${it}",option,fsMgr,defaultFSOptions,VALUE )
+            }
+        }
 	}
 
 	/**
@@ -335,6 +355,44 @@ class VFS {
 		)
 	}
 
+    /** Changes the default virtual file system options
+     * 
+     * @code
+     * def vfs = new VFS()
+     * 
+     * vfs.options 'vfs.ftp.passiveMode' : true
+     * 
+     * vfs << {
+     *   options {
+     *     ftp {
+     *      passiveMode  true
+     *     }
+     *   }  
+     * }
+     * 
+     * @endcode
+    */
+    def options( Closure cfgDSL ) {
+        defaultFSOptions = new ConfigDelegator( fsManager : fsMgr, fsOpts : defaultFSOptions ) .bind (cfgDSL)
+    }
+    
+    /** Changes the default virtual file system options
+     * 
+     * @code
+     * def vfs = new VFS()
+     * 
+     * vfs.options 'vfs.ftp.passiveMode' : true
+     * 
+     * vfs << {
+     *   options 'vfs.ftp.passiveMode' : true
+     * }
+     * 
+     * @endcode
+    */
+    def options( properties=[:] ) {
+        defaultFSOptions = Util.buildOptions(properties, fsMgr, defaultFSOptions)    
+    }
+    
 	def friendlyURI( FileObject uri ) {
 		return uri.name.friendlyURI
 	}

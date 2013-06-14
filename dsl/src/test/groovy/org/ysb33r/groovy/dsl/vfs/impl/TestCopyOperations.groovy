@@ -21,7 +21,7 @@ import org.apache.commons.vfs2.AllFileSelector
 
 class TestCopyOperations {
 
-	static def testFsReadOnlyRoot = new File('src/test/resources/test-files')
+	static def testFsReadOnlyRoot = new File("${System.getProperty('TESTFSREADROOT')}/src/test/resources/test-files")
 	static def testFsWriteRoot
 	
 	static def expectedFiles= ['file1.txt','file2.txt','test-subdir/file3.txt','test-subdir/file4.txt']

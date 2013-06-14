@@ -1,5 +1,6 @@
 // ============================================================================
-// (C) Copyright Schalk W. Cronje 2013
+// Copyright (C) Schalk W. Cronje 2013
+//
 //
 // This software is licensed under the Apache License 2.0
 // See http://www.apache.org/licenses/LICENSE-2.0 for license details
@@ -10,7 +11,24 @@
 //
 // ============================================================================
 
-rootProject.name = 'groovy-vfs'
+/**
+ * 
+ */
+package org.ysb33r.groovy.dsl.vfs
+import groovy.transform.CompileStatic
 
-include 'dsl'
-include 'gradle-plugin'
+/**
+ * @author Schalk W. Cronjé
+ *
+ */
+@CompileStatic
+class SyntaxException extends Exception {
+
+	/**
+	 * @param message
+	 */
+	public SyntaxException(String message) {
+		super(message)
+	}
+
+}

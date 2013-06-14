@@ -9,8 +9,10 @@
 // See the License for the specific language governing permissions and limitations under the License.
 //
 // ============================================================================
+// This file has the single purpose of faking out Groovy 2.x transforms so that
+// the code can compile under 1.8
+// ============================================================================
+package groovy.transform
 
-rootProject.name = 'groovy-vfs'
-
-include 'dsl'
-include 'gradle-plugin'
+public @interface CompileStatic {}
+public @interface TypeChecked {}

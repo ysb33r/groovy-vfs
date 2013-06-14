@@ -12,7 +12,6 @@
 
 apply plugin : 'eclipse'
 apply plugin : 'idea'
-apply plugin : 'bintray-publish'
 
 buildscript {
     repositories {
@@ -27,6 +26,14 @@ buildscript {
 
 allprojects {
 
+    apply plugin : 'bintray-publish'
+    apply plugin : 'groovy'
+    
+    repositories {
+        mavenRepo(url: 'http://repository.codehaus.org')
+        mavenCentral()
+    }
+    
     group = 'org.ysb33r.dsl.vfs'
     version = '0.2'
 
@@ -34,7 +41,25 @@ allprojects {
         bintrayRepo = 'grysb33r'
         bintrayUser = 'ysb33r'
     }
+    
+    dependencies {
+        compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5+'        
+        compile 'org.apache.commons:commons-vfs2:2.0'
+        testCompile 'commons-net:commons-net:3.+'
+        testCompile 'commons-httpclient:commons-httpclient:3.1'
+    }
+    
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+    
+    artifacts {
+        archives sourcesJar
+    }
+    
 }
+
 
 task wrapper(type: Wrapper) {
     gradleVersion = '1.6'

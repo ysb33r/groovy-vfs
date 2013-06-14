@@ -1,8 +1,14 @@
 // ============================================================================
-// Copyright (C) Schalk W. Cronje 2012
+// Copyright (C) Schalk W. Cronje 2012 - 2013
 //
-// This software is licensed under the Apche License 2.0
+//
+// This software is licensed under the Apache License 2.0
 // See http://www.apache.org/licenses/LICENSE-2.0 for license details
+//
+// Unless required by applicable law or agreed to in writing, software distributed under the License is
+// distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and limitations under the License.
+//
 // ============================================================================
 
 package org.ysb33r.groovy.dsl.vfs.impl
@@ -28,7 +34,37 @@ class Util {
 		def fo = this.buildOptions(u.properties(),fsMgr,defaultFSOptions)
 		fsMgr.resolveFile(u.toString(), properties ? this.buildOptions(properties,fsMgr,fo) : fo )
 	}
-	
+
+    /** Sets a single option on a FileSystemOptions instance
+     * @param scheme The protocol scheme to set the option on i.e. 'ftp'
+     * @param opt The specific option to set i.e. 'passiveMode'
+     * @param fsMgr The current virtual file system instance that is in use
+     * @param fsOpt The file system options instance associated with the VFS that needs updating
+     * @param v The object value that the option needs to be updated to
+     */
+    static def setOption = { String scheme, String opt, FileSystemManager fsMgr, FileSystemOptions fsOpt, Object... v ->
+        def builder = fsMgr.getFileSystemConfigBuilder(scheme)
+        if(builder) {
+            def setterName = "set${opt.capitalize()}"
+            if (builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,String) ) {
+                this.setValue( builder,setterName,fsOpt,v[0] )
+            } else if ( builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,Integer) ) {
+                this.setValue( builder,setterName,fsOpt,v[0] as Integer )
+            } else if ( builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,Boolean) ) {
+                this.setBooleanValue( builder,setterName,fsOpt,v[0] )
+            } else if (builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,String[]) ) {
+                // vfs.ftp.shortMonthNames
+                throw new java.lang.Exception("Cannot support arrays as yet")
+                // TODO: vfs.http.cookies org.apache.commons.httpclient.Cookie[]
+                // TODO: vfs.http.proxyAuthenticator org.apache.commons.vfs2.UserAuthenticator
+                // TODO: vfs.res.classLoader java.lang.ClassLoader
+            } else {
+                this.log(fsMgr,"'${opt}' is not a valid property for '${scheme}'")
+            }
+        }
+        return fsOpt
+    }
+    
 	/** Traverses a map extracting keys in the form of 'vfs.SCHEME.FSOPTION'.
 	 * Keys not of this form or not supported by the current file system 
 	 * manager will be ignored.
@@ -45,27 +81,9 @@ class Util {
 			if (m.matches()) {
 				def scheme = m[0][1]
 				def opt = m[0][2]
-				def builder = fsMgr.getFileSystemConfigBuilder(scheme)				
-				if(builder) {
-					def setterName = "set${opt.capitalize()}"
-					if (builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,String) ) {
-						this.setValue( builder,setterName,fsOpt,v )
-					} else if (	builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,Integer) ) {
-						this.setValue( builder,setterName,fsOpt,v as Integer )						
-					} else if (	builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,Boolean) ) {
-						this.setBooleanValue( builder,setterName,fsOpt,v )
-					} else if (builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,String[]) ) {
-						// vfs.ftp.shortMonthNames
-						throw new java.lang.Exception("Cannot support arrays as yet")
-					} else {
-						this.log(fsMgr,"'${opt}' is not a valid property for '${scheme}'")
-					}
-				} 
+                fsOpt = setOption( scheme, opt, fsMgr, fsOpt, v )
 			}
 		} 
-		// vfs.http.cookies org.apache.commons.httpclient.Cookie[]
-		// vfs.http.proxyAuthenticator org.apache.commons.vfs2.UserAuthenticator
-		// vfs.res.classLoader java.lang.ClassLoader
 		return fsOpt
 	}
 

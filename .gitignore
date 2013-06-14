@@ -1,9 +1,9 @@
 *~
 
 /kroovybanapp/.settings/
-dsl/build
-dsl/bin
-dsl/dist
+*/build
+*/bin
+*/dist
 dsl/.*
 .settings
 .classpath

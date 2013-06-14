@@ -11,6 +11,7 @@ import static org.junit.Assert.*
 
 import org.apache.commons.vfs2.FileSystemOptions
 import org.apache.commons.vfs2.FileType;
+import org.apache.commons.vfs2.provider.ftp.FtpFileSystemConfigBuilder
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Assert
@@ -33,7 +34,7 @@ import org.junit.Ignore
 		// 'mime'
 	]
 	
-	static File testFsReadOnlyRoot = new File('src/test/resources/test-files')
+	static File testFsReadOnlyRoot = new File("${System.getProperty('TESTFSREADROOT')}/src/test/resources/test-files")
 	static String testFsURI
 	static File testFsWriteRoot
 	static String testFsWriteURI
@@ -141,6 +142,30 @@ import org.junit.Ignore
 		} 
 	} 
 	
+    @Test
+    void settingOptionsShouldUpdateDefaultOptions() {
+        def vfs = new VFS('vfs.ftp.passiveMode' : true)
+        def fscb = vfs.fsMgr.getFileSystemConfigBuilder('ftp') as FtpFileSystemConfigBuilder
+        
+        assertTrue fscb.getPassiveMode( vfs.defaultFSOptions )
+        vfs.options 'vfs.ftp.passiveMode' : false 
+        assertFalse fscb.getPassiveMode( vfs.defaultFSOptions )
+   }
+    
+    @Test
+    void settingOptionsFromClosureShouldUpdateDefaultOptions() {
+        def vfs = new VFS('vfs.ftp.passiveMode' : true)
+        def fscb = vfs.fsMgr.getFileSystemConfigBuilder('ftp') as FtpFileSystemConfigBuilder
+        
+        assertTrue fscb.getPassiveMode( vfs.defaultFSOptions )
+        vfs.options {
+            ftp {
+              passiveMode  false
+            } 
+        }
+        assertFalse fscb.getPassiveMode( vfs.defaultFSOptions )
+    }
+    
 	@Test
 	void scriptAndLeftShiftShouldExecuteMultipleStatement() {
 
