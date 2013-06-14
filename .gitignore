@@ -10,3 +10,5 @@ dsl/.*
 .project
 
 .gradle
+.build
+build
