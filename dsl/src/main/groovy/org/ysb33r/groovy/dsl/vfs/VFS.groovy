@@ -99,8 +99,15 @@ class VFS {
 	/** Override the << operator and an alias to the script method
 	 * 
 	 */
-	def leftShift = script
+	//def leftShift = script
 	
+    /** 
+     * 
+     * @param c
+     * @return
+     */
+    def call (Closure c) {script(c)}
+    
 	/**
 	 * If used without a closure it will return an of VFS FileObject[]. 
 	 * If a closure is passed to it, then the closure will be called with a FileObject for

@@ -11,7 +11,7 @@ Groovy Code
   vfs.cp 'ftp://foo.example/myfile', 'sftp://bar.example/yourfile'
  
    // Utilising the DSL 
-   vfs << {
+   vfs {
    
      // Copy file from one site to anther using two different protocols
      cp 'http://first.example/myfile', 'sftp://second.example/yourfile'
@@ -37,6 +37,10 @@ Groovy Code
        }
      }
      
+     // Use options on a per URL basis
+     cp 'ftp://first.example/myfile?vfs.ftp.passiveMode=1', 'sftp://second.example/yourfile?vfs.sftp.compression=zlib'
+     
+     
    }  
 ```
 
@@ -44,29 +48,40 @@ Groovy Code
 Gradle plugin (EXPERIMENTAL)
 =============
 
-It is now possible to use this in Gradle as a task
+It is now possible to use this in Gradle as an extension to the project class.
+The interface is very experimental and may change without much warning in future
+releases of this plugin.
 
 ```groovy
-import org.ysb33r.gradle.Vfs
 
 buildscript {
- // TODO: Details need to be completed
+    repositories {
+        mavenCentral()
+        mavenRepo(url: 'http://repository.codehaus.org')
+        mavenRepo(url: 'http://dl.bintray.com/ysb33r/grysb33r')
+      }
+      dependencies {
+        classpath 'org.ysb33r.gradle:vfs:0.2'
+      }
 }
+apply plugin : 'vfs'
 
 // Create a VFS task
-task vfs (type:Vfs) 
-
-// Add closures that will be executed when the task is run
-vfs << {
-  cp 'https://raw.github.com/ysb33r/groovy-vfs/master/README.md', "${buildDir}/tmp/README.md"
-}
-
-// Configure options on the VFS
-vfs {
-  ftp {
-    passiveMode true
+task copyReadme << { 
+  project.vfs {
+    cp 'https://raw.github.com/ysb33r/groovy-vfs/master/README.md', "${buildDir}/tmp/README.md"
   }
 }
+
+// it is also possible to update global options for vfs
+project.vfs {
+  options {
+    http {
+      maxTotalConnections 4
+    }
+  }
+}
+
 
 ```
 

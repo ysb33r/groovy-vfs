@@ -154,16 +154,16 @@ import org.junit.Ignore
     
     @Test
     void settingOptionsFromClosureShouldUpdateDefaultOptions() {
-        def vfs = new VFS('vfs.ftp.passiveMode' : true)
-        def fscb = vfs.fsMgr.getFileSystemConfigBuilder('ftp') as FtpFileSystemConfigBuilder
+        def gfs = new VFS('vfs.ftp.passiveMode' : false)
+        def fscb = gfs.fsMgr.getFileSystemConfigBuilder('ftp') as FtpFileSystemConfigBuilder
         
-        assertTrue fscb.getPassiveMode( vfs.defaultFSOptions )
-        vfs.options {
+        assertFalse fscb.getPassiveMode( gfs.defaultFSOptions )
+        gfs.options {
             ftp {
-              passiveMode  false
+              passiveMode  true
             } 
         }
-        assertFalse fscb.getPassiveMode( vfs.defaultFSOptions )
+        assertTrue fscb.getPassiveMode( gfs.defaultFSOptions ) 
     }
     
 	@Test
@@ -173,7 +173,7 @@ import org.junit.Ignore
 		def uri= testFsURI
 		def file= new File("${testFsReadOnlyRoot}/${expectedFiles[0]}")
 		
-		vfs << {
+		vfs  {
 			ls (uri) {
 				if(it.name.baseName != 'test-subdir') {
 					assertTrue "${it} is not an expected file in ${testFsURI}",expectedFiles.contains(it.name.baseName)
@@ -185,7 +185,7 @@ import org.junit.Ignore
 			}
 		}
 	
-		vfs << {
+		vfs  {
 			ls (uri,filter:~/file1\.txt/) {
 				cat (it) { 
 					assertEquals file.text,it.text
@@ -204,7 +204,7 @@ import org.junit.Ignore
 		
 		
 /*		
-		vfs << {
+		vfs  {
 			ls (uri,filter:~/file1\.txt/) cat(it) { 
 					assertEquals file.text,it.text
 			}

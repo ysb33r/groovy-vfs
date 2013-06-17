@@ -13,6 +13,7 @@
 
 package org.ysb33r.groovy.dsl.vfs.impl
 
+import org.apache.commons.vfs2.FileSystemManager
 import org.apache.commons.vfs2.FileSystemOptions
 import org.ysb33r.groovy.dsl.vfs.SyntaxException
 import groovy.transform.*
@@ -20,7 +21,7 @@ import groovy.transform.*
 @TupleConstructor
 class ConfigDelegator {
 
-    def fsManager
+    FileSystemManager fsManager
     FileSystemOptions fsOpts
 
     private String scheme
@@ -35,27 +36,26 @@ class ConfigDelegator {
     def propertyMissing(String property) { property }
     
     def methodMissing(String method, args) {
-        println "*** ${method}"
         def object = args[0]
-       
+        
         switch (object) {
             case Closure :
                 if (scheme != null ) {
                     throw new SyntaxException("Syntax issue in VFS options configuration DSL")
-                } 
-
+                }
+                 
                 if( ! fsManager.getFileSystemConfigBuilder(method) ) {
                     throw new SyntaxException("'${method}' is not currently supported in this DSL. Maybe you are missing a third-party dependency")
                 }
-                
+
                 scheme = method
                 object.delegate = this
                 object.resolveStrategy = Closure.DELEGATE_FIRST
                 object()
                 scheme= null
                 break
-            default:
-                println "********* ${args}"
+
+             default:
                 if( scheme == null ) {
                     throw new SyntaxException("Syntax issue in VFS options configuration DSL. '${method}' is not valid in this context.")
                 }
