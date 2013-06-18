@@ -28,7 +28,7 @@ vfs {
     mv 'sftp://second.example/yourfile', 'ftp://third.example/theirfile'
  
     // Lists all files on a remote site
-    ls 'http://first.example' {
+    ls ('http://first.example') {
         println it.name
     }
   
