@@ -3,45 +3,52 @@ A DSL for Groovy to wrap around the Apache VFS libraries
 Groovy Code
 ===========
 ```groovy
-  import org.ysb33r.groovy.dsl.vfs.VFS
 
-  def vfs = new VFS()
+@Grapes([
+    @GrabResolver( name='grysb33r', root='http://dl.bintray.com/ysb33r/grysb33r' ),
+	@Grab( 'org.ysb33r.groovy:groovy-vfs:0.2' ),
+	@Grab( 'commons-net:commons-net:3.+' ), // If you want to use ftp 
+    @Grab( 'commons-httpclient:commons-httpclient:3.1'), // If you want http/https
+    @Grab( 'com.jcraft:jsch:0.1.48' ) // If you want sftp
+])
+import org.ysb33r.groovy.dsl.vfs.VFS
+
+def vfs = new VFS()
  
-  // Simple copy operation 
-  vfs.cp 'ftp://foo.example/myfile', 'sftp://bar.example/yourfile'
+// Simple copy operation
+vfs.cp 'ftp://foo.example/myfile', 'sftp://bar.example/yourfile'
  
-   // Utilising the DSL 
-   vfs {
+// Utilising the DSL
+vfs {
    
-     // Copy file from one site to anther using two different protocols
-     cp 'http://first.example/myfile', 'sftp://second.example/yourfile'
-     
-     // Not implemented yet - move file between two sites using different protocols
-     mv 'sftp://second.example/yourfile', 'ftp://third.example/theirfile'
-     
-     // Lists all files on a remote site
-     ls 'http://first.example' {
-       println it.name
-     }
-      
-     // Streams the output 
-     println cat ('http://first.example/myfile') .text 
+    // Copy file from one site to anther using two different protocols
+    cp 'http://first.example/myfile', 'sftp://second.example/yourfile'
  
-     // Change default options via property Map
-     options 'vfs.ftp.passiveMode' : true
+    // Not implemented yet - move file between two sites using different protocols
+    mv 'sftp://second.example/yourfile', 'ftp://third.example/theirfile'
+ 
+    // Lists all files on a remote site
+    ls 'http://first.example' {
+        println it.name
+    }
+  
+    // Streams the output
+    println cat ('http://first.example/myfile') .text
+ 
+    // Change default options via property Map
+    options 'vfs.ftp.passiveMode' : true
+ 
+    // Change default options DSL style
+    options {
+        ftp {
+            passiveMode true
+        }
+    }
+ 
+    // Use options on a per URL basis
+    cp 'ftp://first.example/myfile?vfs.ftp.passiveMode=1', 'sftp://second.example/yourfile?vfs.sftp.compression=zlib'
      
-     // Change default options DSL style
-     options {
-       ftp {
-         passiveMode true
-       }
-     }
-     
-     // Use options on a per URL basis
-     cp 'ftp://first.example/myfile?vfs.ftp.passiveMode=1', 'sftp://second.example/yourfile?vfs.sftp.compression=zlib'
-     
-     
-   }  
+}
 ```
 
 
