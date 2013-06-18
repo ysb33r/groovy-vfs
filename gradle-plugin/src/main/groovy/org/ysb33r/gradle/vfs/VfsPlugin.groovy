@@ -33,3 +33,4 @@ class VfsPlugin implements Plugin<Project> {
         }   
     }
 }
+

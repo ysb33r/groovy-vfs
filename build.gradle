@@ -34,7 +34,6 @@ allprojects {
         mavenCentral()
     }
     
-    group = 'org.ysb33r.dsl.vfs'
     version = '0.2'
 
     ext {

@@ -11,6 +11,8 @@
 // ============================================================================
 
 ext.moduleName = 'vfs-gradle-plugin'
+group = 'org.ysb33r.gradle'
+archivesBaseName = 'vfs-gradle-plugin'
 
 dependencies {
     compile gradleApi()
