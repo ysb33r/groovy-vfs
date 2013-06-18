@@ -12,8 +12,8 @@
 apply plugin : 'groovy'
 apply plugin : 'bintray-publish'
 
-group = 'org.ysb33r.groovy.dsl' 
-
+group = 'org.ysb33r.groovy' 
+archivesBaseName = 'groovy-vfs'
 
 
 if (project.properties.BUILD_FOR_JAVA6) {
