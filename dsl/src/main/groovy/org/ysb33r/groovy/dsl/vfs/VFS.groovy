@@ -25,9 +25,9 @@ import org.ysb33r.groovy.dsl.vfs.impl.ConfigDelegator
 import org.apache.commons.logging.Log
 
 /**
- * @author Schalk W. Cronjé
  *
- * {@code
+ * 
+ * <pre>
  * import org.ysb33r.groovy.dsl.vfs.VFS
  * 
  * def vfs = new VFS()
@@ -54,22 +54,30 @@ import org.apache.commons.logging.Log
  *   }
  * }
  * 
- * }
- */
+ * </pre>
+ * 
+ * @author Schalk W. Cronjé
+ * @since 0.1 */
 class VFS {
 
 	private def fsMgr
 	private FileSystemOptions defaultFSOptions
     
-	/**
-	 * @param properties - Default properties for initialising the system 
-	 * @li cacheStrategy - Sets the cache strategy to use when dealing with file object data
-	 * @li defaultProvider - Default provider for unknown schemas
-	 * @li filesCache - Sets the file cache implementation
-	 * @li logger Sets the logger to use. Unlike the Apache VFS2 default behaviour, not providing this property, will turn off VFS logging completely
-	 * @li replicator - Sets the replicator
-	 * @li temporaryFileStore - Sets the temporary file store
-	 * @li Any file system properties in the form vfs.FILESYSTEM.OPTION i.e. vfs.ftp.passive
+	/** Constructs a Virtual File System.
+	 * 
+	 * During construction a number of properties can be passed to the underlying Apache VFS system.
+	 * <p> 
+     * <li> cacheStrategy - Sets the cache strategy to use when dealing with file object data
+     * <li> defaultProvider - Default provider for unknown schemas
+     * <li> filesCache - Sets the file cache implementation
+     * <li> logger Sets the logger to use. Unlike the Apache VFS2 default behaviour, not providing this property, will turn off VFS logging completely
+     * <li> replicator - Sets the replicator
+     * <li> temporaryFileStore - Sets the temporary file store
+     * <p>
+     * In addition any global filesystem options can also be set 
+     * vfs.FILESYSTEM.OPTION i.e. <code> 'vfs.ftp.passiveMode' : true </code>
+     * 
+     * @param properties Default properties for initialising the system 
 	 */
 	VFS( Map properties=[:] ) {
 		fsMgr = new StandardFileSystemManager()
@@ -95,11 +103,6 @@ class VFS {
 		newc.delegate=this
 		newc.call()
 	}
-	
-	/** Override the << operator and an alias to the script method
-	 * 
-	 */
-	//def leftShift = script
 	
     /** 
      * 

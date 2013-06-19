@@ -47,6 +47,9 @@ vfs {
  
     // Use options on a per URL basis
     cp 'ftp://first.example/myfile?vfs.ftp.passiveMode=1', 'sftp://second.example/yourfile?vfs.sftp.compression=zlib'
+    
+    // Download a compressed archive and unpack to local directory
+    cp 'tbz2:ftp:/first.example/myFiles.tar.bz2", new File( '../unpack-here' ), recursive:true
      
 }
 ```
@@ -78,13 +81,13 @@ apply plugin : 'vfs'
 
 // Create a VFS task
 task copyReadme << { 
-  project.vfs {
+  vfs {
     cp 'https://raw.github.com/ysb33r/groovy-vfs/master/README.md', "${buildDir}/tmp/README.md"
   }
 }
 
 // it is also possible to update global options for vfs
-project.vfs {
+vfs {
   options {
     http {
       maxTotalConnections 4
@@ -94,6 +97,8 @@ project.vfs {
 
 
 ```
+
+If you want to see what VFS is going run gradle with --debug
 
 Credits
 =======
