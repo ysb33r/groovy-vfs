@@ -56,7 +56,7 @@ class VfsSpec extends spock.lang.Specification {
             fscb.getPassiveMode( project.__vfs.defaultFSOptions )
     }
     
-    def "Calling VFS closures via << should execute immediately"() {
+    def "Calling VFS closures should execute immediately"() {
         
         Integer count= 0
         given:

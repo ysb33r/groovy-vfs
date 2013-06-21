@@ -24,11 +24,12 @@ class VfsPlugin implements Plugin<Project> {
     
     void addProjectExtension(Project project) {
         if(!project.metaClass.respondsTo(project,'vfs',Closure)) {
-            project.metaClass.__vfs = new VFS ( 
+
+            project.ext.__vfs = new VFS (
                 logger : LogFactory.getLog('vfs'),
                 temporaryFileStore : "${project.gradle.gradleUserHomeDir}/vfs"
             )
-            project.metaClass.vfs = { Closure c -> project.__vfs.script(c) }
+            project.ext.vfs = { Closure c -> project.__vfs.script(c) }
             project.logger.debug 'Added project.vfs'
         }   
     }
