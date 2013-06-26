@@ -100,6 +100,11 @@ vfs {
 
 If you want to see what VFS is going run gradle with --debug
 
+Documentation
+=============
+
+See https://github.com/ysb33r/groovy-vfs/wiki for more detailed documentation.
+
 Credits
 =======
 
