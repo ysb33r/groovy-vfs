@@ -71,7 +71,7 @@ buildscript {
         mavenRepo(url: 'http://dl.bintray.com/ysb33r/grysb33r')
       }
       dependencies {
-        classpath 'org.ysb33r.gradle:vfs:0.2'
+        classpath 'org.ysb33r.gradle:vfs-gradle-plugin:0.2'
         classpath 'commons-net:commons-net:3.+'  // If you want to use ftp 
         classpath 'commons-httpclient:commons-httpclient:3.1' // If you want http/https
         classpath 'com.jcraft:jsch:0.1.48'  // If you want sftp
@@ -82,7 +82,7 @@ apply plugin : 'vfs'
 // Create a VFS task
 task copyReadme << { 
   vfs {
-    cp 'https://raw.github.com/ysb33r/groovy-vfs/master/README.md', "${buildDir}/tmp/README.md"
+    cp 'https://raw.github.com/ysb33r/groovy-vfs/master/README.md', new File("${buildDir}/tmp/README.md")
   }
 }
 
