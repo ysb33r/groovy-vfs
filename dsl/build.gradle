@@ -15,11 +15,16 @@ apply plugin : 'bintray-publish'
 group = 'org.ysb33r.groovy' 
 archivesBaseName = 'groovy-vfs'
 
+if (org.gradle.internal.SystemProperties.javaVersion.startsWith('1.6.')) {
+    ext {
+        BUILD_FOR_JAVA6=true
+    }    
+}
 
 if (project.properties.BUILD_FOR_JAVA6) {
     sourceCompatibility = 1.6
     targetCompatibility = 1.6
-    version = version + 'JAVA6-SNAPSHOT'
+    version = version + '-java6'
 } else {
     sourceCompatibility = 1.7
     targetCompatibility = 1.7
@@ -55,6 +60,7 @@ dependencies {
 	javamail Version 1.4
 */	
     testCompile group: 'junit', name: 'junit', version: '4.+'
+    //testCompile group: ''
 }
 
 test {
