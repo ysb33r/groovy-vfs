@@ -306,7 +306,7 @@ class VFS {
 	 * Can also be a closure, in which case it needs to be of interface boolean(from,to).
 	 * @li filter.  A filter to select which file objects to copy. The filter is ignored if the source is a file.
 	 * @li smash. Set to true, to replace an existing target file/directory with a source directory/file.
-     *
+     * @li intermediates. Default behaviour is to create non-existing intermediate subdirectories of target path. Set to 'false' if this behaviour is undesired.
 	 * The following rules apply, if no filter is provided or if the source matches the provided filter
 	 * 
 	 * <table>
@@ -350,7 +350,8 @@ class VFS {
 			resolveURI(properties,from),
 			resolveURI(properties,to),
 			properties.smash ?: false,
-			properties.overwrite ?: false
+			properties.overwrite ?: false,
+            properties.intermediates ?: true
 		)
 	}
 

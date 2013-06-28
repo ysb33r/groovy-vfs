@@ -12,6 +12,7 @@ import org.apache.commons.vfs2.FileObject
 import org.apache.commons.vfs2.FileType
 import org.apache.commons.vfs2.FileSelector
 import org.apache.commons.vfs2.AllFileSelector
+import org.apache.commons.vfs2.FileSystemException
 import org.ysb33r.groovy.dsl.vfs.FileActionException
 import org.ysb33r.groovy.dsl.vfs.FilterException;
 import org.apache.commons.vfs2.Selectors
@@ -63,11 +64,15 @@ class CopyMoveOperations {
 	 * 
 	 * @param from
 	 * @param to
-	 * @param smash
+	 * @param smash - Ability to forcefully replace a file with a folder and vice-versa
 	 * @param overwrite
+	 * @param intermediates Default behaviour is to create intermediate subdirectories of target path, should they not exist. Set to 'false' if this behaviour is not desired
+	 * @param noCreateSubFolder In most cases when moving a folder into a folder then target subfolder needs to be
+	 * created. There are some cases where this behaviour is deemed inappropriate. In those cases set to true.
 	 * @return
 	 */
-	static def move( FileObject from,FileObject to,boolean smash,boolean overwrite) {
+    @CompileStatic
+	static def move( FileObject from,FileObject to,boolean smash,boolean overwrite,boolean intermediates=true,boolean noCreateSubFolder=false) {
 		def fromType= from.type
 		def toType= to.type
 		assert fromType != FileType.FILE_OR_FOLDER
@@ -76,8 +81,9 @@ class CopyMoveOperations {
 			throw new FileActionException("Source '${friendlyURI(from)}' does not exist")
 		}
 
-        if( !smash && fromType == FileType.FILE && toType == FileType.FOLDER ) {
-            return move(from,to.resolveFile(from.name.baseName),smash,overwrite)    
+        
+        if( !smash && !noCreateSubFolder && (fromType == FileType.FILE || fromType == FileType.FOLDER) && toType == FileType.FOLDER ) {            
+            return move(from,to.resolveFile(from.name.baseName),smash,overwrite,intermediates,toType == FileType.FOLDER && fromType == FileType.FOLDER)    
         }
         
 		if(!smash && fromType==FileType.FOLDER && toType==FileType.FILE) {
@@ -85,11 +91,26 @@ class CopyMoveOperations {
 		}
 		
 		def existing= to.exists()
-        // if the target !exists, ->write
-        // if target exists, smash is set, ->write
-        // if target exists, smash is off, overwrite is on, target is file, source is file overwrite
 		if( !existing || smash || (existing && overwrite )  ) {
-			from.moveTo(to)
+            if(intermediates && toType==FileType.IMAGINARY ) {
+                if(fromType==FileType.FILE) {
+                    to.createFile()    
+                } else if(fromType==FileType.FILE) {
+                    to.createFolder()
+                }
+            }
+            try {
+                from.moveTo(to)
+            } catch (FileSystemException e) {
+                if(intermediates) {
+                    throw e
+                } else {
+                    throw new FileActionException(
+                            "Attempt to move a file of folder fail with intermediates:false. This could be due to target subdirectories not existing.",
+                            to,e
+                    )
+                }
+            }
 		} else {
 			throw new FileActionException("Replacing '${friendlyURI(to)}' with '${friendlyURI(from)}' is not allowed as both overwrite and smash are 'false'.")
 		}
