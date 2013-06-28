@@ -76,12 +76,19 @@ class CopyMoveOperations {
 			throw new FileActionException("Source '${friendlyURI(from)}' does not exist")
 		}
 
-		if(!smash && (fromType==FileType.FOLDER && toType==FileType.FILE || fromType==FileType.FILE && toType==FileType.FOLDER)) {
-			throw new FileActionException("Cannot replace folder with file or file with folder if smash=='false'")
+        if( !smash && fromType == FileType.FILE && toType == FileType.FOLDER ) {
+            return move(from,to.resolveFile(from.name.baseName),smash,overwrite)    
+        }
+        
+		if(!smash && fromType==FileType.FOLDER && toType==FileType.FILE) {
+			throw new FileActionException("Cannot replace folder with file if smash=='false'")
 		}
 		
 		def existing= to.exists()
-		if( !existing || ( (overwrite || smash) && !existing) ) {
+        // if the target !exists, ->write
+        // if target exists, smash is set, ->write
+        // if target exists, smash is off, overwrite is on, target is file, source is file overwrite
+		if( !existing || smash || (existing && overwrite )  ) {
 			from.moveTo(to)
 		} else {
 			throw new FileActionException("Replacing '${friendlyURI(to)}' with '${friendlyURI(from)}' is not allowed as both overwrite and smash are 'false'.")
