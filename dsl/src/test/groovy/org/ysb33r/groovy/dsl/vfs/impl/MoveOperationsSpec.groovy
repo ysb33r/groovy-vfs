@@ -216,6 +216,66 @@ class MoveOperationsSpec extends Specification {
             expected.exists()
     }
     
+    def "Moving folder to existing folder with same-named child folder and have overwrite:true"() {
+        setup: "Create an exiting subdirectory containing "
+            def source=new File("${testFsReadRoot}")
+            def from=vfs.toFileObject(source)
+            def root=new File("${testFsWriteRoot}")
+            def to=vfs.toFileObject(root)
+            
+        and: "Create a subfolder below a folder with same name as in source"
+            def expected= new File("${testFsWriteRoot}/test-subdir/one-more")
+            expected.mkdirs()
+            
+        and: "Add one file to this subfolder"
+            def expected_file=new File("${expected}/something.txt")
+            expected_file.text = "FOOBAR"
+            
+        and: "Create a file with the same path as the source"
+            new File("${root}/${expectedFiles[2]}").text = "BARFOO"
+            
+        when: "target parent folder name is specified, overwrite is true, smash is false, same-named child folder exists"
+            from.children.each {
+                move(it,to,false,true)
+            }
+
+        then:
+            expected.exists()
+            expected_file.exists()
+            expected_file.text == 'FOOBAR'
+            new File("${root}/${expectedFiles[0]}").text == new File("${testFsReadOnlyRoot}/${expectedFiles[0]}").text
+            new File("${root}/${expectedFiles[2]}").text == new File("${testFsReadOnlyRoot}/${expectedFiles[2]}").text
+    }
+    
+    def "Moving folder to existing folder with same-named child folder and using an overwrite closure"() {
+        setup: 
+            def source=new File("${testFsReadRoot}")
+            def from=vfs.toFileObject(source)
+            def root=new File("${testFsWriteRoot}")
+            def to=vfs.toFileObject(root)
+            
+        and: "Create files with same names as the source"
+            def expected= new File("${testFsWriteRoot}/test-subdir")
+            expected.mkdirs()
+            expectedFiles.each {
+                new File("${testFsWriteRoot}/${it}").text = "FOOBAR"
+            }
+            
+        when: "target parent folder name is specified, overwrite is true, smash is false, same-named child folder exists"
+            Closure overwrite = { F,T ->
+                F.name.baseName.startsWith('file2') || F.name.baseName.startsWith('file4')
+            }
+            from.children.each {
+                move(it,to,false,overwrite)
+            }
+
+        then:
+            new File("${root}/${expectedFiles[0]}").text == "FOOBAR"
+            new File("${root}/${expectedFiles[1]}").text == new File("${testFsReadOnlyRoot}/${expectedFiles[1]}").text
+            new File("${root}/${expectedFiles[2]}").text == "FOOBAR"
+            new File("${root}/${expectedFiles[3]}").text == new File("${testFsReadOnlyRoot}/${expectedFiles[3]}").text
+    }
+    
     def "Moving folder to existing file"() {
         setup:
             def source=new File("${testFsReadRoot}/${expectedFiles[0]}")

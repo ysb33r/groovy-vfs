@@ -15,13 +15,14 @@ package org.ysb33r.groovy.dsl.vfs.impl
 import java.util.regex.Pattern;
 
 import org.apache.commons.vfs2.FileObject
-import org.apache.commons.vfs2.FileType
+import static org.apache.commons.vfs2.FileType.*
 import org.apache.commons.vfs2.FileSelector
 import org.apache.commons.vfs2.AllFileSelector
 import org.apache.commons.vfs2.FileSystemException
 import org.ysb33r.groovy.dsl.vfs.FileActionException
 import org.ysb33r.groovy.dsl.vfs.FilterException;
 import org.apache.commons.vfs2.Selectors
+
 
 import groovy.transform.TypeChecked
 import groovy.transform.CompileStatic
@@ -39,15 +40,16 @@ class CopyMoveOperations {
 	 * @param from
 	 * @param to
 	 * @param smash
-	 * @param overwrite
+	 * @param overwrite 'true', 'false' or a Closure which will be passed a fileObject and must return groovy truth
 	 * @param filter Optional filter to apply. If the from type is a file, then the filter is ignored.
 	 * @return
 	 */
-	static def copy( FileObject from,FileObject to,boolean smash,boolean overwrite,boolean recursive,filter=null ) {
+    @CompileStatic
+	static def copy( FileObject from,FileObject to,boolean smash,def overwrite,boolean recursive,filter=null ) {
 
 		def fromType= from.type
 		def toType= to.type
-		assert fromType != FileType.FILE_OR_FOLDER
+		assert fromType != FILE_OR_FOLDER
 		
 		if(!from.exists()) {
 			throw new FileActionException("Source '${friendlyURI(from)}' does not exist")
@@ -56,10 +58,10 @@ class CopyMoveOperations {
 		def selector=_createSelector(filter)
 		
 		switch(fromType) {
-			case FileType.FILE:
+			case FILE:
 				_copyFromSourceFile(from,to,smash,_overwritePolicy(overwrite),selector)
 				break					
-			case FileType.FOLDER:
+			case FOLDER:
 				_copyFromSourceDir(from,to,smash,_overwritePolicy(overwrite),recursive,selector)
 				break
 		}		
@@ -78,56 +80,101 @@ class CopyMoveOperations {
 	 * @return
 	 */
     @CompileStatic
-	static def move( FileObject from,FileObject to,boolean smash,boolean overwrite,boolean intermediates=true,boolean noCreateSubFolder=false) {
+	static def move( FileObject from,FileObject to,boolean smash,def overwrite,boolean intermediates=true,boolean noCreateSubFolder=false) {
 		def fromType= from.type
 		def toType= to.type
-		assert fromType != FileType.FILE_OR_FOLDER
+		assert fromType != FILE_OR_FOLDER
 		
 		if(!from.exists()) {
 			throw new FileActionException("Source '${friendlyURI(from)}' does not exist")
 		}
-
         
-        if( !smash && !noCreateSubFolder && (fromType == FileType.FILE || fromType == FileType.FOLDER) && toType == FileType.FOLDER ) {            
-            return move(from,to.resolveFile(from.name.baseName),smash,overwrite,intermediates,toType == FileType.FOLDER && fromType == FileType.FOLDER)    
+        if(smash) {
+            _moveItem(from,to,intermediates)
+        } else {
+            if(toType == FOLDER && !noCreateSubFolder) { 
+                return move(from,to.resolveFile(from.name.baseName),false,overwrite,intermediates,true)    
+            }
+            
+    		if(fromType==FOLDER && toType==FILE || toType==FOLDER && fromType==FILE) {
+    			throw new FileActionException("Cannot replace folder with file  or file with folder if smash=='false'. Moving '${friendlyURI(to)}' over '${friendlyURI(from)}' is not allowed")
+    		}
+    		
+            if(fromType==FOLDER && toType==FOLDER && from.name.baseName == to.name.baseName && overwrite) {
+                _recursiveMoveAndOverwrite(from,to,_overwritePolicy(overwrite))
+            } else {
+        		def existing= to.exists()
+        		if( !existing ) {
+                    _moveItem(from,to,intermediates)
+        		} else if (existing && overwrite ) {
+                    if(_overwritePolicy(overwrite).call(from,to)) {
+                        _moveItem(from,to,intermediates)
+                    }
+        		} else {
+        			throw new FileActionException("Replacing '${friendlyURI(to)}' with '${friendlyURI(from)}' is not allowed as both overwrite and smash are 'false'.")
+        		}
+            }
         }
-        
-		if(!smash && fromType==FileType.FOLDER && toType==FileType.FILE) {
-			throw new FileActionException("Cannot replace folder with file if smash=='false'")
-		}
-		
-		def existing= to.exists()
-		if( !existing || smash || (existing && overwrite )  ) {
-            if(intermediates && toType==FileType.IMAGINARY ) {
-                if(fromType==FileType.FILE) {
-                    to.createFile()    
-                } else if(fromType==FileType.FILE) {
-                    to.createFolder()
-                }
-            }
-            try {
-                from.moveTo(to)
-            } catch (FileSystemException e) {
-                if(intermediates) {
-                    throw e
-                } else {
-                    throw new FileActionException(
-                            "Attempt to move a file of folder fail with intermediates:false. This could be due to target subdirectories not existing.",
-                            to,e
-                    )
-                }
-            }
-		} else {
-			throw new FileActionException("Replacing '${friendlyURI(to)}' with '${friendlyURI(from)}' is not allowed as both overwrite and smash are 'false'.")
-		}
-		
 	}
-	
+
+    /** Moves an item, creating intermediates if necessary.
+     * 
+     * @param from
+     * @param to
+     * @param intermediates
+     * @return
+     */
+    @CompileStatic
+    private static void _moveItem(FileObject from,FileObject to,boolean intermediates) {
+        def fromType= from.type
+        def toType= to.type
+
+        if(intermediates && toType==IMAGINARY ) {
+            if(fromType==FILE) {
+                to.createFile()
+            } else if(fromType==FILE) {
+                to.createFolder()
+            }
+        }
+        try {
+            from.moveTo(to)
+        } catch (FileSystemException e) {
+            if(intermediates) {
+                throw e
+            } else {
+                throw new FileActionException(
+                        "Attempt to move a file of folder fail with intermediates:false. This could be due to target subdirectories not existing.",
+                        to,e
+                )
+            }
+        }
+    }	
+    
+    /** A recursive move of files for when source and target folders have exactly the same name and selective overwrite
+     * is required. 
+     * 
+     * This internal function has to iterate through each child and move them individually
+     * 
+     * @param from
+     * @param to
+     * @return
+     */
+    @CompileStatic
+    private static def _recursiveMoveAndOverwrite(FileObject from,FileObject to, Closure overwrite) {
+        assert from.type == FOLDER
+        assert to.type == FOLDER
+        assert from.name.baseName == to.name.baseName
+        
+        from.children.each { FileObject f ->
+            move(f,to.resolveFile(f.name.baseName),false,overwrite,false,false)
+        }    
+    }
+    
 	/** Creates a VFS selector from a passed in filter
 	 * @todo Closure, Pattern, 
 	 * @return
 	 */
-	static def _createSelector(filter) {
+	static FileSelector _createSelector(filter) {
 		def selector
 		switch (filter) {
 			case null:
@@ -146,7 +193,7 @@ class CopyMoveOperations {
 				break
 			case Closure:
 				assert false,"TODO: Using a closure as a filter NEEDS IMPLEMENTATION"
-				/*
+				/* Milestone: 0.4
 				selector = [
 					'includeFile' : { fsi -> filter.call(fsi) },
 					'traverseDescendents' : traverse
@@ -165,16 +212,16 @@ class CopyMoveOperations {
 	 */
 	private static def _copyFromSourceFile(FileObject from,FileObject to,boolean smash,Closure overwrite,FileSelector selector) {
 		def toType= to.type
-		assert toType != FileType.FILE_OR_FOLDER
+		assert toType != FILE_OR_FOLDER
 
 		FileObject target
 		switch(toType) { 
-			case FileType.FOLDER:					
+			case FOLDER:					
 				if(!smash) {
 					target=to.resolveFile(from.name.baseName)
-					if(target.type == FileType.FOLDER) {
+					if(target.type == FOLDER) {
 						throw new FileActionException("Destination directory '${this.friendlyURI(to)}' contains directory with the same name as the source file '${from.name.baseName}'") 
-					} else if (target.type == FileType.FILE && target.exists() && !overwrite(from,target) ) {
+					} else if (target.type == FILE && target.exists() && !overwrite(from,target) ) {
 						throw new FileActionException("'${this.friendlyURI(target)}' exists and overwrite mode is not set")
 					}					
 				} else {
@@ -182,11 +229,11 @@ class CopyMoveOperations {
 				}
 
 				break
-			case FileType.FILE:
+			case FILE:
 				if(to.exists() && !overwrite(from,to)) {
 					throw new FileActionException("'${this.friendlyURI(to)}' exists and overwrite mode is not set")							
 				}
-			case FileType.IMAGINARY:
+			case IMAGINARY:
 				target=to
 				break
 			default:
@@ -205,13 +252,13 @@ class CopyMoveOperations {
 		FileObject target
 		
 		switch(toType) {
-			case FileType.FILE:
+			case FILE:
 				if(!smash) {
 					throw new FileActionException("${this.friendlyURI(from)} is a directory, ${this.friendlyURI(to)} is a file, and smash is not set")				
 				}
 				to.copyFrom(from,selector)
 				break
-			case FileType.FOLDER:
+			case FOLDER:
 				if(smash) {					
 					def original=to.parent.resolveFile('$'*10+"${to.name.baseName}"+'$'*10)
 					target=to.parent.resolveFile(from.name.baseName)
@@ -234,7 +281,7 @@ class CopyMoveOperations {
 					throw new FileActionException( "Attempt to copy from folder '${friendlyURI(from)}' to folder '${friendlyURI(to)}', but recursive and smash are not set")
 				}
 				break
-			case FileType.IMAGINARY:
+			case IMAGINARY:
 				if(recursive) {
 					to.copyFrom(from,selector)
 				} else {
@@ -270,7 +317,7 @@ class CopyMoveOperations {
 				if(target.exists()) {
 					if(!overwrite(it.file,target)) {
 						throw new FileActionException("Overwriting existing target '${friendlyURI(to)}' is not allowed")
-					} else if(target.type == FileType.FOLDER) {
+					} else if(target.type == FOLDER) {
 						throw new FileActionException("Replacing existing target folder '${friendlyURI(to)}' with a file is not allowed")
 					}
 				}
@@ -295,12 +342,12 @@ class CopyMoveOperations {
 	 * @return
 	 */
 	@CompileStatic
-	private static def _overwritePolicy(overwrite) {
+	private static Closure _overwritePolicy(overwrite) {
 		switch(overwrite) {
 			case true:
 				return {f,t->true}
 			case Closure:
-				return overwrite
+				return overwrite as Closure
 			case false:
 				return {f,t->false}
 			default:
