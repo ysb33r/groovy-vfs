@@ -31,7 +31,6 @@ public class UtilTest {
 			
 	}
 
-	@Ignore
 	@Test
 	void settingValidIntegerValue() {
 		def vfs=VFS.getManager()
@@ -50,7 +49,6 @@ public class UtilTest {
 		assertEquals newValue, ftp.getSoTimeout(fsOpts)
 	}
 
-	@Ignore
 	@Test
 	void settingValidBooleanValue() {
 		def vfs=VFS.getManager()
@@ -111,7 +109,6 @@ public class UtilTest {
 		Util.buildOptions( 'vfs.ftp.passiveMode': 0 , vfs )
 	}
 
-	@Ignore
 	@Test
 	void overridingFileSystemOptions() {
 		def vfs=VFS.getManager()
@@ -124,7 +121,6 @@ public class UtilTest {
 		assertTrue fsOpts != ctrl
 	}
 	
-	@Ignore
 	@Test(expected=org.apache.commons.vfs2.FileSystemException)
 	void invalidSchemeShouldRaiseException() {
 		Util.buildOptions( 'vfs.foobar.property': 10000, VFS.getManager() )
