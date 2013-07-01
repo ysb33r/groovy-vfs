@@ -174,7 +174,7 @@ class CopyMoveOperations {
 	 * @todo Closure, Pattern, 
 	 * @return
 	 */
-	static FileSelector _createSelector(filter) {
+	private static FileSelector _createSelector(filter) {
 		def selector
 		switch (filter) {
 			case null:

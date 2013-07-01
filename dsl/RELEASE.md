@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.4 - Roadmap
+-------------
++ Using a closure as a filter when copying
+
+0.3
+---
++ Move files and folders between sites
++ Copy operations support using a closure for overwrites
++ Builds with JDK6
 
 0.2
 ---

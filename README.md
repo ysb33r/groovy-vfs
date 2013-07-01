@@ -35,6 +35,9 @@ vfs {
     // Streams the output
     println cat ('http://first.example/myfile') .text
  
+    // Create a new folder on a remote site
+    mkdir 'sftp://second.example/my/new/folder'
+    
     // Change default options via property Map
     options 'vfs.ftp.passiveMode' : true
  
@@ -112,4 +115,6 @@ It is seldom that these kind of libraries happen in isolation. It is therefore p
 that I acknowledge the inputs of others in the creation of groovy-vfs
 
 + Will_lp (https://gist.github.com/will-lp/5785180) & Jim White (https://gist.github.com/jimwhite/5784982) 
-offered great suggestions when I got stuck with the config DSL. 
+offered great suggestions when I got stuck with the config DSL.
++ Jez Higgins, Rob Fletcher, Giovanni Asproni, Balachandran Sivakumar, Burkhard Kloss & Tim Barker who helped shape the design decision
+to auto-create intermediates during a move operation.
