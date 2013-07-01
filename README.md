@@ -6,7 +6,7 @@ Groovy Code
 
 @Grapes([
     @GrabResolver( name='grysb33r', root='http://dl.bintray.com/ysb33r/grysb33r' ),
-	@Grab( 'org.ysb33r.groovy:groovy-vfs:0.2' ),
+	@Grab( 'org.ysb33r.groovy:groovy-vfs:0.3' ),
 	@Grab( 'commons-net:commons-net:3.+' ), // If you want to use ftp 
     @Grab( 'commons-httpclient:commons-httpclient:3.1'), // If you want http/https
     @Grab( 'com.jcraft:jsch:0.1.48' ) // If you want sftp
@@ -74,7 +74,7 @@ buildscript {
         mavenRepo(url: 'http://dl.bintray.com/ysb33r/grysb33r')
       }
       dependencies {
-        classpath 'org.ysb33r.gradle:vfs-gradle-plugin:0.2'
+        classpath 'org.ysb33r.gradle:vfs-gradle-plugin:0.3'
         classpath 'commons-net:commons-net:3.+'  // If you want to use ftp 
         classpath 'commons-httpclient:commons-httpclient:3.1' // If you want http/https
         classpath 'com.jcraft:jsch:0.1.48'  // If you want sftp
