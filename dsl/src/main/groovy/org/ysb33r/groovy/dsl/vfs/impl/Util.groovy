@@ -103,7 +103,6 @@ class Util {
 				builder."${operation}"(fsOpts,value)
 				break
 			default:
-println "default: ${value}"
 				if (value.metaClass.respondsTo(value,'asBoolean')) {
 					builder."${operation}"(fsOpts,value.asBoolean())					
 				} else if (value.metaClass.respondsTo(value,'toString')) {
@@ -115,10 +114,10 @@ println "default: ${value}"
 	}
 
 	private static def setBooleanValueFromValidString = { builder,operation,fsOpts,String value ->
-println "XXX: ${value}"		
 		builder."${operation}"(fsOpts,value.toBoolean())
 		
 	}
+    
 	private static def log = { fsMgr,data ->
 		// TODO: fsMgr.getLogger
 		println "TODO: IMPLEMENT LOGGING OF :::${data}:::"

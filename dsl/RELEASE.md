@@ -3,11 +3,13 @@ Changelog
 
 0.4 - Roadmap
 -------------
-+ Using a closure as a filter when copying
++ [Using a closure as a filter when copying](https://github.com/ysb33r/groovy-vfs/issues/4)
++ [Allow option not to create intermediate paths when copying](https://github.com/ysb33r/groovy-vfs/issues/2)
++ [Obtain logger instance in use by Groovy VFS](https://github.com/ysb33r/groovy-vfs/issues/6)
 
 0.3
 ---
-+ Move files and folders between sites
++ [Move files and folders between sites](https://github.com/ysb33r/groovy-vfs/issues/3)
 + Copy operations support using a closure for overwrites
 + Builds with JDK6
 
