@@ -35,7 +35,7 @@ class FtpSpec extends Specification {
    
    def "Can we list files on FTP server"() {
        given:
-         def listing = []
+         Set listing = []
          vfs {
              ls (server.READROOT) {
                  listing << it.name.baseName

@@ -14,8 +14,7 @@ package org.ysb33r.groovy.dsl.vfs
 
 
 import spock.lang.*
-
-//import org.ysb33r.groovy.dsl.vfs
+import org.ysb33r.groovy.dsl.vfs.services.HttpServer
 
 class HttpSpec extends Specification {
     @Shared HttpServer server
