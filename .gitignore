@@ -8,7 +8,7 @@ dsl/.*
 .settings
 .classpath
 .project
-
+.DS_Store
 .gradle
 .build
 build

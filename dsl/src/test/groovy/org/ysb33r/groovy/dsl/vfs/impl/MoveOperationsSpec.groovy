@@ -228,8 +228,8 @@ class MoveOperationsSpec extends Specification {
             expected.mkdirs()
             
         and: "Add one file to this subfolder"
-            def expected_file=new File("${expected}/something.txt")
-            expected_file.text = "FOOBAR"
+            def expectedFile=new File("${expected}/something.txt")
+            expectedFile.text = "FOOBAR"
             
         and: "Create a file with the same path as the source"
             new File("${root}/${expectedFiles[2]}").text = "BARFOO"
@@ -241,8 +241,8 @@ class MoveOperationsSpec extends Specification {
 
         then:
             expected.exists()
-            expected_file.exists()
-            expected_file.text == 'FOOBAR'
+            expectedFile.exists()
+            expectedFile.text == 'FOOBAR'
             new File("${root}/${expectedFiles[0]}").text == new File("${testFsReadOnlyRoot}/${expectedFiles[0]}").text
             new File("${root}/${expectedFiles[2]}").text == new File("${testFsReadOnlyRoot}/${expectedFiles[2]}").text
     }
@@ -262,8 +262,8 @@ class MoveOperationsSpec extends Specification {
             }
             
         when: "target parent folder name is specified, overwrite is true, smash is false, same-named child folder exists"
-            Closure overwrite = { F,T ->
-                F.name.baseName.startsWith('file2') || F.name.baseName.startsWith('file4')
+            Closure overwrite = { f,t ->
+                f.name.baseName.startsWith('file2') || f.name.baseName.startsWith('file4')
             }
             from.children.each {
                 move(it,to,false,overwrite)

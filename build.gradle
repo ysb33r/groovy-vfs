@@ -12,6 +12,7 @@
 
 apply plugin : 'eclipse'
 apply plugin : 'idea'
+apply plugin : 'jenkins'
 
 buildscript {
     repositories {
@@ -21,13 +22,15 @@ buildscript {
       }
       dependencies {
         classpath 'org.ysb33r.gradle:bintray:0.0.9'
+        classpath 'com.terrafolio:gradle-jenkins-plugin:0.3.1'
       }
 }
 
-allprojects {
+subprojects {
 
     apply plugin : 'bintray-publish'
     apply plugin : 'groovy'
+    apply plugin : 'codenarc'
     
     repositories {
         mavenRepo(url: 'http://repository.codehaus.org')
@@ -59,6 +62,25 @@ allprojects {
     
 }
 
+/*
+jenkins {
+    servers {
+        "DEV@Cloud" {
+            url cloudbeesJenkinsUrl
+            secure true
+            username cloudbeesUserName
+            password cloudbeesPassword
+        }
+    }    
+    
+    defaultServer servers."DEV@Cloud"
+    
+    jobs {
+        
+    }
+    
+}
+*/
 
 task wrapper(type: Wrapper) {
     gradleVersion = '1.6'
