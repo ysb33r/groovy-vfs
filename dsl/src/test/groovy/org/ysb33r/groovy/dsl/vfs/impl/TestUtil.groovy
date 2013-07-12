@@ -136,19 +136,22 @@ public class UtilTest {
 		assertTrue "file.txt is a test file and should be found at ${testFsURI}/file1.txt", r.exists() 
 	} 
 	
-	@Ignore
-	@Test
-	void resolvingURIWithDefaultOptionsShouldFindIt() {
-		
-	}
+    @Test
+    void resolvingURIwithExtraOptionsShouldSetCorrectFilesystemOptions() {
+        def vfs=VFS.getManager()
+        def originalOptions=new FileSystemOptions()
+        def ftp = vfs.getFileSystemConfigBuilder("ftp")
+        ftp.setSoTimeout(originalOptions,9999)
+        ftp.setUserDirIsRoot(originalOptions,true)
+        
+        def newValue = 10002
+        
+        def u = new URI ("ftp://some.host:1234?vfs.ftp.soTimeout=${newValue}")
+        def newOptions = Util.buildOptions(u,vfs,originalOptions)
+        assertEquals newValue,ftp.getSoTimeout(newOptions)
+        assertEquals true,ftp.getUserDirIsRoot(newOptions)
 
-	@Ignore
-	@Test
-	void resolvingURIWithDefaultOptionsAndExtraShouldFindIt() {
-		
-	}
-
-
+    }
 
 }
 

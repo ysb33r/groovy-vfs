@@ -13,7 +13,7 @@
 
 package org.ysb33r.groovy.dsl.vfs.impl
 
-
+import org.apache.commons.logging.Log
 import org.apache.commons.vfs2.FileSystemOptions
 import org.apache.commons.vfs2.FileSystemManager
 import org.ysb33r.groovy.dsl.vfs.OptionException
@@ -31,7 +31,7 @@ class Util {
 	 */
 	static def resolveURI (properties=[:],FileSystemManager fsMgr,FileSystemOptions defaultFSOptions,uri) {
 		def u = uri instanceof URI ? uri : new URI(uri)
-		def fo = this.buildOptions(u.properties(),fsMgr,defaultFSOptions)
+		def fo = this.buildOptions(u,fsMgr,defaultFSOptions)
 		fsMgr.resolveFile(u.toString(), properties ? this.buildOptions(properties,fsMgr,fo) : fo )
 	}
 
@@ -44,7 +44,7 @@ class Util {
 	 * @param fsMgr File system manager
 	 * @param baseFSOpt If supplied this is used as the initial file system options
 	 */
-	static def buildOptions = { Map options,FileSystemManager fsMgr, FileSystemOptions baseFSOpt=null ->
+	static def buildOptions (Map options,FileSystemManager fsMgr, FileSystemOptions baseFSOpt=null) {
 		def fsOpt = baseFSOpt ? baseFSOpt.clone() : new FileSystemOptions() 
 		options.each { k,v ->
 			def m = k =~ /^(?i:vfs\.)(\p{Alpha}\p{Alnum}+)\.(\p{Alpha}\w+)$/
@@ -57,6 +57,21 @@ class Util {
 		return fsOpt
 	}
 
+    /** Extracts property information from a URI object and returns a FileSystemOptions instance
+     * @param uri URI object
+     * @param fsMgr File system manager
+     * @param baseFSOpt If supplied this is used as the initial file system options
+     */
+    static def buildOptions ( URI uri, FileSystemManager fsMgr, FileSystemOptions baseFSOpt=null ) {
+        def fsOpt = baseFSOpt ? baseFSOpt.clone() : new FileSystemOptions()
+        uri.properties().each { scheme,options ->
+            options.each { k,v ->
+                fsOpt = setOption( scheme,k,fsMgr,fsOpt, v)
+            }
+        }
+        return fsOpt
+    }
+    
     /** Sets a single option on a FileSystemOptions instance
      * @param scheme The protocol scheme to set the option on i.e. 'ftp'
      * @param opt The specific option to set i.e. 'passiveMode'
@@ -65,14 +80,18 @@ class Util {
      * @param v The object value that the option needs to be updated to
      */
     static def setOption ( String scheme, String opt, FileSystemManager fsMgr, FileSystemOptions fsOpt,  v ) {
+
         def builder = fsMgr.getFileSystemConfigBuilder(scheme)
         if(builder) {
             def setterName = "set${opt.capitalize()}"
             if (builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,String) ) {
+                log fsMgr, 'debug', "Setting ${scheme} option (String): ${setterName} to ${v} "
                 this.setValue( builder,setterName,fsOpt,v )
             } else if ( builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,Integer) ) {
+                log fsMgr, 'debug', "Setting ${scheme} option (Integer): ${setterName} to ${v} "
                 this.setValue( builder,setterName,fsOpt,v as Integer )
             } else if ( builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,Boolean) ) {
+                log fsMgr ,'debug', "Setting ${scheme} option (Boolean): ${setterName} to ${v} "
                 this.setBooleanValue( builder,setterName,fsOpt,v )
             } else if (builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,String[]) ) {
                 // vfs.ftp.shortMonthNames
@@ -81,7 +100,7 @@ class Util {
                 // TODO: vfs.http.proxyAuthenticator org.apache.commons.vfs2.UserAuthenticator
                 // TODO: vfs.res.classLoader java.lang.ClassLoader
             } else {
-                this.log(fsMgr,"'${opt}' is not a valid property for '${scheme}'")
+                log fsMgr, 'warn', "'${opt}' is not a valid property for '${scheme}'"
             }
         }
         return fsOpt
@@ -118,9 +137,10 @@ class Util {
 		
 	}
     
-	private static def log = { fsMgr,data ->
-		// TODO: fsMgr.getLogger
-		println "TODO: IMPLEMENT LOGGING OF :::${data}:::"
+	private static void log (FileSystemManager fsMgr,String level,Object data) {
+        if(fsMgr.metaClass.respondsTo(fsMgr,'loggerInstance')) {
+            fsMgr.loggerInstance()."${level}" (data)
+        }
 	}
 
 }
