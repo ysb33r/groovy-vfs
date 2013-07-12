@@ -71,7 +71,8 @@ import org.junit.Ignore
 		def vfs = new VFS()
 		assertNotNull vfs.fsMgr
 		assertNotNull vfs.defaultFSOptions
-		
+		assertTrue vfs.fsMgr.metaClass.respondsTo(vfs.fsMgr,"loggerInstance").size() > 0
+        
 		def schemes = vfs.fsMgr.schemes.sort()
 		supportedSchemes.each { 
 			assertTrue "Expected to support '${it}', Only had ${schemes.toString()}", schemes.contains(it) 

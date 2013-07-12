@@ -14,6 +14,8 @@
 
 package org.ysb33r.groovy.dsl.vfs.services
 
+import java.io.File;
+
 import org.apache.ftpserver.FtpServerFactory
 import org.apache.ftpserver.ftplet.UserManager
 import org.apache.ftpserver.ftplet.Authority
@@ -29,7 +31,8 @@ class FtpServer {
     static final def READROOT = "ftp://guest:guest@localhost:${PORT}"
     static final def WRITEROOT = "ftp://root:root@localhost:${PORT}"
     static final File TESTFSREADONLYROOT = new File("${System.getProperty('TESTFSREADROOT')}/src/test/resources/test-files")
-   
+    static final File TESTFSWRITEROOT = new File( "${System.getProperty('TESTFSWRITEROOT') ?: 'build/tmp/test-files'}/ftp/dest" )
+    
     def server
     
     FtpServer() {
@@ -41,7 +44,7 @@ class FtpServer {
 
        [ 
            'guest' : TESTFSREADONLYROOT.absolutePath,
-           'root'  : System.getProperty('TESTFSREADROOT')
+           'root'  : TESTFSWRITEROOT.absolutePath
        ].each { k,v ->
            def user = new BaseUser()
            def auths = new ArrayList<Authority>()

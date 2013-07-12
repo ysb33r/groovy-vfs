@@ -96,7 +96,7 @@ class VFS {
 		
 		fsMgr.setLogger( properties.containsKey('logger') ? properties['logger'] : new NoOpLog() )
 		fsMgr.init()
-		fsMgr.metaClass.loggerInstance = {->getLogger()}
+		fsMgr.metaClass.loggerInstance = {->fsMgr.getLogger()}
 		
 		defaultFSOptions = Util.buildOptions(properties,fsMgr)
   	}
@@ -407,7 +407,7 @@ class VFS {
 		return friendlyURI(resolveURI(uri))
 	}
 	
-	Log logger() {
+	Log getLogger() {
 		fsMgr.loggerInstance()
 	}
 	

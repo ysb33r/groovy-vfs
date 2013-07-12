@@ -17,12 +17,14 @@ import java.io.File;
 
 import spock.lang.*
 import org.ysb33r.groovy.dsl.vfs.services.*
+import org.ysb33r.groovy.dsl.vfs.helpers.*
+import static org.ysb33r.groovy.dsl.vfs.helpers.ListFolderTestHelper.*
+import org.apache.commons.logging.impl.SimpleLog
 
 class FtpSpec extends Specification {
     @Shared FtpServer server
-    static final File TESTFSWRITEROOT = new File( "${System.getProperty('TESTFSWRITEROOT') ?: 'build/tmp/test-files'}/ftp/dest" )
     
-   def vfs = new VFS()
+   def vfs = new VFS( logger: new SimpleLog('FtpSpec'))
    
    def setupSpec() {
        server = new FtpServer()
@@ -33,20 +35,32 @@ class FtpSpec extends Specification {
        server.stop()
    }
    
-   def "Can we list files on FTP server"() {
+   def setup() {
+       def simpleLog = new SimpleLog('FtpSpec')
+       simpleLog.setLevel( SimpleLog.LOG_LEVEL_ALL )
+       def vfs = new VFS( logger: simpleLog )
+       vfs.getLogger().debug "FtpSpec logger up and running"
+   }
+   def "Can we list files on FTP server - old way"() {
        given:
-         Set listing = []
+         def listing = [:]
          vfs {
              ls (server.READROOT) {
-                 listing << it.name.baseName
+                 listing."${it.name.baseName}"= 1
              }
          }
-         println "*** ${listing}"
          
        expect:
-         listing.find('file.txt')
-         listing.find('file2.txt')
-         listing.find('test-subdir')
+         listing.'file1.txt' == 1
+         listing.'file2.txt' == 1
+         listing.'test-subdir' == 1
          
+   }
+   
+   def "Can we list files on FTP server - new way"() {
+       expect:
+           assertListable vfs, server.READROOT
+           assertListable vfs, "${server.READROOT}?vfs.ftp.passiveMode=1"
+           assertListable vfs, "${server.READROOT}?vfs.ftp.passiveMode=0"
    }
 }
