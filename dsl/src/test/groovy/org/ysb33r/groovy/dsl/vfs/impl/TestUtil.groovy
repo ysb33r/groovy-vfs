@@ -150,7 +150,6 @@ public class UtilTest {
         def newOptions = Util.buildOptions(u,vfs,originalOptions)
         assertEquals newValue,ftp.getSoTimeout(newOptions)
         assertEquals true,ftp.getUserDirIsRoot(newOptions)
-
     }
 
 }

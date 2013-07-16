@@ -13,18 +13,15 @@
 package org.ysb33r.groovy.dsl.vfs
 
 
-import java.io.File;
-
 import spock.lang.*
 import org.ysb33r.groovy.dsl.vfs.services.*
 import org.ysb33r.groovy.dsl.vfs.helpers.*
 import static org.ysb33r.groovy.dsl.vfs.helpers.ListFolderTestHelper.*
-import org.apache.commons.logging.impl.SimpleLog
 
 class FtpSpec extends Specification {
     @Shared FtpServer server
     
-   def vfs = new VFS( logger: new SimpleLog('FtpSpec'))
+   def vfs
    
    def setupSpec() {
        server = new FtpServer()
@@ -36,31 +33,15 @@ class FtpSpec extends Specification {
    }
    
    def setup() {
-       def simpleLog = new SimpleLog('FtpSpec')
-       simpleLog.setLevel( SimpleLog.LOG_LEVEL_ALL )
-       def vfs = new VFS( logger: simpleLog )
-       vfs.getLogger().debug "FtpSpec logger up and running"
-   }
-   def "Can we list files on FTP server - old way"() {
-       given:
-         def listing = [:]
-         vfs {
-             ls (server.READROOT) {
-                 listing."${it.name.baseName}"= 1
-             }
-         }
-         
-       expect:
-         listing.'file1.txt' == 1
-         listing.'file2.txt' == 1
-         listing.'test-subdir' == 1
-         
+       vfs=VFSFactory.createInstance(this.class.name)
    }
    
-   def "Can we list files on FTP server - new way"() {
+   def "Can we list files on FTP server "() {
        expect:
            assertListable vfs, server.READROOT
            assertListable vfs, "${server.READROOT}?vfs.ftp.passiveMode=1"
            assertListable vfs, "${server.READROOT}?vfs.ftp.passiveMode=0"
+           assertListable vfs, "${server.READROOT}?vfs.ftp.passiveMode=false"
+           assertListable vfs, "${server.READROOT}?vfs.ftp.passiveMode=true"
    }
 }
