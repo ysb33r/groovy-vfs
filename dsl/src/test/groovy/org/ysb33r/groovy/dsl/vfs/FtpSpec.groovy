@@ -44,4 +44,5 @@ class FtpSpec extends Specification {
            assertListable vfs, "${server.READROOT}?vfs.ftp.passiveMode=false"
            assertListable vfs, "${server.READROOT}?vfs.ftp.passiveMode=true"
    }
+   
 }
