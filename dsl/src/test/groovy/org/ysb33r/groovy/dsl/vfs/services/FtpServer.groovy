@@ -16,6 +16,7 @@ package org.ysb33r.groovy.dsl.vfs.services
 
 import java.io.File;
 
+import org.apache.ftpserver.ConnectionConfigFactory;
 import org.apache.ftpserver.FtpServerFactory
 import org.apache.ftpserver.ftplet.UserManager
 import org.apache.ftpserver.ftplet.Authority
@@ -43,6 +44,7 @@ class FtpServer {
        def userMgr = userManagerFactory.createUserManager()
        def serverFactory = new FtpServerFactory()
        def factory = new ListenerFactory()
+       def configFactory = new ConnectionConfigFactory()
 
        [ 
            'guest'   : TESTFSREADONLYROOT.absolutePath,
@@ -61,7 +63,9 @@ class FtpServer {
            userMgr.save(user)
        }
 
-       serverFactory.setUserManager( userMgr )
+       configFactory.maxLogins = 20
+       serverFactory.userManager = userMgr 
+       serverFactory.connectionConfig = configFactory.createConnectionConfig()
        factory.setPort( PORT )
        serverFactory.addListener("default", factory.createListener())
         
