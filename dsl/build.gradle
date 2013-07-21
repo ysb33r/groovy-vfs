@@ -62,11 +62,7 @@ dependencies {
     } else {
         compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: '2.1+', classifier: 'indy'
     }
-//	compile group: 'org.apache.commons',    name: 'commons-vfs2', version: '2.0'
-//	compile group: 'commons-net',           name: 'commons-net', version: '3.+'
-//	compile group: 'commons-httpclient',    name: 'commons-httpclient', version:'3.1'
     testCompile group: 'com.jcraft',            name: 'jsch', version:'0.1.48'
-//	compile group: 'org.apache.jackrabbit', name: 'jackrabbit-core', version: '2.5.2'
 	
  /*
 	Commons Collections Version 3.1 	LRU Cache (optional)

@@ -20,12 +20,12 @@ import org.ysb33r.groovy.dsl.vfs.VFS
  * @author schalkc
  *
  */
-class VFSFactory {
+class VFSBuilder {
     
-    static def createInstance(testName) {
+    static def build( def properties=[:],String testName) {
         def simpleLog = new SimpleLog(testName)
         simpleLog.setLevel( SimpleLog.LOG_LEVEL_ALL )
         new VFS( logger: simpleLog )
     }
+    
 }
-

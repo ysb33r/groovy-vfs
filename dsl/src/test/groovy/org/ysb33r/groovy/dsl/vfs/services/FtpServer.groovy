@@ -28,10 +28,12 @@ import org.apache.ftpserver.usermanager.impl.WritePermission
 class FtpServer {
 
     static final def PORT  = System.getProperty('FTPPORT') ?: 50021   
-    static final def READROOT = "ftp://guest:guest@localhost:${PORT}"
-    static final def WRITEROOT = "ftp://root:root@localhost:${PORT}"
-    static final File TESTFSREADONLYROOT = new File("${System.getProperty('TESTFSREADROOT')}/src/test/resources/test-files")
-    static final File TESTFSWRITEROOT = new File( "${System.getProperty('TESTFSWRITEROOT') ?: 'build/tmp/test-files'}/ftp/dest" )
+    static final def READROOT    = "ftp://guest:guest@localhost:${PORT}"
+    static final def ARCHIVEROOT = "ftp://archive:archive@localhost:${PORT}"
+    static final def WRITEROOT   = "ftp://root:root@localhost:${PORT}"
+    static final File TESTFSREADONLYROOT  = new File("${System.getProperty('TESTFSREADROOT')}/src/test/resources/test-files")
+    static final File TESTFSWRITEROOT     = new File("${System.getProperty('TESTFSWRITEROOT') ?: 'build/tmp/test-files'}/ftp/dest")
+    static final File ARCHIVEREADONLYROOT = new File("${System.getProperty('TESTFSREADROOT')}/src/test/resources/test-archives")
     
     def server
     
@@ -43,8 +45,9 @@ class FtpServer {
        def factory = new ListenerFactory()
 
        [ 
-           'guest' : TESTFSREADONLYROOT.absolutePath,
-           'root'  : TESTFSWRITEROOT.absolutePath
+           'guest'   : TESTFSREADONLYROOT.absolutePath,
+           'archive' : ARCHIVEREADONLYROOT.absolutePath,
+           'root'    : TESTFSWRITEROOT.absolutePath
        ].each { k,v ->
            def user = new BaseUser()
            def auths = new ArrayList<Authority>()
