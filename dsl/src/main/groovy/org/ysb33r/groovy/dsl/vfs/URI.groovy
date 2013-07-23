@@ -99,7 +99,7 @@ class URI {
 				}
 			}
 			
-			tmpuri.setQuery q.minus(p)
+			tmpuri.setQuery (q - p)
 			
 			if(p) {
 				p.each { k,v ->

@@ -19,5 +19,10 @@
     <ruleset-ref path='rulesets/naming.xml'>
         <exclude name='MethodName'/>
         <exclude name='FactoryMethodName'/>
-        </ruleset-ref>    
+    </ruleset-ref>    
+    <ruleset-ref path='rulesets/size.xml'>
+        <exclude name='CrapMetric'/>
+        </ruleset-ref>
+    <ruleset-ref path='rulesets/groovyism.xml'>
+        </ruleset-ref>
 </ruleset>

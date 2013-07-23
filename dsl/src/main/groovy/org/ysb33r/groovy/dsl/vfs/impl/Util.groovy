@@ -81,17 +81,19 @@ class Util {
      */
     static def setOption ( String scheme, String opt, FileSystemManager fsMgr, FileSystemOptions fsOpt,  v ) {
 
+        final String LEVEL = 'debug'
+        
         def builder = fsMgr.getFileSystemConfigBuilder(scheme)
         if(builder) {
             def setterName = "set${opt.capitalize()}"
             if (builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,String) ) {
-                log fsMgr, 'debug', "Setting ${scheme} option (String): ${setterName} to ${v} "
+                log fsMgr, LEVEL, "Setting ${scheme} option (String): ${setterName} to ${v} "
                 this.setValue( builder,setterName,fsOpt,v )
             } else if ( builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,Integer) ) {
-                log fsMgr, 'debug', "Setting ${scheme} option (Integer): ${setterName} to ${v} "
+                log fsMgr, LEVEL, "Setting ${scheme} option (Integer): ${setterName} to ${v} "
                 this.setValue( builder,setterName,fsOpt,v as Integer )
             } else if ( builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,Boolean) ) {
-                log fsMgr ,'debug', "Setting ${scheme} option (Boolean): ${setterName} to ${v} "
+                log fsMgr ,LEVEL, "Setting ${scheme} option (Boolean): ${setterName} to ${v} "
                 this.setBooleanValue( builder,setterName,fsOpt,v )
             } else if (builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,String[]) ) {
                 // vfs.ftp.shortMonthNames
