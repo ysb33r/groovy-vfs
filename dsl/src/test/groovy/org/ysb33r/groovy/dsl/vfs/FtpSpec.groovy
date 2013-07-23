@@ -19,7 +19,7 @@ import org.ysb33r.groovy.dsl.vfs.helpers.*
 import static org.ysb33r.groovy.dsl.vfs.helpers.ListFolderTestHelper.*
 import org.ysb33r.groovy.dsl.vfs.FileActionException
 
-class FtpSpec extends SchemaSpec /*Specification*/ {
+class FtpSpec extends SchemaSpec  {
     
     def setupSpec() {
         server = new FtpServer()

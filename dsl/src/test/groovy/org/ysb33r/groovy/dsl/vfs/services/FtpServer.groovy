@@ -52,7 +52,6 @@ class FtpServer {
            'root'    : TESTFSWRITEROOT.absolutePath
        ].each { k,v ->
            def user = new BaseUser()
-           //def auths = new ArrayList<Authority>()
            ArrayList<Authority> auths = []
            def auth = new WritePermission()
            
