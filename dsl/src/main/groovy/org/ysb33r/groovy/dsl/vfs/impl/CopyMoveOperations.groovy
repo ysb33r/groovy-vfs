@@ -312,11 +312,12 @@ class CopyMoveOperations {
 				}
 				def src= from.name.getRelativeName(it.file.name)
 				def target=to.resolveFile(src)
-
 				
 				if(target.exists()) {
 					if(!overwrite(it.file,target)) {
 						throw new FileActionException("Overwriting existing target '${friendlyURI(to)}' is not allowed")
+                    } else if(target.type == FOLDER && it.file.type == FOLDER) {
+                      return true
 					} else if(target.type == FOLDER) {
 						throw new FileActionException("Replacing existing target folder '${friendlyURI(to)}' with a file is not allowed")
 					}

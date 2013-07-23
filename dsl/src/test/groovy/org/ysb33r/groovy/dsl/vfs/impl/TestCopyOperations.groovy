@@ -272,6 +272,28 @@ class TestCopyOperations {
 		}
 	}
 
+    @Test
+    void treeCopyOverExistingTree_RecursiveOnOverwriteOnSmashOff_OverwritesFiles() {
+        def vfs=VFS.manager
+        def from=vfs.toFileObject(testFsReadOnlyRoot)
+        def to=vfs.toFileObject(testFsWriteRoot)
+        def targetDir="${testFsWriteRoot}"
+
+        assertTrue "Target dir '${to}' must exist prior to testing copy function",to.exists()
+ 
+        new File("${testFsWriteRoot}/test-files/test-subdir").mkdirs()
+        expectedFiles.each {
+            new File("${testFsWriteRoot}/test-files/${it}").text = '1234'
+        }
+        CopyMoveOperations.copy(from,to,false,true,true)
+
+        expectedFiles.each {
+            def file = new File("${testFsWriteRoot}/test-files/${it}")
+            assertTrue "Expected ${file}",file.exists()
+            assertEquals "Expected content to have changed for ${file}", new File("${testFsReadOnlyRoot}/${it}").text, file.text
+        }
+    }
+
 	@Test(expected=FileActionException)
 	void copyDirectoryToExistingDirectoryWithSameNamedSubfolderAndSomeSameNameFiles_RecursiveOnOverwriteOffSmashOff_PopulatesSubfolderButFailsOnFirstSameNamedChild() {
 		def vfs=VFS.manager
