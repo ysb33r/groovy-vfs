@@ -30,7 +30,11 @@ subprojects {
 
     apply plugin : 'bintray-publish'
     apply plugin : 'groovy'
-    apply plugin : 'codenarc'
+    
+    // Currently CodeNarc fails when used with JDK8.
+    if (!org.gradle.internal.SystemProperties.javaVersion.startsWith('1.8.')) {
+        apply plugin : 'codenarc'
+    }
     
     repositories {
         mavenRepo(url: 'http://repository.codehaus.org')
