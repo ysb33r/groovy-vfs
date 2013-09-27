@@ -25,14 +25,14 @@ class HttpSpec extends Specification {
     def setupSpec() {       
         server = new HttpServer()    
     } 
-    
-    @Ignore
+
+    /*    
      def "Will ratpack run?" () {
         given:
             vfs.cp  "${server.ROOT}/file1.txt", TESTFSWRITEROOT
             
         expect:
             false
-    }
+    }*/
     
 }

@@ -16,31 +16,44 @@ package org.ysb33r.groovy.dsl.vfs.services
 import java.io.File
 
 import static org.ratpackframework.groovy.RatpackScript.ratpack
-import org.ratpackframework.groovy.templating.TemplateRenderer
-import org.ratpackframework.http.internal.MethodHandler
+//import org.ratpackframework.groovy.templating.TemplateRenderer
+//import org.ratpackframework.http.internal.MethodHandler
 
 class HttpServer {
     
     static final def ROOT = "http://localhost:${System.getProperty('ratpack.port')}"
     static final File TESTFSREADONLYROOT = new File("${System.getProperty('TESTFSREADROOT')}/src/test/resources/test-files")
     
-    void start() {
-    }
+    def server
     
-    void stop() {
-    }
-    
-    private final static RATPACK = ratpack {
+    HttpServer() {
+        server = ratpack {
             handlers {
+                
+                
+              
+/*
+                get "file1.txt" {
+                    println "*** ${request.method.head}"
+                    response.sendFile "text/plain", new File("${TESTFSREADONLYROOT}/file1.txt")
+                }
 
                 get {
                     println "*** ${request.method.head}"
                     response.send ''
                     
                 }
-                get "/file1.txt" {
-                    response.sendFile "text/plain", new File("${TESTFSREADONLYROOT}/file1.txt")
-                }
+*/                
+
             }
         }
+
+    }
+
+    void start() {
+    }
+    
+    void stop() {
+    }
+    
 }
