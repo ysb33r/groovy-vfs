@@ -1,10 +1,13 @@
 Changelog
 =========
 
-0.4 - Roadmap
+0.5 - Roadmap
 -------------
 + [Using a closure as a filter when copying](https://github.com/ysb33r/groovy-vfs/issues/4)
 + [Allow option not to create intermediate paths when copying](https://github.com/ysb33r/groovy-vfs/issues/2)
+
+0.4 - Roadmap
+-------------
 + [Fixed Bug #6](https://github.com/ysb33r/groovy-vfs/issues/6) - Obtain logger instance in use by Groovy VFS
 + [Fixed Bug #8](https://github.com/ysb33r/groovy-vfs/issues/8) - Overwrite fails when using nested schemas
 + [CodeNarc checks added to source code](https://github.com/ysb33r/groovy-vfs/issues/7)
