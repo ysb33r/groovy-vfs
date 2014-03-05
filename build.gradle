@@ -17,18 +17,21 @@ apply plugin : 'jenkins'
 buildscript {
     repositories {
         mavenCentral()
-        mavenRepo(url: 'http://repository.codehaus.org')
-        mavenRepo(url: 'http://dl.bintray.com/ysb33r/grysb33r')
+        // maven { url: 'http://repository.codehaus.org' }
+        //mavenRepo(url: 'http://dl.bintray.com/ysb33r/grysb33r')
+        maven { url 'http://jcenter.bintray.com' }
       }
       dependencies {
-        classpath 'org.ysb33r.gradle:bintray:0.0.9'
+        //classpath 'org.ysb33r.gradle:bintray:0.0.9'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
         classpath 'com.terrafolio:gradle-jenkins-plugin:0.3.1'
       }
 }
 
 subprojects {
 
-    apply plugin : 'bintray-publish'
+    //apply plugin : 'bintray-publish'
+    apply plugin : 'bintray'
     apply plugin : 'groovy'
     
     // Currently CodeNarc fails when used with JDK8.
@@ -37,12 +40,12 @@ subprojects {
     }
     
     repositories {
-        mavenRepo(url: 'http://repository.codehaus.org')
+        maven { url  'http://repository.codehaus.org' }
+        maven {  url 'https://oss.jfrog.org/artifactory/repo' }
         mavenCentral()
-        mavenRepo( url:'https://oss.jfrog.org/artifactory/repo' )
     }
     
-    version = '0.3'
+    version = '0.4'
 
     ext {
         bintrayRepo = 'grysb33r'
@@ -52,7 +55,6 @@ subprojects {
     dependencies {
         compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5+'        
         compile 'org.apache.commons:commons-vfs2:2.0'
-        testCompile 'org.ratpack-framework:ratpack-groovy:0.9.0-SNAPSHOT'
         testCompile 'org.apache.ftpserver:ftpserver-core:1.0.6'
         testCompile 'commons-io:commons-io:2.4'
         testCompile 'commons-net:commons-net:3.+'
@@ -93,5 +95,5 @@ jenkins {
 */
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.8'
+    gradleVersion = '1.9'
 }

@@ -14,25 +14,40 @@ package org.ysb33r.groovy.dsl.vfs
 
 
 import spock.lang.*
+
+
+import org.apache.commons.net.nntp.NewGroupsOrNewsQuery;
 import org.ysb33r.groovy.dsl.vfs.services.HttpServer
 
-class HttpSpec extends Specification {
-    @Shared HttpServer server
-    static final File TESTFSWRITEROOT = new File( "${System.getProperty('TESTFSWRITEROOT') ?: 'build/tmp/test-files'}/http/dest" )
-     
-    def vfs = new VFS()
-    
-    def setupSpec() {       
-        server = new HttpServer()    
-    } 
-
-    /*    
-     def "Will ratpack run?" () {
-        given:
-            vfs.cp  "${server.ROOT}/file1.txt", TESTFSWRITEROOT
-            
-        expect:
-            false
-    }*/
-    
-}
+//class HttpSpec extends Specification {
+//    @Shared HttpServer server
+//    static final File TESTFSWRITEROOT = new File( "${System.getProperty('TESTFSWRITEROOT') ?: 'build/tmp/test-files'}/http/dest" )
+//     
+//    def vfs = new VFS()
+//    
+//    def setupSpec() {       
+//println "*** AAAA";
+//        server = new HttpServer()    
+//println "*** BBBB";
+//        server.start()
+//println "*** CCCC";
+//    }
+//    
+//    def cleanupSpec() {
+//println "*** DDDD";
+//        server.stop()
+//println "*** EEEE";
+//    }
+// 
+//
+//     def "Will ratpack run?" () {
+//        given:
+//println "*** FFFF";
+//            vfs.cp  "${server.ROOT}/file1.txt", TESTFSWRITEROOT, overwrite:true
+//println "*** GGGG";
+//            
+//        expect:
+//           new File("${TESTFSWRITEROOT}/file.txt").exists()
+//    }
+//    
+//}

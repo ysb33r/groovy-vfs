@@ -29,6 +29,7 @@ import org.ysb33r.groovy.dsl.vfs.impl.CopyMoveOperations
 import org.ysb33r.groovy.dsl.vfs.impl.Util
 import org.ysb33r.groovy.dsl.vfs.impl.ConfigDelegator
 import org.apache.commons.logging.Log
+import groovy.transform.PackageScope
 
 /**
  *

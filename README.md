@@ -6,7 +6,7 @@ Groovy Code
 
 @Grapes([
     @GrabResolver( name='grysb33r', root='http://dl.bintray.com/ysb33r/grysb33r' ),
-	@Grab( 'org.ysb33r.groovy:groovy-vfs:0.3' ),
+	@Grab( 'org.ysb33r.groovy:groovy-vfs:0.4' ),
 	@Grab( 'commons-net:commons-net:3.+' ), // If you want to use ftp 
     @Grab( 'commons-httpclient:commons-httpclient:3.1'), // If you want http/https
     @Grab( 'com.jcraft:jsch:0.1.48' ) // If you want sftp
@@ -74,7 +74,7 @@ buildscript {
         mavenRepo(url: 'http://dl.bintray.com/ysb33r/grysb33r')
       }
       dependencies {
-        classpath 'org.ysb33r.gradle:vfs-gradle-plugin:0.3'
+        classpath 'org.ysb33r.gradle:vfs-gradle-plugin:0.4'
         classpath 'commons-net:commons-net:3.+'  // If you want to use ftp 
         classpath 'commons-httpclient:commons-httpclient:3.1' // If you want http/https
         classpath 'com.jcraft:jsch:0.1.48'  // If you want sftp
@@ -114,6 +114,7 @@ Credits
 It is seldom that these kind of libraries happen in isolation. It is therefore prudent 
 that I acknowledge the inputs of others in the creation of groovy-vfs
 
++ Luke Daley (https://gist.github.com/alkemist/7943781) for helping to use Ratpack as a Mock HTTP Server in unit tests.
 + Will_lp (https://gist.github.com/will-lp/5785180) & Jim White (https://gist.github.com/jimwhite/5784982) 
 offered great suggestions when I got stuck with the config DSL.
 + Jez Higgins, Rob Fletcher, Giovanni Asproni, Balachandran Sivakumar, Burkhard Kloss & Tim Barker who helped shape the design decision

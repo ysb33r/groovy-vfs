@@ -18,7 +18,7 @@ buildscript {
 }
 
 apply plugin : 'groovy'
-apply plugin : 'bintray-publish'
+//apply plugin : 'bintray-publish'
 
 group = 'org.ysb33r.groovy' 
 archivesBaseName = 'groovy-vfs'
@@ -53,14 +53,14 @@ jar {
 
 repositories {
     mavenCentral()
-    mavenRepo( url:'https://oss.jfrog.org/artifactory/repo' )
+    maven { url 'https://oss.jfrog.org/artifactory/libs-snapshot' }
 }   
 
 dependencies {
     if (project.properties.BUILD_FOR_JAVA6) {
-        compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: '2.1+'
+        compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: '2.2+'
     } else {
-        compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: '2.1+', classifier: 'indy'
+        compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: '2.2+', classifier: 'indy'
     }
     testCompile group: 'com.jcraft',            name: 'jsch', version:'0.1.48'
 	
@@ -72,6 +72,7 @@ dependencies {
 */	
     testCompile group: 'junit', name: 'junit', version: '4.+'
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
+    testCompile 'io.ratpack:ratpack-groovy:0.9.0-SNAPSHOT'
     
 }
 
@@ -80,18 +81,34 @@ test {
     systemProperties "ratpack.port" : 9999
 }
 
-uploadArchives {
-    repositories {
-        bintrayMavenDeployer {
-            username    project.properties.bintrayUserName
-            apiKey      project.properties.bintrayApiKey
-            repoOwner   'ysb33r'
-            repoName    'grysb33r'
-            packageName 'groovy-vfs'
-            description 'A DSL for Groovy that wraps Apache VFS '
-            tags        'groovy','vfs','dsl'
-        }
+bintray {
+    user = project.properties.bintrayUserName
+    key = project.properties.bintrayApiKey
+    configurations = ['uploadArchives'] // When uploading configuration files
+    //publications = ['mavenStuff'] // When uploading Maven-based publication files
+    pkg {
+        repo = 'grysb33r'
+        //userOrg = 'myorg' // an optional organization name when the repo belongs to one of the user's orgs
+        name = 'groovy-vfs'
+        desc = 'A DSL for Groovy that wraps Apache VFS '
+        licenses = ['Apache-2.0']
+        labels = ['groovy','vfs','dsl']
     }
+    dryRun = true // whether to run this as dry-run, without deploying
 }
+
+//uploadArchives {
+//    repositories {
+//        bintrayMavenDeployer {
+//            username    project.properties.bintrayUserName
+//            apiKey      project.properties.bintrayApiKey
+//            repoOwner   'ysb33r'
+//            repoName    'grysb33r'
+//            packageName 'groovy-vfs'
+//            description 'A DSL for Groovy that wraps Apache VFS '
+//            tags        'groovy','vfs','dsl'
+//        }
+//    }
+//}
 
 
