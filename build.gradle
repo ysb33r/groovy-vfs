@@ -17,12 +17,9 @@ apply plugin : 'jenkins'
 buildscript {
     repositories {
         mavenCentral()
-        // maven { url: 'http://repository.codehaus.org' }
-        //mavenRepo(url: 'http://dl.bintray.com/ysb33r/grysb33r')
-        maven { url 'http://jcenter.bintray.com' }
+        jcenter()
       }
       dependencies {
-        //classpath 'org.ysb33r.gradle:bintray:0.0.9'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
         classpath 'com.terrafolio:gradle-jenkins-plugin:0.3.1'
       }
@@ -30,9 +27,9 @@ buildscript {
 
 subprojects {
 
-    //apply plugin : 'bintray-publish'
     apply plugin : 'bintray'
     apply plugin : 'groovy'
+    apply plugin : 'maven'
     
     // Currently CodeNarc fails when used with JDK8.
     if (!org.gradle.internal.SystemProperties.javaVersion.startsWith('1.8.')) {
@@ -95,5 +92,5 @@ jenkins {
 */
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.9'
+    gradleVersion = '1.11'
 }

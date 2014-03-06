@@ -18,7 +18,7 @@ buildscript {
 }
 
 apply plugin : 'groovy'
-//apply plugin : 'bintray-publish'
+
 
 group = 'org.ysb33r.groovy' 
 archivesBaseName = 'groovy-vfs'
@@ -81,10 +81,11 @@ test {
     systemProperties "ratpack.port" : 9999
 }
 
+
 bintray {
     user = project.properties.bintrayUserName
     key = project.properties.bintrayApiKey
-    configurations = ['uploadArchives'] // When uploading configuration files
+    configurations = ['archives'] // When uploading configuration files
     //publications = ['mavenStuff'] // When uploading Maven-based publication files
     pkg {
         repo = 'grysb33r'
@@ -94,21 +95,9 @@ bintray {
         licenses = ['Apache-2.0']
         labels = ['groovy','vfs','dsl']
     }
-    dryRun = true // whether to run this as dry-run, without deploying
+    dryRun = false // whether to run this as dry-run, without deploying
 }
 
-//uploadArchives {
-//    repositories {
-//        bintrayMavenDeployer {
-//            username    project.properties.bintrayUserName
-//            apiKey      project.properties.bintrayApiKey
-//            repoOwner   'ysb33r'
-//            repoName    'grysb33r'
-//            packageName 'groovy-vfs'
-//            description 'A DSL for Groovy that wraps Apache VFS '
-//            tags        'groovy','vfs','dsl'
-//        }
-//    }
-//}
+
 
 
