@@ -7,7 +7,7 @@ Changelog
 + [Allow option not to create intermediate paths when copying](https://github.com/ysb33r/groovy-vfs/issues/2)
 + [Fix use of mavenRepo](https://github.com/ysb33r/groovy-vfs/issues/12)
 
-0.4 - Roadmap
+0.4
 -------------
 + [Fixed Bug #6](https://github.com/ysb33r/groovy-vfs/issues/6) - Obtain logger instance in use by Groovy VFS
 + [Fixed Bug #8](https://github.com/ysb33r/groovy-vfs/issues/8) - Overwrite fails when using nested schemas

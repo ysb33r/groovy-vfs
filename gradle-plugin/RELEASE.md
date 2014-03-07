@@ -4,7 +4,7 @@ Changelog
 0.4
 ---
 + Upgraded to groovy-vfs 0.4
-+ COmpatible with Gradle 1.11
++ Compatible with Gradle 1.11
 
 0.3
 ---
