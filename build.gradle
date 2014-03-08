@@ -20,14 +20,14 @@ buildscript {
         jcenter()
       }
       dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
+        classpath 'org.ysb33r.gradle:bintray:1.0'
         classpath 'com.terrafolio:gradle-jenkins-plugin:0.3.1'
       }
 }
 
 subprojects {
 
-    apply plugin : 'bintray'
+    apply plugin : 'bintray-publish'
     apply plugin : 'groovy'
     apply plugin : 'maven'
     
@@ -37,12 +37,12 @@ subprojects {
     }
     
     repositories {
+        jcenter()
         maven { url  'http://repository.codehaus.org' }
         maven {  url 'https://oss.jfrog.org/artifactory/repo' }
-        mavenCentral()
     }
     
-    version = '0.4'
+    version = '0.5'
 
     ext {
         bintrayRepo = 'grysb33r'

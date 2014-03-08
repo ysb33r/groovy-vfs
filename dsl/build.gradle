@@ -10,6 +10,7 @@
 // ============================================================================
 buildscript {
     repositories {
+        jcenter()
         mavenCentral()
     }
     dependencies {
@@ -19,7 +20,7 @@ buildscript {
 
 apply plugin : 'groovy'
 
-
+extensions.moduleName = 'groovy-vfs'
 group = 'org.ysb33r.groovy' 
 archivesBaseName = 'groovy-vfs'
 
@@ -82,22 +83,18 @@ test {
 }
 
 
-bintray {
-    user = project.properties.bintrayUserName
-    key = project.properties.bintrayApiKey
-    configurations = ['archives'] // When uploading configuration files
-    //publications = ['mavenStuff'] // When uploading Maven-based publication files
-    pkg {
-        repo = 'grysb33r'
-        //userOrg = 'myorg' // an optional organization name when the repo belongs to one of the user's orgs
-        name = 'groovy-vfs'
-        desc = 'A DSL for Groovy that wraps Apache VFS '
-        licenses = ['Apache-2.0']
-        labels = ['groovy','vfs','dsl']
+uploadArchives  {
+    repositories {
+        bintrayMavenDeployer {
+            username    project.properties.bintrayUserName
+            apiKey      project.properties.bintrayApiKey
+            repoOwner   bintrayUser
+            repoName    bintrayRepo
+            packageName moduleName
+            description 'A DSL for Groovy that wraps Apache VFSL'
+            tags        'groovy','vfs','dsl'
+        }
     }
-    dryRun = false // whether to run this as dry-run, without deploying
 }
-
-
 
 

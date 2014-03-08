@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.5 - Roadmap
+-------------
+
+
 0.4
 ---
 + Upgraded to groovy-vfs 0.4

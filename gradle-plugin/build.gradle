@@ -49,33 +49,16 @@ jar {
     }
 }
 
-bintray {
-    user = project.properties.bintrayUserName
-    key = project.properties.bintrayApiKey
-    configurations = ['archives'] // When uploading configuration files
-    //publications = ['mavenStuff'] // When uploading Maven-based publication files
-    pkg {
-        repo = 'grysb33r'
-        //userOrg = 'myorg' // an optional organization name when the repo belongs to one of the user's orgs
-        name = 'vfs-gradle-plugin'
-        desc = 'This is a plugin for Gradle that utilises the Groovy VFS DSL'
-        licenses = ['Apache-2.0']
-        labels = ['gradle','groovy','vfs','groovy-vfs']
+uploadArchives  {
+    repositories {
+        bintrayMavenDeployer {
+            username    project.properties.bintrayUserName
+            apiKey      project.properties.bintrayApiKey
+            repoOwner   bintrayUser
+            repoName    bintrayRepo
+            packageName moduleName
+            description 'This is a plugin for Gradle that utilises the Groovy VFS DSL'
+            tags        'gradle','groovy','vfs','groovy-vfs'
+        }
     }
-    dryRun = false // whether to run this as dry-run, without deploying
 }
-
-
-//uploadArchives  {
-//    repositories {
-//        bintrayMavenDeployer {
-//            username    project.properties.bintrayUserName
-//            apiKey      project.properties.bintrayApiKey
-//            repoOwner   bintrayUser
-//            repoName    bintrayRepo
-//            packageName moduleName
-//            description 'This is a plugin for Gradle that utilises the Groovy VFS DSL'
-//            tags        'gradle','groovy','vfs','groovy-vfs'
-//        }
-//    }
-//}
