@@ -5,6 +5,10 @@ Changelog
 -------------
 + [Using a closure as a filter when copying](https://github.com/ysb33r/groovy-vfs/issues/4)
 + [Allow option not to create intermediate paths when copying](https://github.com/ysb33r/groovy-vfs/issues/2)
++ [Create complex URIs with a closure](https://github.com/ysb33r/groovy-vfs/issues/11)
++ [Delete functionality](https://github.com/ysb33r/groovy-vfs/issues/9)
++ [Allow cookies to be passed to http/https schemas](https://github.com/ysb33r/groovy-vfs/issues/10)
+
 
 0.5 - Roadmap
 -------------
