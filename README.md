@@ -1,4 +1,6 @@
-A DSL for Groovy to wrap around the Apache VFS libraries
+A DSL for Groovy to wrap around the Apache VFS libraries.
+
+If you like it, then tweet about it using ```#groovyvfs``` as the hashtag.
 
 Groovy Code
 ===========
