@@ -15,6 +15,7 @@ package org.ysb33r.groovy.dsl.vfs.impl
 
 import org.apache.commons.logging.Log
 import org.apache.commons.vfs2.FileSystemOptions
+import org.apache.commons.vfs2.FileObject
 import org.apache.commons.vfs2.FileSystemManager
 import org.ysb33r.groovy.dsl.vfs.OptionException
 import org.ysb33r.groovy.dsl.vfs.URI;
@@ -29,7 +30,7 @@ class Util {
 	 * @param defaultFSOptions Default filesystem options that is used as a baseline
 	 * @param uri URI instance or something that can be converted to a URI
 	 */
-	static def resolveURI (properties=[:],FileSystemManager fsMgr,FileSystemOptions defaultFSOptions,uri) {
+	static FileObject resolveURI (properties=[:],FileSystemManager fsMgr,FileSystemOptions defaultFSOptions,uri) {
 		def u = uri instanceof URI ? uri : new URI(uri)
 		def fo = this.buildOptions(u,fsMgr,defaultFSOptions)
 		fsMgr.resolveFile(u.toString(), properties ? this.buildOptions(properties,fsMgr,fo) : fo )

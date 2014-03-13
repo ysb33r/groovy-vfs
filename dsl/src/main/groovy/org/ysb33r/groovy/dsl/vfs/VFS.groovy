@@ -24,6 +24,7 @@ import org.apache.commons.vfs2.FileSelector
 import org.apache.commons.vfs2.FileSystemManager
 import org.apache.commons.vfs2.FileSystemOptions
 import org.apache.commons.vfs2.Selectors;
+import org.apache.commons.vfs2.provider.AbstractFileSystem
 import org.apache.commons.vfs2.impl.StandardFileSystemManager
 import org.ysb33r.groovy.dsl.vfs.impl.CopyMoveOperations
 import org.ysb33r.groovy.dsl.vfs.impl.Util
@@ -201,31 +202,39 @@ class VFS {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param uri
-	 * @return
+    *
 	 */
 	def ls ( properties=[:],uri ) { ls(properties,uri,null) }
 	
 	/** Allows for the content of a local or remote file object to be read
-	 * 
-	 */
+     *
+	 * @param properties - Optional property map
+     * @param uri
+     * @param c - Closure that takes an InputStream as argument
+     *
+     * @return result of closure
+     *
+     * @code
+     * vfs.cat ('file:///etc/resolv.conf') { strm ->
+     *   println strm.text
+     * }
+     * @endcode
+     */
 	def cat ( properties=[:],uri,Closure c ) {
 		assert properties != null
-		def istream=resolveURI(properties,uri).content.inputStream
-		c ? istream.withStream(c) : istream
-	}
+        assert c != null
+        FileObject fo=resolveURI(properties,uri)
+        AbstractFileSystem afs= fo.fileSystem as AbstractFileSystem
 
-	/**
-	 * 
-	 * @param uri
-	 * @return InputStream
-	 * 
-	 * @code {
-	 * vfs.cat ('file:///etc/resolv.conf').text 
-	 * }
-	 */
-	def cat ( properties=[:],uri ) { cat(properties,uri,null) }
+        try {
+		    return fo.content.inputStream.withStream(c)
+        }
+        finally {
+            afs.closeCommunicationLink()
+        }
+	}
 
 	/** Creates a folder on any VFS that allows this functionality
 	 * @param properties Any additional vfs properties

@@ -3,9 +3,11 @@ Changelog
 
 0.5 - Roadmap
 -------------
++ Removed standalone use of InputStream when applying ```cat``.
++ [Fix use of mavenRepo](https://github.com/ysb33r/groovy-vfs/issues/12)
++ [Fix MissingMethodException when uri was a FileObject and extra properties were provided](https://github.com/ysb33r/groovy-vfs/issues/16)
 + [Using a closure as a filter when copying](https://github.com/ysb33r/groovy-vfs/issues/4)
 + [Allow option not to create intermediate paths when copying](https://github.com/ysb33r/groovy-vfs/issues/2)
-+ [Fix use of mavenRepo](https://github.com/ysb33r/groovy-vfs/issues/12)
 
 0.4
 -------------

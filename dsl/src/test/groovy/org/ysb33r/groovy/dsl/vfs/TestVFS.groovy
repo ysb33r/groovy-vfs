@@ -110,16 +110,10 @@ import org.junit.Ignore
 		def vfs = new VFS()
 		def uri= "${testFsURI}/${expectedFiles[0]}"
 		def file= new File("${testFsReadOnlyRoot}/${expectedFiles[0]}")
-		
-		def contentFromCode = vfs.cat uri
-		assertEquals file.text,contentFromCode.text
 
-		contentFromCode=null		
-		vfs.cat(uri) {
-			contentFromCode=it.text
-		}
-		assertEquals file.text,contentFromCode
-		
+        vfs.cat (uri) { contentFromCode ->
+    		assertEquals file.text,contentFromCode.text
+        }
 	}
 	
 	@Test

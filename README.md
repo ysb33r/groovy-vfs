@@ -33,7 +33,9 @@ vfs {
     }
   
     // Streams the output
-    println cat ('http://first.example/myfile') .text
+    cat ('http://first.example/myfile') { strm->
+        println strm.text
+    }
  
     // Create a new folder on a remote site
     mkdir 'sftp://second.example/my/new/folder'
