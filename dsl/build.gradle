@@ -82,7 +82,6 @@ test {
     systemProperties "ratpack.port" : 9999
 }
 
-
 uploadArchives  {
     repositories {
         bintrayMavenDeployer {

@@ -3,7 +3,8 @@ Changelog
 
 0.5 - Roadmap
 -------------
-
++ Upgraded to groovy-vfs 0.5
++ Source JAR will be created during build
 
 0.4
 ---
