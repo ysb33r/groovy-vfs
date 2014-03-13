@@ -414,7 +414,7 @@ class VFS {
 	
 	private def resolveURI (properties=[:],uri) {
 		if (uri instanceof FileObject) {
-			properties.size() ?	Util.resolveURI(properties,fsMgr,uri.fileSystem.fileSystemOptions,uri.getURI()) : uri	
+			properties.size() ?	Util.resolveURI(properties,fsMgr,uri.fileSystem.fileSystemOptions,uri.name.getURI()) : uri
 		} else {
 			Util.resolveURI(properties,fsMgr,defaultFSOptions,uri)
 		} 
