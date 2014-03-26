@@ -7,8 +7,7 @@ Groovy Code
 ```groovy
 
 @Grapes([
-    @GrabResolver( name='grysb33r', root='http://dl.bintray.com/ysb33r/grysb33r' ),
-	@Grab( 'org.ysb33r.groovy:groovy-vfs:0.4' ),
+	@Grab( 'org.ysb33r.groovy:groovy-vfs:0.5' ),
 	@Grab( 'commons-net:commons-net:3.+' ), // If you want to use ftp 
     @Grab( 'commons-httpclient:commons-httpclient:3.1'), // If you want http/https
     @Grab( 'com.jcraft:jsch:0.1.48' ) // If you want sftp
@@ -73,12 +72,11 @@ releases of this plugin.
 
 buildscript {
     repositories {
-        mavenCentral()
-        mavenRepo(url: 'http://repository.codehaus.org')
-        mavenRepo(url: 'http://dl.bintray.com/ysb33r/grysb33r')
+        jcenter()
+	mavenCentral()
       }
       dependencies {
-        classpath 'org.ysb33r.gradle:vfs-gradle-plugin:0.4'
+        classpath 'org.ysb33r.gradle:vfs-gradle-plugin:0.5'
         classpath 'commons-net:commons-net:3.+'  // If you want to use ftp 
         classpath 'commons-httpclient:commons-httpclient:3.1' // If you want http/https
         classpath 'com.jcraft:jsch:0.1.48'  // If you want sftp
