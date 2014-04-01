@@ -1,5 +1,7 @@
 *~
-
+*.iws
+*.ipr
+*.iml
 /kroovybanapp/.settings/
 */build
 */bin

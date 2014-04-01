@@ -25,12 +25,15 @@ import org.apache.commons.vfs2.FileSystemManager
 import org.apache.commons.vfs2.FileSystemOptions
 import org.apache.commons.vfs2.Selectors;
 import org.apache.commons.vfs2.provider.AbstractFileSystem
-import org.apache.commons.vfs2.impl.StandardFileSystemManager
+//import org.apache.commons.vfs2.impl.StandardFileSystemManager
 import org.ysb33r.groovy.dsl.vfs.impl.CopyMoveOperations
 import org.ysb33r.groovy.dsl.vfs.impl.Util
 import org.ysb33r.groovy.dsl.vfs.impl.ConfigDelegator
 import org.apache.commons.logging.Log
+import org.ysb33r.groovy.dsl.vfs.impl.StandardFileSystemManager
+import org.ysb33r.groovy.dsl.vfs.impl.ProviderSpecification
 import groovy.transform.PackageScope
+
 
 /**
  *
@@ -68,7 +71,8 @@ import groovy.transform.PackageScope
  * @since 0.1 */
 class VFS {
 
-	private def fsMgr
+//	private def fsMgr
+    private StandardFileSystemManager fsMgr
 	private FileSystemOptions defaultFSOptions
     
 	/** Constructs a Virtual File System.
@@ -90,15 +94,20 @@ class VFS {
 	VFS( Map properties=[:] ) {
 		fsMgr = new StandardFileSystemManager()
 		
-		[ 'cacheStrategy','defaultProvider','filesCache','replicator','temporaryFileStore' ].each {
-			if(properties.hasProperty(it)) {
-				fsMgr."set${it.capitalize()}"(properties[it])
-			}
-		}
-		
-		fsMgr.setLogger( properties.containsKey('logger') ? properties['logger'] : new NoOpLog() )
-		fsMgr.init()
-		fsMgr.metaClass.loggerInstance = {->fsMgr.getLogger()}
+//		[ 'cacheStrategy','defaultProvider','filesCache','replicator','temporaryFileStore' ].each {
+//			if(properties.hasProperty(it)) {
+//				fsMgr."set${it.capitalize()}"(properties[it])
+//			}
+//		}
+
+		//fsMgr.setLogger( properties.containsKey('logger') ? properties['logger'] : new NoOpLog() )
+		fsMgr.init(
+            ProviderSpecification.DEFAULT_PROVIDERS,
+            null,
+            null,
+            properties.containsKey('logger') ? properties['logger'] : new NoOpLog()
+        )
+//		fsMgr.metaClass.loggerInstance = {->fsMgr.getLogger()}
 		
 		defaultFSOptions = Util.buildOptions(properties,fsMgr)
   	}

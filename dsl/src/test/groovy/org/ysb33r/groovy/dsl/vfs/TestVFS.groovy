@@ -1,7 +1,7 @@
 // ============================================================================
-// Copyright (C) Schalk W. Cronje 2012
+// Copyright (C) Schalk W. Cronje 2012 - 2014
 //
-// This software is licensed under the Apche License 2.0
+// This software is licensed under the Apache License 2.0
 // See http://www.apache.org/licenses/LICENSE-2.0 for license details
 // ============================================================================
 
