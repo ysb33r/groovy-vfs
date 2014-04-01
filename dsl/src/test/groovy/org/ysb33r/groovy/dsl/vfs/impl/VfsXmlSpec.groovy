@@ -138,6 +138,7 @@ class VfsXmlSpec extends Specification  {
             ps.providers[2].className == "o.a.c.v.p.tar.TarFileProvider"
             ps.providers[2].schemes.size() == 1
             ps.providers[2].schemes[0] == 'tar'
+            ps.providers[2].dependsOnSchemes.size() == 0
             ps.providers[2].dependsOnClasses.size() == 1
             ps.providers[2].dependsOnClasses[0] == 'org.apache.commons.compress.archivers.tar.TarArchiveOutputStream'
             ps.providers[5].schemes.size() == 6
@@ -149,6 +150,7 @@ class VfsXmlSpec extends Specification  {
             ps.providers[14].dependsOnSchemes.size() == 2
             ps.providers[14].dependsOnSchemes[0] == 'gz'
             ps.providers[14].dependsOnSchemes[1] == 'tar'
+            ps.providers[14].dependsOnClasses.size() == 0
             ps.operationProviders.size() == 1
             ps.operationProviders[0].className == 'acl.AclOperationsProvider'
             ps.operationProviders[0].schemes.size() == 2
@@ -160,5 +162,19 @@ class VfsXmlSpec extends Specification  {
             ps.extensions.size() == 7
             ps.extensions[5].extension == 'tgz'
             ps.extensions[5].scheme == 'tar'
+    }
+
+    def "Must be able to process a providers.xml file from Apache VFS 2.0"() {
+        given:
+            def ps = VfsXml.createProviderSpec( new File("${System.getProperty('TESTFSREADROOT')}/src/test/resources/providers/vfs20-providers.xml") )
+
+        expect:
+            ps.defaultProvider.className == "org.apache.commons.vfs2.provider.url.UrlFileProvider"
+            ps.providers.size() == 17
+            ps.providers[2].schemes[0] == 'tar'
+            ps.providers[2].dependsOnSchemes.size() == 0
+            ps.providers[2].dependsOnClasses.size() == 1
+            ps.providers[7].schemes[0] == 'ftp'
+
     }
 }

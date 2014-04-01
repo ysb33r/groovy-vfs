@@ -26,6 +26,8 @@ import org.apache.commons.vfs2.provider.FileProvider
 import org.apache.commons.vfs2.operations.FileOperationProvider
 import org.apache.commons.vfs2.impl.DefaultFileReplicator
 import org.apache.commons.vfs2.impl.PrivilegedFileReplicator
+import org.apache.commons.vfs2.CacheStrategy
+import org.apache.commons.vfs2.FilesCache
 import java.util.Enumeration
 import java.net.URL
 import java.io.IOException
@@ -41,7 +43,8 @@ import java.io.IOException
 class StandardFileSystemManager extends DefaultFileSystemManager
 {
 
-    private static final String PLUGIN_CONFIG_RESOURCE = "META-INF/vfs-providers.xml";
+    private static final String PLUGIN_CONFIG_RESOURCE = "META-INF/vfs-providers.xml"
+    private static final String PLUGIN_DEFAULT_RESOURCE = "org/apache/commons/vfs2/impl/providers.xml"
 //    private ClassLoader classLoader;
 
     StandardFileSystemManager() {
@@ -63,11 +66,23 @@ class StandardFileSystemManager extends DefaultFileSystemManager
 //
     /**
      * Initializes this manager from a supplied provider specification.  Adds the providers and replicator.
-     * @param properties Additional properties for fileSystem
      * @param providerSpec Specification for loading plugins
+     * @param tfs TemporaryFileStore to use
+     * @param replicator Override default replicator
+     * @param vfslogger Logger instance to use
+     * @param cacheStrategy Override defailt cache strategy
+     * @param filesCache
      * @throws FileSystemException if an error occurs.
      */
-    void init(ProviderSpecification providerSpec,TemporaryFileStore tfs = null, FileReplicator replicator = null ,Log vfslogger = new NoOpLog()) {
+    void init(
+        ProviderSpecification providerSpec,
+        TemporaryFileStore tfs = null,
+        FileReplicator replicator = null ,
+        Log vfslogger = new NoOpLog(),
+        org.apache.commons.vfs2.CacheStrategy cs = null,
+        org.apache.commons.vfs2.FilesCache fc = null
+    ) {
+        this.setLogger( vfslogger )
 
         // TODO: cacheStrategy, filesCache
 //        [ 'cacheStrategy','filesCache' ].each {
@@ -76,21 +91,20 @@ class StandardFileSystemManager extends DefaultFileSystemManager
 //            }
 //        }
 
-        this.setLogger( vfslogger )
+        if(cs) {
+            this.cacheStrategy = cs
+        }
+        if(fc) {
+            this.filesCache = fc
+        }
 
-        // TODO: replicator & tempFileStorage
-//        if(replicator == null &&  properties.temporaryFileStore == null) {
-            _configureReplicatorAndFileStore( )
-//        } else {
-//            _configureReplicatorAndFileStore(  tfs, replicator )
-//        }
+        if(replicator == null &&  tfs == null) {
+            _configureReplicatorAndFileStore()
+        } else {
+            _configureReplicatorAndFileStore(  tfs, replicator )
+        }
 
-        providerSpec.providers.each { Provider it -> addProvider(it) }
-        providerSpec.operationProviders.each { OperationProvider it -> addOperationProvider(it) }
-        addProvider(providerSpec.defaultProvider,true)
-        providerSpec.mimeTypes.each { MimeType it -> addMimeTypeMap(it.key, it.scheme) }
-        providerSpec.extensions.each { Extension it -> addExtensionMap(it.extension,it.scheme) }
-
+        loadFromProviderSpec( providerSpec )
         _configurePlugins()
 
         super.init()
@@ -117,9 +131,10 @@ class StandardFileSystemManager extends DefaultFileSystemManager
         assert provider.className
         assert provider.className.size() > 0
 
+        loggerInstance().debug "Processing provider: ${provider.className} S${provider.schemes} DS${provider.dependsOnSchemes} DC${provider.dependsOnClasses}"
         if( provider.dependsOnSchemes?.any { String it ->
             if(!hasProvider(it) ) {
-                loggerInstance().debug "Skipping ${provider.className} due to missing scheme ${it}"
+                loggerInstance().debug "Skipping ${provider.className} due to missing scheme '${it}'"
                 true
             } else {
                 false
@@ -135,7 +150,7 @@ class StandardFileSystemManager extends DefaultFileSystemManager
                 false
             }
             catch(final ClassNotFoundException e) {
-                loggerInstance().debug "Skipping ${provider.className} due to missing class ${it}"
+                loggerInstance().debug "Skipping ${provider.className} due to missing class '${it}'"
                 true
             }
         } ) { return false }
@@ -149,7 +164,7 @@ class StandardFileSystemManager extends DefaultFileSystemManager
                 addProvider(provider.schemes as String[],fp)
             }
         } catch(final FileSystemException e) {
-            loggerInstance().debug "Skipping ${provider.className} due to missing class: ${e}"
+            loggerInstance().debug "Skipping ${provider.className} due to missing class: `${e}`"
             return false
         }
 
@@ -190,6 +205,14 @@ class StandardFileSystemManager extends DefaultFileSystemManager
         return cl;
     }
 
+    private void loadFromProviderSpec (final ProviderSpecification providerSpec) {
+        providerSpec.providers.each { Provider it -> addProvider(it) }
+        providerSpec.operationProviders.each { OperationProvider it -> addOperationProvider(it) }
+        addProvider(providerSpec.defaultProvider,true)
+        providerSpec.mimeTypes.each { MimeType it -> addMimeTypeMap(it.key, it.scheme) }
+        providerSpec.extensions.each { Extension it -> addExtensionMap(it.extension,it.scheme) }
+    }
+
     /**
      * Creates a provider.
      */
@@ -211,14 +234,14 @@ class StandardFileSystemManager extends DefaultFileSystemManager
      * /META-INF/vfs-providers.xml files
      * @throws FileSystemException if an error occurs.
      */
-    private void _configurePlugins()
+    private void _configurePlugins( final String path = PLUGIN_CONFIG_RESOURCE)
     {
         final ClassLoader cl = _classLoader()
 
         Enumeration<URL> enumResources
         try
         {
-            enumResources = cl.getResources(PLUGIN_CONFIG_RESOURCE)
+            enumResources = cl.getResources(path)
         }
         catch (final IOException e)
         {
@@ -234,7 +257,7 @@ class StandardFileSystemManager extends DefaultFileSystemManager
 
     private void _loadPlugin(URL u) {
         try {
-            ProviderSpecification ps = VfsXml.createProviderSpec(u)
+            loadFromProviderSpec(VfsXml.createProviderSpec(u))
         }
         catch (final MapParseException e) {
             loggerInstance().debug "Skipping loading of plugin ${u}: ${e}"
@@ -242,27 +265,19 @@ class StandardFileSystemManager extends DefaultFileSystemManager
     }
 
 
-//    private void _configureReplicatorAndFileStore( TemporaryFileStore tfs, FileReplicator fr = null ) {
-//        if (fr == null ) {
-//            final DefaultFileReplicator dfr = new DefaultFileReplicator()
-//            this.replicator= new PrivilegedFileReplicator(dfr)
-//            this.temporaryFileStore = dfr
-//        } else {
-//            this.replicator = fr
-//            this.temporaryFileStore = tfs
-//        }
-//   }
-//
-//    private void _configureReplicatorAndFileStore( File tfs, FileReplicator fr = null) {
-//        if(fr == null) {
-//            final DefaultFileReplicator dfr = new DefaultFileReplicator(tfs)
-//            this.replicator= new PrivilegedFileReplicator(dfr)
-//            this.temporaryFileStore = dfr
-//        } else {
-//            this.replicator = new PrivilegedFileReplicator(fr)
-//            this.temporaryFileStore = fr
-//        }
-//    }
+    private void _configureReplicatorAndFileStore( TemporaryFileStore tfs, FileReplicator fr  ) {
+        assert fr != null || tfs != null
+        if (fr == null ) {
+            this.replicator= new PrivilegedFileReplicator(new DefaultFileReplicator())
+            this.temporaryFileStore = tfs
+        } else if(tfs == null) {
+            this.replicator = new PrivilegedFileReplicator(fr)
+            this.temporaryFileStore = new DefaultFileReplicator()
+        } else{
+            this.replicator = new PrivilegedFileReplicator(fr)
+            this.temporaryFileStore = tfs
+        }
+   }
 
     private void _configureReplicatorAndFileStore( ) {
         final DefaultFileReplicator dfr = new DefaultFileReplicator()

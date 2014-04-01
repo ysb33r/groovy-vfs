@@ -21,6 +21,8 @@ import org.ysb33r.groovy.dsl.vfs.OptionException
 import org.ysb33r.groovy.dsl.vfs.URI;
 import groovy.transform.TypeChecked
 import groovy.transform.CompileStatic
+import org.apache.commons.vfs2.provider.TemporaryFileStore
+import org.apache.commons.vfs2.impl.DefaultFileReplicator
 
 class Util {
 
@@ -108,7 +110,27 @@ class Util {
         }
         return fsOpt
     }
-    
+
+    /** Creates an Apache VFS TemporaryFileStore instance from a File instance
+     *
+     * @param f Directory to use
+     * @return TemporaryFileStore
+     */
+    @CompileStatic
+    static TemporaryFileStore tempFileStoreFromPath( File f ) {
+        new DefaultFileReplicator(f)
+    }
+
+    /** Creates an Apache VFS TemporaryFileStore instance from a directory name
+     *
+     * @param s Directory to use
+     * @return TemporaryFileStore
+     */
+    @CompileStatic
+    static TemporaryFileStore tempFileStoreFromPath( String s ) {
+        tempFileStoreFromPath(new File(s))
+    }
+
 	private static def setValue = { builder,operation,fsOpts,value ->
 		builder."${operation}"(fsOpts,value)
 	}

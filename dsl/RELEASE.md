@@ -3,6 +3,9 @@ Changelog
 
 0.6 - Roadmap
 -------------
++ Groovy VFS now has it own ```FileSystemManager``` class with more control for loading plugins.
++ Passing ```defaultProvider``` to ```VFS()``` is a NOP.
++ Supports loading of SMB & MIME if the VFS Sandbox JAR is on the classpath.
 + [Using a closure as a filter when copying](https://github.com/ysb33r/groovy-vfs/issues/4)
 + [Allow option not to create intermediate paths when copying](https://github.com/ysb33r/groovy-vfs/issues/2)
 + [Create complex URIs with a closure](https://github.com/ysb33r/groovy-vfs/issues/11)
@@ -10,8 +13,8 @@ Changelog
 + [Allow cookies to be passed to http/https schemas](https://github.com/ysb33r/groovy-vfs/issues/10)
 
 
-0.5 - Roadmap
--------------
+0.5
+---
 + Removed standalone use of InputStream when applying ```cat``.
 + [Fix use of mavenRepo](https://github.com/ysb33r/groovy-vfs/issues/12)
 + [Fix MissingMethodException when uri was a FileObject and extra properties were provided](https://github.com/ysb33r/groovy-vfs/issues/16)
@@ -19,7 +22,7 @@ Changelog
 + Source Jar will be created as part of build
 
 0.4
--------------
+---
 + [Fixed Bug #6](https://github.com/ysb33r/groovy-vfs/issues/6) - Obtain logger instance in use by Groovy VFS
 + [Fixed Bug #8](https://github.com/ysb33r/groovy-vfs/issues/8) - Overwrite fails when using nested schemas
 + [CodeNarc checks added to source code](https://github.com/ysb33r/groovy-vfs/issues/7)

@@ -13,16 +13,16 @@
 package org.ysb33r.groovy.dsl.vfs.impl
 
 import spock.lang.*
-
-//import org.ysb33r.groovy.dsl.vfs.FileActionException
-//import org.apache.commons.vfs2.Selectors
-//import org.apache.commons.vfs2.VFS
-//import org.apache.commons.vfs2.FileType
-//import org.apache.commons.vfs2.AllFileSelector
-//import org.apache.commons.io.FileUtils
-//import static org.ysb33r.groovy.dsl.vfs.impl.CopyMoveOperations.move
+import org.apache.commons.logging.impl.SimpleLog
 
 class StandardFileSystemManagerSpec extends Specification {
+
+    @Shared def simpleLog
+
+    def setupSpec() {
+        simpleLog = new SimpleLog(this.class.name)
+        simpleLog.setLevel ( SimpleLog.LOG_LEVEL_ALL )
+    }
 
     def "Using default c-tor should should be a null logger" () {
 
@@ -177,5 +177,18 @@ class StandardFileSystemManagerSpec extends Specification {
 
         then:
             false
+    }
+
+    def "If a Apache VFS providers.xml file is found in the classpath, process it"() {
+        given:
+            def fsMgr = new StandardFileSystemManager()
+
+        when:
+            fsMgr.setLogger(simpleLog)
+            fsMgr._configurePlugins( fsMgr.PLUGIN_DEFAULT_RESOURCE )
+
+        then:
+            fsMgr.hasProvider( 'ftp' )
+
     }
 }

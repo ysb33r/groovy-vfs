@@ -64,11 +64,11 @@ class VfsXml {
             }
 
             p.'if-available'.each { ia ->
-                if (ia.@'class-name' ) {
+                if (ia.@'class-name'.size() ) {
                     prv.dependsOnClasses << ia.@'class-name'.toString()
                 }
 
-                if (ia.@'scheme') {
+                if (ia.@'scheme'.size()) {
                     prv.dependsOnSchemes << ia.@'scheme'.toString()
                 }
             }

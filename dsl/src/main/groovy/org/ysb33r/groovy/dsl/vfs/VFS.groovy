@@ -33,7 +33,7 @@ import org.apache.commons.logging.Log
 import org.ysb33r.groovy.dsl.vfs.impl.StandardFileSystemManager
 import org.ysb33r.groovy.dsl.vfs.impl.ProviderSpecification
 import groovy.transform.PackageScope
-
+import org.apache.commons.vfs2.provider.TemporaryFileStore
 
 /**
  *
@@ -80,7 +80,6 @@ class VFS {
 	 * During construction a number of properties can be passed to the underlying Apache VFS system.
 	 * <p> 
      * <li> cacheStrategy - Sets the cache strategy to use when dealing with file object data
-     * <li> defaultProvider - Default provider for unknown schemas
      * <li> filesCache - Sets the file cache implementation
      * <li> logger Sets the logger to use. Unlike the Apache VFS2 default behaviour, not providing this property, will turn off VFS logging completely
      * <li> replicator - Sets the replicator
@@ -91,24 +90,41 @@ class VFS {
      * 
      * @param properties Default properties for initialising the system 
 	 */
-	VFS( Map properties=[:] ) {
+	VFS( Map properties=[:], Closure pluginLoader = null ) {
 		fsMgr = new StandardFileSystemManager()
 		
-//		[ 'cacheStrategy','defaultProvider','filesCache','replicator','temporaryFileStore' ].each {
-//			if(properties.hasProperty(it)) {
-//				fsMgr."set${it.capitalize()}"(properties[it])
-//			}
-//		}
+        Log vfslog = properties.containsKey('logger') ? properties['logger'] : new NoOpLog()
 
-		//fsMgr.setLogger( properties.containsKey('logger') ? properties['logger'] : new NoOpLog() )
+        if(properties.containsKey('defaultProvider')) {
+            vfslog.debug "'defaultProvider' ignored as from v0.6. Use Provider configuration closure instead."
+        }
+
+        TemporaryFileStore tfs
+        if(properties.containsKey('temporaryFileStore')) {
+            switch(properties.temporaryFileStore) {
+                case File:
+                case String:
+                    tfs= Util.tempFileStoreFromPath(properties.temporaryFileStore)
+                    break
+
+                case TemporaryFileStore:
+                    tfs= properties.temporaryFileStore
+                    break
+
+                default:
+                    throw FileSystemException("temporaryFileStore needs to be File/String/TemporaryFileStore")
+            }
+        }
+
 		fsMgr.init(
             ProviderSpecification.DEFAULT_PROVIDERS,
-            null,
-            null,
-            properties.containsKey('logger') ? properties['logger'] : new NoOpLog()
+            tfs,
+            properties.replicator,
+            vfslog,
+            properties.cacheStrategy,
+            properties.filesCache
         )
-//		fsMgr.metaClass.loggerInstance = {->fsMgr.getLogger()}
-		
+
 		defaultFSOptions = Util.buildOptions(properties,fsMgr)
   	}
 
