@@ -76,6 +76,8 @@ class StandardFileSystemManager extends DefaultFileSystemManager
      */
     void init(
         ProviderSpecification providerSpec,
+        boolean legacyMode,
+        boolean scanForVfsXml,
         TemporaryFileStore tfs = null,
         FileReplicator replicator = null ,
         Log vfslogger = new NoOpLog(),
@@ -97,8 +99,15 @@ class StandardFileSystemManager extends DefaultFileSystemManager
             _configureReplicatorAndFileStore(  tfs, replicator )
         }
 
-        loadFromProviderSpec( providerSpec )
-        _configurePlugins()
+        if(legacyMode) {
+            _configurePlugins(PLUGIN_DEFAULT_RESOURCE)
+        } else {
+            loadFromProviderSpec( providerSpec )
+        }
+
+        if(scanForVfsXml) {
+            _configurePlugins()
+        }
 
         super.init()
     }
@@ -110,7 +119,7 @@ class StandardFileSystemManager extends DefaultFileSystemManager
     @Override
     void init()
     {
-        init(ProviderSpecification.DEFAULT_PROVIDERS)
+        init(ProviderSpecification.DEFAULT_PROVIDERS,false,false)
     }
 
     /**

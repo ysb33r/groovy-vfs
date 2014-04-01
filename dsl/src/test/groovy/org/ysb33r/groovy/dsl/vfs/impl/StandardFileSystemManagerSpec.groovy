@@ -191,4 +191,17 @@ class StandardFileSystemManagerSpec extends Specification {
             fsMgr.hasProvider( 'ftp' )
 
     }
+
+    def "If legacy mode specified, load using Apache VFS providers.xml"() {
+        given:
+            def fsMgr = new StandardFileSystemManager()
+
+        when:
+            fsMgr.setLogger(simpleLog)
+            fsMgr.init(new ProviderSpecification(),true,true)
+
+        then:
+            fsMgr.hasProvider( 'ftp' )
+
+    }
 }

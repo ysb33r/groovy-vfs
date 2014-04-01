@@ -85,7 +85,9 @@ class VFS {
      * <li> logger Sets the logger to use. Unlike the Apache VFS2 default behaviour, not providing this property, will turn off VFS logging completely
      * <li> replicator - Sets the replicator
      * <li> temporaryFileStore - Sets the temporary file store
-     * <li> ignoreDefaultProviders - Don't load any providers
+     * <li> ignoreDefaultProviders - Don't load any providers (overrides scanForVfsProviderXml, legacyPluginLoader)
+     * <li> scanForVfsProviderXml - Look for META-INF/vfs-provider.xml files
+     * <li> legacyPluginLoader - Load using providers.xml file from Apache VFS (implies scanForVfsProviderXml)
      * <p>
      * In addition any global filesystem options can also be set 
      * vfs.FILESYSTEM.OPTION i.e. <code> 'vfs.ftp.passiveMode' : true </code>
@@ -118,13 +120,21 @@ class VFS {
             }
         }
 
+        boolean legacy = properties.legacyPluginLoader
+        boolean scanForVfsXml = legacy ?: properties.scanForVfsProviderXml
         ProviderSpecification ps = ProviderSpecification.DEFAULT_PROVIDERS
         if( properties.containsKey('ignoreDefaultProviders') && properties.ignoreDefaultProviders != false ) {
             ps = new ProviderSpecification()
+            legacy = false
+            scanForVfsXml = false
         }
+
+
 
 		fsMgr.init(
             ps,
+            legacy,
+            scanForVfsXml,
             tfs,
             properties.replicator,
             vfslog,
