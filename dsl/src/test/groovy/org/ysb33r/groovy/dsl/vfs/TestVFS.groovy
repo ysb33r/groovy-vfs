@@ -207,5 +207,10 @@ import org.junit.Ignore
 */		
 	}
 
+    @Test
+    void CreatingVFS_ignoreDefaultProviders_shouldNotLoadAnyPlugins() {
+        def vfs= new VFS(ignoreDefaultProviders:true)
 
+        assertFalse vfs.fsMgr.hasProvider('file')
+    }
 }

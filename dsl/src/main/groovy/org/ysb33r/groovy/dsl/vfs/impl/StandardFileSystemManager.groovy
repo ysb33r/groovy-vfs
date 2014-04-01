@@ -84,13 +84,6 @@ class StandardFileSystemManager extends DefaultFileSystemManager
     ) {
         this.setLogger( vfslogger )
 
-        // TODO: cacheStrategy, filesCache
-//        [ 'cacheStrategy','filesCache' ].each {
-//            if(properties.containsKey(it)) {
-//                this."set${it.capitalize()}"(properties[it])
-//            }
-//        }
-
         if(cs) {
             this.cacheStrategy = cs
         }
@@ -159,7 +152,7 @@ class StandardFileSystemManager extends DefaultFileSystemManager
         // Create and register the provider
         FileProvider fp
         try {
-            fp = _createInstance(provider.className) as FileProvider
+            fp = createFileProvider(provider.className)
             if(provider.schemes?.size() > 0) {
                 addProvider(provider.schemes as String[],fp)
             }
@@ -176,15 +169,27 @@ class StandardFileSystemManager extends DefaultFileSystemManager
         return true
     }
 
+    /** Creates a file provider instance from a Provider description
+     *
+     * @param provider
+     * @return FileProvider
+     */
+    private FileProvider createFileProvider(String className) {
+        _createInstance(className) as FileProvider
+    }
+
+
     /**
      * Adds a operationProvider from a operationProvider definition.
      */
-    private void addOperationProvider(final OperationProvider provider)
+    private boolean addOperationProvider(final OperationProvider provider)
     {
         provider.schemes?.each { String it ->
             if(hasProvider(it)) {
                 final FileOperationProvider op = _createInstance(provider.className) as FileOperationProvider
                 addOperationProvider(it, op)
+            } else {
+                loggerInstance().debug "Skipping operation provider ${provider.className} due to missing scheme ${it}"
             }
         }
     }

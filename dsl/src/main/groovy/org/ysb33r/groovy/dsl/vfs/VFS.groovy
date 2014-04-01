@@ -29,6 +29,7 @@ import org.apache.commons.vfs2.provider.AbstractFileSystem
 import org.ysb33r.groovy.dsl.vfs.impl.CopyMoveOperations
 import org.ysb33r.groovy.dsl.vfs.impl.Util
 import org.ysb33r.groovy.dsl.vfs.impl.ConfigDelegator
+import org.ysb33r.groovy.dsl.vfs.impl.ProviderDelegator
 import org.apache.commons.logging.Log
 import org.ysb33r.groovy.dsl.vfs.impl.StandardFileSystemManager
 import org.ysb33r.groovy.dsl.vfs.impl.ProviderSpecification
@@ -84,6 +85,7 @@ class VFS {
      * <li> logger Sets the logger to use. Unlike the Apache VFS2 default behaviour, not providing this property, will turn off VFS logging completely
      * <li> replicator - Sets the replicator
      * <li> temporaryFileStore - Sets the temporary file store
+     * <li> ignoreDefaultProviders - Don't load any providers
      * <p>
      * In addition any global filesystem options can also be set 
      * vfs.FILESYSTEM.OPTION i.e. <code> 'vfs.ftp.passiveMode' : true </code>
@@ -116,8 +118,13 @@ class VFS {
             }
         }
 
+        ProviderSpecification ps = ProviderSpecification.DEFAULT_PROVIDERS
+        if( properties.containsKey('ignoreDefaultProviders') && properties.ignoreDefaultProviders != false ) {
+            ps = new ProviderSpecification()
+        }
+
 		fsMgr.init(
-            ProviderSpecification.DEFAULT_PROVIDERS,
+            ps,
             tfs,
             properties.replicator,
             vfslog,
@@ -433,8 +440,17 @@ class VFS {
     def options( properties=[:] ) {
         defaultFSOptions = Util.buildOptions(properties, fsMgr, defaultFSOptions)    
     }
-    
-	def friendlyURI( FileObject uri ) {
+
+    /** Allows to additional scheme providers, operation providers, mime type maps and extension maps to be added
+     *
+     * @param providerDSL
+     * @return
+     */
+    def extend( Closure providerDSL ) {
+        new ProviderDelegator( fsManager : fsMgr ) .bind (providerDSL)
+    }
+
+    def friendlyURI( FileObject uri ) {
 		return uri.name.friendlyURI
 	}
 	
