@@ -108,7 +108,8 @@ If you want to see what VFS is going run gradle with --debug
 Documentation
 =============
 
-See https://github.com/ysb33r/groovy-vfs/wiki for more detailed documentation.
++ See https://github.com/ysb33r/groovy-vfs/wiki for more detailed documentation.
++ Greach2014 presentation on v0.5 - http://www.slideshare.net/ysb33r/groovy-vfs-32889561
 
 Credits
 =======

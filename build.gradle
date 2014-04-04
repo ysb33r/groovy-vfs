@@ -16,8 +16,8 @@ apply plugin : 'jenkins'
 
 buildscript {
     repositories {
-        mavenCentral()
         jcenter()
+        mavenCentral()
       }
       dependencies {
         classpath 'org.ysb33r.gradle:bintray:1.0'
@@ -27,49 +27,54 @@ buildscript {
 
 subprojects {
 
-    apply plugin : 'bintray-publish'
-    apply plugin : 'groovy'
-    apply plugin : 'maven'
-    
-    // Currently CodeNarc fails when used with JDK8.
-    if (!org.gradle.internal.SystemProperties.javaVersion.startsWith('1.8.')) {
-        apply plugin : 'codenarc'
-    }
-    
-    repositories {
-        jcenter()
-        maven { url  'http://repository.codehaus.org' }
-        maven {  url 'https://oss.jfrog.org/artifactory/repo' }
-        mavenLocal()
-    }
-    
     version = '0.6-SNAPSHOT'
 
     ext {
         bintrayRepo = 'grysb33r'
         bintrayUser = 'ysb33r'
     }
-    
+
+    apply plugin: 'project-report'
+}
+
+configure(subprojects.findAll {it.name != 'jlan'})  {
+
+
+    apply plugin: 'bintray-publish'
+    apply plugin: 'groovy'
+    apply plugin: 'maven'
+
+    // Currently CodeNarc fails when used with JDK8.
+    if (!org.gradle.internal.SystemProperties.javaVersion.startsWith('1.8.')) {
+        apply plugin: 'codenarc'
+    }
+
+    repositories {
+        jcenter()
+        maven { url 'http://repository.codehaus.org' }
+        maven { url 'https://oss.jfrog.org/artifactory/repo' }
+        mavenLocal()
+    }
+
     dependencies {
-        compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5+'        
+        compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5+'
         compile 'org.apache.commons:commons-vfs2:2.0'
         testCompile 'org.apache.ftpserver:ftpserver-core:1.0.6'
         testCompile 'commons-io:commons-io:2.4'
         testCompile 'commons-net:commons-net:3.+'
         testRuntime 'commons-httpclient:commons-httpclient:3.1'
         testRuntime 'org.slf4j:slf4j-simple:1.7.5'
-    
+
     }
-    
+
     task sourcesJar(type: Jar, dependsOn: classes) {
         classifier = 'sources'
         from sourceSets.main.allSource
     }
-    
+
     artifacts {
         archives sourcesJar
     }
-    
 }
 
 /*

@@ -1,0 +1,99 @@
+<?xml version="1.0" standalone="no"?>
+<!-- <!DOCTYPE jlanserver SYSTEM "jlanserver.dtd"> -->
+
+<jlanserver>
+  <servers>
+    <SMB/>
+    <noFTP/>
+    <noNFS/>
+  </servers>
+
+  <global>
+      <timezone name="GMT"/>
+
+  </global>
+  <SMB>
+    <host name="JLANSRV" domain="GROOVYVFS">
+      <broadcast>255.255.255.255</broadcast>
+      <smbdialects>LanMan,NT</smbdialects>
+      <comment>Alfresco JLAN Server used for Groovy VFS testing</comment>
+      <bindto>127.0.0.1</bindto>
+      <Win32NetBIOS/>
+      <Win32Announce interval="5"/>
+      
+      <!-- Requires running the server using the root account -->
+<!--      <netBIOSSMB platforms="linux,macosx,solaris"/>
+      <tcpipSMB platforms="linux,macosx,solaris"/>
+-->
+      <!-- To run the server using a non-root account on linux, Mac OS X, Solaris -->
+      <netBIOSSMB sessionPort="1139" namePort="1137" datagramPort="1138" platforms="linux,macosx,solaris"/>
+      <tcpipSMB port="1445" platforms="linux,macosx,solaris"/>
+
+      <hostAnnounce interval="5"/>
+    </host>
+    <sessionDebug flags="Negotiate,Socket,Tree"/>
+<!--    <netbiosDebug/> -->
+<!--    <announceDebug/> -->
+    
+		<authenticator type="enterprise">
+			<mode>USER</mode>
+			<NOallowGuest/>
+      <Debug/>
+		</authenticator>
+    
+  </SMB>
+
+  <FTP>
+    <port>21</port>
+    <allowAnonymous/>
+    <debug flags="File,Search,Error,DataPort,Directory"/>
+  </FTP>
+	
+  <NFS>
+    <enablePortMapper/>
+    <debug flags="File,FileIO"/>
+  </NFS>
+
+  <debug>
+    <output>
+      <class>org.alfresco.jlan.debug.ConsoleDebug</class>
+      <logFile>jlansrv.log</logFile>
+      <append/>
+    </output>
+  </debug>
+
+  <shares>
+    <diskshare name="READROOT" comment="Test share">
+      <driver>
+        <class>org.alfresco.jlan.smb.server.disk.JavaFileDiskDriver</class>
+        <LocalPath>../dsl/src/test/resources/</LocalPath>
+      </driver>
+    </diskshare>
+      <diskshare name="WRITEROOT" comment="Test share">
+          <driver>
+              <class>org.alfresco.jlan.smb.server.disk.JavaFileDiskDriver</class>
+              <LocalPath>./build/tmp</LocalPath>
+          </driver>
+      </diskshare>
+  </shares>
+
+  <security>
+    <JCEProvider>cryptix.jce.provider.CryptixCrypto</JCEProvider>
+    <authenticator>
+      <class>org.alfresco.jlan.server.auth.LocalAuthenticator</class>
+      <mode>USER</mode>
+      <allowGuest/>
+    </authenticator>
+
+    <users>
+      <user name="jlansrv">
+        <password>jlan</password>
+        <comment>System administrator</comment>
+        <administrator/>
+      </user>
+      <user name="jlan">
+        <password>normal</password>
+      </user>
+    </users>
+  </security>
+</jlanserver>
