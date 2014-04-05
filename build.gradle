@@ -52,6 +52,10 @@ configure(subprojects.findAll {it.name != 'jlan'}) {
     // Currently CodeNarc fails when used with JDK8.
     if (!org.gradle.internal.SystemProperties.javaVersion.startsWith('1.8.')) {
         apply plugin: 'codenarc'
+
+        codenarcTest {
+            onlyIf { false }
+        }
     }
 
     repositories {
