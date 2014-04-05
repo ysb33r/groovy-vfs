@@ -49,16 +49,20 @@ jar {
     }
 }
 
-uploadArchives  {
+uploadArchives {
     repositories {
-        bintrayMavenDeployer {
-            username    project.properties.bintrayUserName
-            apiKey      project.properties.bintrayApiKey
-            repoOwner   bintrayUser
-            repoName    bintrayRepo
-            packageName moduleName
-            description 'This is a plugin for Gradle that utilises the Groovy VFS DSL'
-            tags        'gradle','groovy','vfs','groovy-vfs'
+        if (!version.endsWith("SNAPSHOT")) {
+            bintrayMavenDeployer {
+                username project.properties.bintrayUserName
+                apiKey project.properties.bintrayApiKey
+                repoOwner bintrayUser
+                repoName bintrayRepo
+                packageName moduleName
+                description 'This is a plugin for Gradle that utilises the Groovy VFS DSL'
+                tags 'gradle', 'groovy', 'vfs', 'groovy-vfs'
+            }
         }
     }
 }
+
+apply from : '../gradle/publish.gradle'

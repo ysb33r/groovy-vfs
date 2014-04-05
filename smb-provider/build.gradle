@@ -1,0 +1,57 @@
+apply plugin: 'groovy'
+apply plugin: 'idea'
+
+extensions.moduleName = 'groovy-vfs-smb-provider'
+group = 'org.ysb33r.groovy'
+archivesBaseName = 'groovy-vfs-smb-provider'
+
+sourceCompatibility = 1.7
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: '2.2+', classifier: 'indy'
+    compile 'org.apache.commons:commons-vfs2:2.0'
+    compile 'jcifs:jcifs:1.3.17'
+    testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
+    testCompile project(':dsl')
+
+    testCompile fileTree( dir : "${project(':jlan').buildDir}/libs", include: '*.jar' )
+}
+
+manifest {
+    attributes 'Implementation-Title': 'Groovy VFS SMB Provider', 'Implementation-Version': version
+}
+
+test {
+    systemProperties 'JLANCONFIG' : new File(projectDir,'src/test/resources/jlanserver.xml').absolutePath
+    systemProperties 'SMBPORT' : 1139
+    systemProperties 'TESTFSWRITEROOT' : new File('build/tmp').absolutePath
+    systemProperties 'TESTFSREADROOT' : new File('').absolutePath
+}
+
+compileTestGroovy {
+    dependsOn ':jlan:jar'
+}
+
+uploadArchives  {
+    repositories {
+        if(!version.endsWith("SNAPSHOT")) {
+            bintrayMavenDeployer {
+                username project.properties.bintrayUserName
+                apiKey project.properties.bintrayApiKey
+                repoOwner bintrayUser
+                repoName bintrayRepo
+                packageName moduleName
+                description 'An SMB provider for Groovy VFS'
+                tags 'groovy', 'vfs', 'smb', 'cifs'
+            }
+        }
+    }
+}
+
+apply from : '../gradle/publish.gradle'
+

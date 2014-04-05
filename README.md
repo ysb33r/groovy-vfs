@@ -61,8 +61,8 @@ vfs {
 ```
 
 
-Gradle plugin (EXPERIMENTAL)
-=============
+Gradle plugin (INCUBATING)
+============================
 
 It is now possible to use this in Gradle as an extension to the project class.
 The interface is very experimental and may change without much warning in future
@@ -99,11 +99,41 @@ vfs {
     }
   }
 }
-
-
 ```
 
-If you want to see what VFS is going run gradle with --debug
+If you want to see what VFS is going run gradle with ```--debug```
+
+Adding extra plugins
+====================
+
+From v0.6 onwards additional plugins can be loaded via a new ```extend``` block. For more details see this gist:
+https://gist.github.com/ysb33r/9916940
+
+
+SMB provider (EXPERIMENTAL)
+===========================
+
+A provider for accessing SMB shares is now possible and will be supported from v0.6 onwards. The plugin
+must be loaded separately.
+
+```groovy
+@Grab( 'org.ysb33r.groovy:groovy-vfs-smb-provider:0.0.1-SNAPSHOT' ),
+@Grab( 'jcifs:jcifs:1.3.17' ),
+
+vfs {
+  extend {
+    provider className: 'org.ysb33r.groovy.vfsplugin.smb.SmbFileProvider', schemes: ['smb','cifs']
+  }
+
+  cp 'smb://someserver/share/dir/file', new File('localfile.txt)
+}
+```
+
+*NOTE:* when embedding windows credentials in the URL use ```%5C``` in place of backslash i.e.
+
+```
+  smb://DOMAIN%5cUSERNAME:PASSWORD@HOSTNAME/SHARE/PATH
+```
 
 Documentation
 =============
@@ -120,5 +150,6 @@ that I acknowledge the inputs of others in the creation of groovy-vfs
 + Luke Daley (https://gist.github.com/alkemist/7943781) for helping to use Ratpack as a Mock HTTP Server in unit tests.
 + Will_lp (https://gist.github.com/will-lp/5785180) & Jim White (https://gist.github.com/jimwhite/5784982) 
 offered great suggestions when I got stuck with the config DSL.
-+ Jez Higgins, Rob Fletcher, Giovanni Asproni, Balachandran Sivakumar, Burkhard Kloss & Tim Barker who helped shape the design decision
-to auto-create intermediates during a move operation.
++ Jez Higgins, Rob Fletcher, Giovanni Asproni, Balachandran Sivakumar, Burkhard Kloss & Tim Barker who helped shape the
+design decision to auto-create intermediates during a move operation.
++ Everyone from Greach 2014 that provided feedback

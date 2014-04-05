@@ -22,6 +22,7 @@ class SmbServer implements Runnable {
     static final String USER = CONFIG.security.users.user[1].@name
     static final String PASSWORD = CONFIG.security.users.user[1].password.text()
     static final String READSHARE = CONFIG.shares.diskshare[0].@name
+    static final String READDIR = new File(CONFIG.shares.diskshare[0].driver.LocalPath.text())
     static final String WRITESHARE = CONFIG.shares.diskshare[1].@name
 
     def server

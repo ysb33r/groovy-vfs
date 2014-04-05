@@ -13,6 +13,7 @@
 apply plugin : 'eclipse'
 apply plugin : 'idea'
 apply plugin : 'jenkins'
+apply plugin : 'project-report'
 
 buildscript {
     repositories {
@@ -21,7 +22,9 @@ buildscript {
       }
       dependencies {
         classpath 'org.ysb33r.gradle:bintray:1.0'
+        classpath 'net.saliman:gradle-cobertura-plugin:2.2.2'
         classpath 'com.terrafolio:gradle-jenkins-plugin:0.3.1'
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.3'
       }
 }
 
@@ -34,15 +37,15 @@ subprojects {
         bintrayUser = 'ysb33r'
     }
 
-    apply plugin: 'project-report'
 }
 
-configure(subprojects.findAll {it.name != 'jlan'})  {
-
+configure(subprojects.findAll {it.name != 'jlan'}) {
 
     apply plugin: 'bintray-publish'
     apply plugin: 'groovy'
     apply plugin: 'maven'
+    apply plugin: 'artifactory'
+    apply plugin: 'cobertura'
 
     // Currently CodeNarc fails when used with JDK8.
     if (!org.gradle.internal.SystemProperties.javaVersion.startsWith('1.8.')) {
@@ -72,9 +75,41 @@ configure(subprojects.findAll {it.name != 'jlan'})  {
         from sourceSets.main.allSource
     }
 
-    artifacts {
-        archives sourcesJar
+    task javadocJar(type: Jar) {
+        description "An archive of the JavaDocs for Maven Central"
+        classifier "javadoc"
+        from javadoc
     }
+
+    cobertura {
+        format = 'xml'
+        includes = ['main/**/*.java', 'main/**/*.groovy']
+    }
+
+    artifacts {
+        archives sourcesJar, javadocJar
+    }
+
+    artifactory {
+        publish {
+            contextUrl = 'http://oss.jfrog.org'
+            repository {
+                repoKey = 'oss-snapshot-local'
+                username = project.properties.bintrayUserName
+                password = project.properties.bintrayApiKey
+            }
+        }
+    }
+
+    artifactoryPublish {
+        onlyIf { version.endsWith("SNAPSHOT") }
+    }
+
+//    install {
+//        repositories.mavenInstaller {
+//            pom.artifactId = archivesBaseName
+//        }
+//    }
 }
 
 /*

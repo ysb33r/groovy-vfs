@@ -5,7 +5,9 @@ Changelog
 -------------
 + Groovy VFS now has it own ```FileSystemManager``` class with more control for loading plugins.
 + Passing ```defaultProvider``` to ```VFS()``` is a NOP.
-+ Supports loading of SMB & MIME if the VFS Sandbox JAR is on the classpath.
++ Supports loading of SMB & MIME if the VFS Sandbox JAR is on the classpath and ```scanForVfsProviderXml : true```
+is passed to ```VFS()```
++ DSL now has an ```extend``` section for easier addition of plugins
 + [Using a closure as a filter when copying](https://github.com/ysb33r/groovy-vfs/issues/4)
 + [Allow option not to create intermediate paths when copying](https://github.com/ysb33r/groovy-vfs/issues/2)
 + [Create complex URIs with a closure](https://github.com/ysb33r/groovy-vfs/issues/11)
