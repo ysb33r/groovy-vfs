@@ -47,6 +47,8 @@ configure(subprojects.findAll {it.name != 'jlan'}) {
     apply plugin: 'artifactory'
     apply plugin: 'cobertura'
 
+    sourceCompatibility = 1.7
+
     // Currently CodeNarc fails when used with JDK8.
     if (!org.gradle.internal.SystemProperties.javaVersion.startsWith('1.8.')) {
         apply plugin: 'codenarc'
@@ -105,11 +107,6 @@ configure(subprojects.findAll {it.name != 'jlan'}) {
         onlyIf { version.endsWith("SNAPSHOT") }
     }
 
-//    install {
-//        repositories.mavenInstaller {
-//            pom.artifactId = archivesBaseName
-//        }
-//    }
 }
 
 /*

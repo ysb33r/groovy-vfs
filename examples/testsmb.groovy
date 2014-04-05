@@ -1,11 +1,7 @@
 @Grapes([
-@GrabResolver(name='local',root='file:///Users/schalkc/.m2/repository/',m2Compatible=true),
     @Grab( 'org.ysb33r.groovy:groovy-vfs:0.6-SNAPSHOT' ),
     @Grab( 'org.ysb33r.groovy:groovy-vfs-smb-provider:0.0.1-SNAPSHOT' ),
-//    @Grab( 'commons-net:commons-net:3.+' ), // If you want to use ftp
-//    @Grab( 'commons-httpclient:commons-httpclient:3.1'), // If you want http/https
-//    @Grab( 'com.jcraft:jsch:0.1.48' ), // If you want sftp
-    @Grab( 'jcifs:jcifs:1.3.17') // if you want smb/cifs
+    @Grab( 'jcifs:jcifs:1.3.17')
 ])
 import org.ysb33r.groovy.dsl.vfs.VFS
 import  org.apache.commons.logging.impl.SimpleLog

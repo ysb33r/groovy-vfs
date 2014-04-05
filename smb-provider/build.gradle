@@ -1,12 +1,12 @@
-apply plugin: 'groovy'
-apply plugin: 'idea'
-
 extensions.moduleName = 'groovy-vfs-smb-provider'
 group = 'org.ysb33r.groovy'
 archivesBaseName = 'groovy-vfs-smb-provider'
-
-sourceCompatibility = 1.7
 version = '0.0.1-SNAPSHOT'
+
+ext {
+    bintrayDescription = 'An SMB provider for Groovy VFS'
+    bintrayTags = ['groovy', 'vfs', 'smb', 'cifs']
+}
 
 repositories {
     jcenter()
@@ -47,7 +47,7 @@ uploadArchives  {
                 repoName bintrayRepo
                 packageName moduleName
                 description 'An SMB provider for Groovy VFS'
-                tags 'groovy', 'vfs', 'smb', 'cifs'
+                tags ['groovy', 'vfs', 'smb', 'cifs']
             }
         }
     }
