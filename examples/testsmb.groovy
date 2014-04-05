@@ -1,4 +1,5 @@
 @Grapes([
+@GrabResolver(name='jfrog',root='http://oss.jfrog.org'),
     @Grab( 'org.ysb33r.groovy:groovy-vfs:0.6-SNAPSHOT' ),
     @Grab( 'org.ysb33r.groovy:groovy-vfs-smb-provider:0.0.1-SNAPSHOT' ),
     @Grab( 'jcifs:jcifs:1.3.17')
