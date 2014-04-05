@@ -37,10 +37,6 @@ compileTestGroovy {
     dependsOn ':jlan:jar'
 }
 
-// Not doing codeNarc for this plugin yet.
-codenarcTest {
-    onlyIf { false }
-}
 
 uploadArchives  {
     repositories {

@@ -50,7 +50,7 @@ configure(subprojects.findAll {it.name != 'jlan'}) {
     sourceCompatibility = 1.7
 
     // Currently CodeNarc fails when used with JDK8.
-    if (!org.gradle.internal.SystemProperties.javaVersion.startsWith('1.8.')) {
+    if (!org.gradle.internal.SystemProperties.javaVersion.startsWith('1.8.') && !it.name=='smb-provider') {
         apply plugin: 'codenarc'
 
         codenarcTest {
