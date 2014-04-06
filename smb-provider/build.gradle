@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 extensions.moduleName = 'groovy-vfs-smb-provider'
 group = 'org.ysb33r.groovy'
 archivesBaseName = 'groovy-vfs-smb-provider'
@@ -27,16 +29,25 @@ manifest {
 }
 
 test {
-    systemProperties 'JLANCONFIG' : new File(projectDir,'src/test/resources/jlanserver.xml').absolutePath
+    systemProperties 'JLANCONFIG' : new File(buildDir,'tmp/jlanserver.xml').absolutePath
     systemProperties 'SMBPORT' : 1139
-    systemProperties 'TESTFSWRITEROOT' : new File('build/tmp').absolutePath
-    systemProperties 'TESTFSREADROOT' : new File('').absolutePath
+    systemProperties 'TESTFSWRITEROOT' : new File(projectDir,'build/tmp').absolutePath
+    systemProperties 'ROOT' : projectDir.absolutePath
 }
 
 compileTestGroovy {
     dependsOn ':jlan:jar'
 }
 
+test.doFirst {
+    copy {
+        from (new File(projectDir,'src/test/resources')) {
+            include 'jlanserver.xml'
+            filter(ReplaceTokens,tokens:[PROJECTDIR:projectDir.absolutePath])
+        }
+        into new File(buildDir,'tmp')
+    }
+}
 
 uploadArchives  {
     repositories {

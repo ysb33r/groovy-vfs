@@ -66,13 +66,13 @@
     <diskshare name="READROOT" comment="Test share">
       <driver>
         <class>org.alfresco.jlan.smb.server.disk.JavaFileDiskDriver</class>
-        <LocalPath>../dsl/src/test/resources/</LocalPath>
+        <LocalPath>@PROJECTDIR@/../dsl/src/test/resources/</LocalPath>
       </driver>
     </diskshare>
       <diskshare name="WRITEROOT" comment="Test share">
           <driver>
               <class>org.alfresco.jlan.smb.server.disk.JavaFileDiskDriver</class>
-              <LocalPath>./build/tmp</LocalPath>
+              <LocalPath>@PROJECTDIR@/build/tmp</LocalPath>
           </driver>
       </diskshare>
   </shares>
