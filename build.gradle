@@ -66,8 +66,10 @@ configure(subprojects.findAll {it.name != 'jlan'}) {
     }
 
     dependencies {
-        compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5+'
-        compile 'org.apache.commons:commons-vfs2:2.0'
+        compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7+'
+        compile ('org.apache.commons:commons-vfs2:2.0') {
+		exclude group:'org.apache.maven.scm'
+	}
         testCompile 'org.apache.ftpserver:ftpserver-core:1.0.6'
         testCompile 'commons-io:commons-io:2.4'
         testCompile 'commons-net:commons-net:3.+'
