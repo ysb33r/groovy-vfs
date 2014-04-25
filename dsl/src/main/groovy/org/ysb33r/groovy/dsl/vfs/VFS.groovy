@@ -280,11 +280,19 @@ class VFS {
 
 	/** Creates a folder on any VFS that allows this functionality
 	 * @param properties Any additional vfs properties
+     * @li intermediates. Set to false if intermediate folders should not be created.
 	 * @param uri Folder that needs to be created
 	 */
 	def mkdir ( properties=[:],uri ) {
 		assert properties != null
-		resolveURI(properties,uri).createFolder()
+		def fo= resolveURI(properties,uri)
+        if (properties.intermediates != null && properties.intermediates==false) {
+            def parent = fo.parent
+            if(!parent.exists()) {
+                throw new FileActionException("Cannot create directory - '${friendlyURI(parent)}' does not exist and intermediates==false")
+            }
+        }
+        fo.createFolder()
 	}
 
 	/** Copies files.

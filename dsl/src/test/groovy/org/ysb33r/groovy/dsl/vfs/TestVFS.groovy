@@ -125,8 +125,18 @@ import org.junit.Ignore
 		vfs.mkdir("${testFsWriteURI}/one/two/three")
 		assertTrue testDir.exists() 
 	}
-	
-	@Test
+
+     @Test(expected=FileActionException)
+     void creatingDirectoryShouldCreateParentsTooUnlessIntermediatesFalse() {
+         def vfs = new VFS()
+
+         def testDir=new File("${testFsWriteRoot}/one/two/three")
+         assertFalse testDir.exists()
+         vfs.mkdir("${testFsWriteURI}/one/two/three", intermediates:false)
+     }
+
+
+    @Test
 	void copyFileToExistingDirectoryAddsToDirectoryIfRecursive() {
 		def vfs = new VFS()
 		vfs.cp( recursive:true, testFsURI, testFsWriteURI ) 
