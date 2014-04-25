@@ -1,5 +1,5 @@
 // ============================================================================
-// (C) Copyright Schalk W. Cronje 2013
+// (C) Copyright Schalk W. Cronje 2014
 //
 // This software is licensed under the Apache License 2.0
 // See http://www.apache.org/licenses/LICENSE-2.0 for license details
@@ -9,11 +9,12 @@
 // See the License for the specific language governing permissions and limitations under the License.
 //
 // ============================================================================
+package org.ysb33r.groovy.vfs.app
 
-rootProject.name = 'groovy-vfs'
+import org.ysb33r.groovy.dsl.vfs.VFS
 
-include 'dsl'
-include 'gradle-plugin'
-include 'jlan'
-include 'smb-provider'
-include 'cmdline'
+interface Cmd {
+
+    Integer run(VFS vfs)
+
+}

@@ -43,9 +43,9 @@ configure(subprojects.findAll {it.name != 'jlan'}) {
 
     apply plugin: 'bintray-publish'
     apply plugin: 'groovy'
+    apply plugin: 'cobertura'
     apply plugin: 'maven'
     apply plugin: 'artifactory'
-    apply plugin: 'cobertura'
 
     sourceCompatibility = 1.7
 
@@ -68,8 +68,8 @@ configure(subprojects.findAll {it.name != 'jlan'}) {
     dependencies {
         compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7+'
         compile ('org.apache.commons:commons-vfs2:2.0') {
-		exclude group:'org.apache.maven.scm'
-	}
+		    exclude group:'org.apache.maven.scm'
+	    }
         testCompile 'org.apache.ftpserver:ftpserver-core:1.0.6'
         testCompile 'commons-io:commons-io:2.4'
         testCompile 'commons-net:commons-net:3.+'
@@ -111,6 +111,7 @@ configure(subprojects.findAll {it.name != 'jlan'}) {
 
     artifactoryPublish {
         onlyIf { version.endsWith("SNAPSHOT") }
+        onlyIf { name != 'cmdline' }
     }
 
 }
