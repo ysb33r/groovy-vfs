@@ -1,0 +1,6 @@
+This is test file #4 - Next line is blank
+
+This is test file #4 - Next line contains spaces
+              
+This is test file #4 - Next line is blank
+

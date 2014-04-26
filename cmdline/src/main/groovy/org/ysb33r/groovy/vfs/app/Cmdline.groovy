@@ -126,8 +126,10 @@ class Cmdline {
                     argName:o.argName,
                     o.text
                 )
-            } else {
+            } else if (o.longOpt) {
                 cli."${keyname}"(longOpt: o.longOpt, required: false, o.text)
+            } else {
+                cli."${keyname}"(required: false, o.text)
             }
         }
         OptionAccessor opts
@@ -178,6 +180,32 @@ class Cmdline {
     }
 
     private  final def parseCat = { String[] args ->
+        def parseResult = parseCommand(
+                E : [ longOpt:'show-ends',     text:'Print a $ at each line end' ],
+                n : [ longOpt:'number',        text:'Number output lines' ],
+                b : [ longOpt:'number-nonblank',text:'Number non-blank lines (overrides -n)' ],
+                s : [ longOpt:'squeeze-blank', text:'Suppress repeated empty output lines'],
+                T : [ longOpt:'show-tabs',     text:'Display TAB characters as ^I'],
+                A : [ longOpt:'show-all',      text:'Equivalent of -vET'],
+                v : [ longOpt:'show-nonprinting',text:'Use ^ and M- notation, except for LFD and TAB'],
+                e : [ text:'Equivalent of -vE'],
+                t : [ text:'Equivalent of -vT'],
+                u : [ text:'Compatibility switch - ignored'],
+                args,
+                'cat [OPTIONS] uri1 ... '
+        )
+        if(parseResult?.opts) {
+            return new Cat (
+                uris:parseResult.uris,
+                numberNonEmptyLines        : parseResult.opts.b,
+                showEndOfLines             : parseResult.opts.E || parseResult.opts.A || parseResult.opts.e,
+                numberLines                : parseResult.opts.n,
+                suppressRepeatedEmptyLines : parseResult.opts.s,
+                showTabs                   : parseResult.opts.T || parseResult.opts.A || parseResult.opts.t,
+                showNonPrinting            : parseResult.opts.v || parseResult.opts.A || parseResult.opts.e || parseResult.opts.t
+            )
+        }
+        return null
     }
 
     private  final def parseCp = { String[] args ->

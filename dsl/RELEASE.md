@@ -8,12 +8,12 @@ Changelog
 + Supports loading of SMB & MIME if the VFS Sandbox JAR is on the classpath and ```scanForVfsProviderXml : true```
 is passed to ```VFS()```
 + DSL now has an ```extend``` section for easier addition of plugins
-+ [Using a closure as a filter when copying](https://github.com/ysb33r/groovy-vfs/issues/4)
 + [Allow option not to create intermediate paths when copying](https://github.com/ysb33r/groovy-vfs/issues/2)
-+ [Create complex URIs with a closure](https://github.com/ysb33r/groovy-vfs/issues/11)
++ [Using a closure as a filter when copying](https://github.com/ysb33r/groovy-vfs/issues/4)
 + [Delete functionality](https://github.com/ysb33r/groovy-vfs/issues/9)
 + [Allow cookies to be passed to http/https schemas](https://github.com/ysb33r/groovy-vfs/issues/10)
-
++ [Create complex URIs with a closure](https://github.com/ysb33r/groovy-vfs/issues/11)
++ [Allow option not to auto-create intermediates when create a directory](https://github.com/ysb33r/groovy-vfs/issues/18)
 
 0.5
 ---

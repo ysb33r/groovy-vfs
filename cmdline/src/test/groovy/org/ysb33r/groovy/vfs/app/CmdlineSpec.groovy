@@ -152,75 +152,54 @@ class CmdlineSpec extends Specification {
             cmd.uris[0].toString().startsWith('file://')
             cmd.uris[1].toString() == 'ftp://some.server/pub/dir'
     }
-/*
-    def "cat should accept -A and --show-all"() {
-//         equivalent to -vET
+
+    def "cat with two uris should update set them on Cat object"() {
+        given:
+        Cat cmd = cmdline.parse(['cat','./local/file','ftp://some.server/pub/file'] as String[]) as Cat
+
         expect:
-        false
+        cmd != null
+        cmd.uris.size() == 2
+        cmd.uris[0].toString().startsWith('file://')
+        cmd.uris[1].toString() == 'ftp://some.server/pub/file'
+    }
+
+    def "cat should accept GNU cat options"() {
+        given:
+        Closure parser = cmdline.findParser(['cat'] as String[])
+
+        expect:
+            Cat cmd= parser(opts as String[]) as Cat
+            cmd?.numberNonEmptyLines        == nel
+            cmd?.showEndOfLines             == seol
+            cmd?.numberLines                == nl
+            cmd?.suppressRepeatedEmptyLines == srel
+            cmd?.showTabs                   == st
+            cmd?.showNonPrinting            == snp
+
+        where:
+            opts           || nel   | seol  | nl    | srel  | st    | snp
+            []             || false | false | false | false | false | false
+            ['-u']         || false | false | false | false | false | false
+            ['-E']         || false | true  | false | false | false | false
+            ['--show-ends']|| false | true  | false | false | false | false
+            ['-n']         || false | false | true  | false | false | false
+            ['--number']   || false | false | true  | false | false | false
+            ['-b']         || true  | false | false | false | false | false
+            ['--number-nonblank']||true|false|false | false | false | false
+            ['-s']         || false | false | false | true  | false | false
+            ['--squeeze-blank']||false|false| false | true  | false | false
+            ['-T']         || false | false | false | false | true  | false
+            ['--show-tabs']|| false | false | false | false | true  | false
+            ['-v']         || false | false | false | false | false | true
+            ['--show-nonprinting']|| false | false | false | false | false  | true
+            ['-A']         || false | true  | false | false | true  | true
+            ['--show-all'] || false | true  | false | false | true  | true
+            ['-e']         || false | true  | false | false | false | true
+            ['-t']         || false | false | false | false | true  | true
 
     }
 
-    def "cat should accept -b and --number-nonblank"() {
-//    number nonempty output lines, overrides -n
-        expect:
-        false
-
-    }
-
-    def "cat should accept -e"() {
-//    -e     equivalent to -vE
-        expect:
-        false
-
-    }
-
-    def "cat should accept -E and --show-ends"() {
-//    display $ at end of each line
-        expect:
-        false
-
-    }
-
-    def "cat should accept -n and --number"() {
-//    number all output lines
-        expect:
-        false
-
-    }
-
-    def "cat should accept -s and --squeeze-blank"() {
-//    suppress repeated empty output lines
-        expect:
-        false
-    }
-
-    def "cat should accept -t"() {
-//    -t     equivalent to -vT
-        expect:
-        false
-
-    }
-
-    def "cat should accept -T and --show-tabs"() {
-//    display TAB characters as ^I
-        expect:
-        false
-    }
-
-    def "cat should accept and ignore -u"() {
-//    -u     (ignored)
-        expect:
-        false
-
-    }
-
-    def "cat should accept -v and --show-nonprinting"() {
-//    use ^ and M- notation, except for LFD and TAB
-        expect:
-        false
-
-    }
-*/
 
 //    ﻿SYNOPSIS
 //    mv [OPTION]... [-T] SOURCE DEST

@@ -152,4 +152,5 @@ that I acknowledge the inputs of others in the creation of groovy-vfs
 offered great suggestions when I got stuck with the config DSL.
 + Jez Higgins, Rob Fletcher, Giovanni Asproni, Balachandran Sivakumar, Burkhard Kloss & Tim Barker who helped shape the
 design decision to auto-create intermediates during a move operation.
++ Maarten Boekhold for testing the SMB Provider plugin
 + Everyone from Greach 2014 that provided feedback

@@ -32,14 +32,17 @@ repositories {
 dependencies {
     compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: '2.2+', classifier: 'indy'
     compile 'commons-cli:commons-cli:1.2'
+    runtime 'commons-io:commons-io:2.4'
+    runtime 'commons-net:commons-net:3.+'
+    runtime 'commons-httpclient:commons-httpclient:3.1'
+    runtime 'org.slf4j:slf4j-simple:1.7.5'
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
     compile project(':dsl')
 }
 
 test {
-    systemProperties TESTFSREADROOT : "${projectDir}"
+    systemProperties TESTFSREADROOT : "${projectDir}/src/test/resources"
     systemProperties TESTFSWRITEROOT : "${buildDir}/tmp/test/cmdline-vfs"
-    systemProperties TESTVERSION : version
 }
 
 /*
