@@ -58,7 +58,23 @@ class CatSpec extends Specification {
             capture.toString() == new File(EXPECTEDROOT,'file1-numbered.txt').text
     }
 
-    def "Cat a local file and number non-blank lines (with no LF on last line)" () {
+    // TODO: Test for two files with numbering and that numbering should restart
+
+    def "Cat two local files and number all lines, restarting with every file" () {
+        given:
+        File testfile= new File(READROOT,'file1.txt')
+        List<vfsURI> uris = [ new vfsURI( testfile ), new vfsURI(new File(READROOT,'file2.txt')) ]
+        Cmd cmd = new Cat( 'uris' : uris, numberLines : true )
+        cmd.out = new PrintStream(capture)
+
+        when:
+        cmd.run(vfs)
+
+        then:
+        capture.toString() == new File(EXPECTEDROOT,'file1-file2-numbered.txt').text
+    }
+
+    def "Cat a local file and number non-blank lines (with last line not blank)" () {
         given:
             File testfile= new File(READROOT,'file2.txt')
             List<vfsURI> uris = [ new vfsURI( testfile ) ]
@@ -67,8 +83,6 @@ class CatSpec extends Specification {
 
         when:
             cmd.run(vfs)
-            cmd.out.flush()
-            capture.flush()
 
         then:
             capture.toString() == new File(EXPECTEDROOT,'file2-numbered-notblanks.txt').text
@@ -88,9 +102,7 @@ class CatSpec extends Specification {
             capture.toString() == new File(EXPECTEDROOT,'file4-numbered-notblanks.txt').text
     }
 
-    // TODO: Test for two files with numbering and that numbering should restart
 
-    @Ignore
     def "Suppress repeating blank lines in a local file" () {
         given:
             File testfile= new File(READROOT,'file3.txt')
@@ -103,5 +115,47 @@ class CatSpec extends Specification {
 
         then:
             capture.toString() == new File(EXPECTEDROOT,'file3-suppressed-repeating-blanks.txt').text
+    }
+
+    def "Mark EOL in a local file" () {
+        given:
+            File testfile= new File(READROOT,'file1.txt')
+            List<vfsURI> uris = [ new vfsURI( testfile ) ]
+            Cmd cmd = new Cat( 'uris' : uris, showEndOfLines : true )
+            cmd.out = new PrintStream(capture)
+
+        when:
+            cmd.run(vfs)
+
+        then:
+            capture.toString() == new File(EXPECTEDROOT,'file1-with-eol-markers.txt').text
+    }
+
+    def "Show tabs in a local file" () {
+        given:
+            File testfile= new File(READROOT,'file5.txt')
+            List<vfsURI> uris = [ new vfsURI( testfile ) ]
+            Cmd cmd = new Cat( 'uris' : uris, showTabs : true )
+            cmd.out = new PrintStream(capture)
+
+        when:
+            cmd.run(vfs)
+
+        then:
+            capture.toString() == new File(EXPECTEDROOT,'file5-show-tabs.txt').text
+    }
+
+    def "Show non-printing characters (excluding LF and TAB) in a local file" () {
+        given:
+            File testfile= new File(READROOT,'file6.dat')
+            List<vfsURI> uris = [ new vfsURI( testfile ) ]
+            Cmd cmd = new Cat( 'uris' : uris, showNonPrinting : true )
+            cmd.out = new PrintStream(capture)
+
+        when:
+            cmd.run(vfs)
+
+        then:
+            capture.toString() == new File(EXPECTEDROOT,'file6-show-non-printing.txt').text
     }
 }

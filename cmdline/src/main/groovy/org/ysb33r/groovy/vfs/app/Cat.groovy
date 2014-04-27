@@ -13,6 +13,7 @@ package org.ysb33r.groovy.vfs.app
 
 import groovy.transform.TupleConstructor
 import org.ysb33r.groovy.dsl.vfs.VFS
+import static java.nio.charset.StandardCharsets.US_ASCII
 
 @TupleConstructor
 class Cat implements Cmd {
@@ -46,7 +47,6 @@ class Cat implements Cmd {
             uris.each {
                 cat(it) { strm ->
                     Long lineCount=1
-//                    boolean notFirstLine=false
                     boolean prevLineBlank=false
 
                     strm.eachLine { line ->
@@ -62,19 +62,25 @@ class Cat implements Cmd {
                         }
 
                         if (printLine) {
-//                            if (notFirstLine) {
-//                                out.println()
-//                            }
                             if ((numberNonEmptyLines && !isBlank) || (numberLines && !numberNonEmptyLines)) {
                                 out.printf '%6d\t', lineCount
                                 ++lineCount
                             }
 
                             if(showNonPrinting) {
-                                line = line.replaceAll(/\t/) { match ->
-                                    match
+                                line= line.replaceAll(/\p{Cntrl}/) { match ->
+                                    if (match[0] != "\n" && match[0] != "\t") {
+                                        byte[] tmp = match[0].toString().getBytes(US_ASCII)
+                                        if (tmp[0] == 127) {
+                                            return "^?"
+                                        } else {
+                                            tmp[0] = tmp[0] + 64
+                                            return "^" + new String(tmp, 0, 1)
+                                        }
+                                    } else {
+                                        return match[0]
+                                    }
                                 }
-
                             } else if(showTabs) {
                                 line = line.replaceAll(/\t/,'^I')
                             }
@@ -84,8 +90,6 @@ class Cat implements Cmd {
                             }
                             out.println()
                         }
-
-                        //notFirstLine = true
                     }
                 }
             }
