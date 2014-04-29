@@ -12,6 +12,7 @@
 
 package org.ysb33r.groovy.dsl.vfs.impl
 
+
 import java.util.regex.Pattern;
 
 import org.apache.commons.vfs2.FileObject
@@ -55,14 +56,14 @@ class CopyMoveOperations {
 			throw new FileActionException("Source '${friendlyURI(from)}' does not exist")
 		}
 
-		def selector=_createSelector(filter)
-		
+		FileSelector selector=_createSelector(filter)
+
 		switch(fromType) {
 			case FILE:
 				_copyFromSourceFile(from,to,smash,_overwritePolicy(overwrite),selector)
 				break					
 			case FOLDER:
-				_copyFromSourceDir(from,to,smash,_overwritePolicy(overwrite),recursive,selector)
+                _copyFromSourceDir(from,to,smash,_overwritePolicy(overwrite),recursive,selector)
 				break
 		}		
 		
@@ -171,7 +172,7 @@ class CopyMoveOperations {
     }
     
 	/** Creates a VFS selector from a passed in filter
-	 * @todo Closure, Pattern, 
+	 * @todo Closure
 	 * @return
 	 */
 	private static FileSelector _createSelector(filter) {
@@ -190,6 +191,7 @@ class CopyMoveOperations {
 				] as FileSelector
 				break
 			case FileSelector:
+                selector=filter
 				break
 			case Closure:
 				assert false,"TODO: Using a closure as a filter NEEDS IMPLEMENTATION"
@@ -247,7 +249,14 @@ class CopyMoveOperations {
 	/** Implements copying from a source directory
 	 * 
 	 */
-	private static def _copyFromSourceDir(FileObject from,FileObject to,boolean smash,Closure overwrite,boolean recursive,FileSelector selector) {
+	private static def _copyFromSourceDir(
+            FileObject from,
+            FileObject to,
+            boolean smash,
+            Closure overwrite,
+            boolean recursive,
+            FileSelector selector
+    ) {
 		def toType= to.type
 		FileObject target
 		
@@ -271,9 +280,12 @@ class CopyMoveOperations {
 					}
 					return 
 				} else if (recursive) {
+
 					target=to.resolveFile(from.name.baseName) 
 					if(target.exists()) {
-						_recursiveDirCopyNoSmash(from,target,selector,overwrite)
+                        _recursiveDirCopyNoSmash(from, target, selector, overwrite)
+//                    } else if (selector==Selectors.EXCLUDE_SELF) {
+//                        _recursiveDirCopyNoSmash(from, target, Selectors.SELECT_ALL, overwrite)
 					} else {
 						target.copyFrom(from,selector)
 					}
