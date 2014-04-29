@@ -41,8 +41,10 @@ class Run {
     }
 
     Integer execute() {
+        def input = System.in
         try {
             commands.each { Cmd cmd ->
+                System.in = cmd.isInteractive() ? input : null
                 cmd.run(vfs)
             }
 

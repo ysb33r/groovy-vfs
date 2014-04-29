@@ -9,14 +9,18 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ============================================================================
 
+import org.ysb33r.gradle.bintray.BintrayGenericUpload
+
+import javax.print.attribute.standard.Compression
+
 apply plugin : 'application'
 
-extensions.moduleName = 'groovy-vfs'
-group = 'org.ysb33r.groovy' 
+group = 'org.ysb33r.groovy'
 archivesBaseName = 'cmdline-vfs'
 mainClassName = 'org.ysb33r.groovy.vfs.app.Run'
 applicationName = 'vfs'
-applicationDefaultJvmArgs=['-Dvfs.scriptname=vfs']
+applicationDefaultJvmArgs=["-Dvfs.scriptname=${applicationName}"]
+bintrayRepo = 'nanook'
 
 jar {
     manifest {
@@ -46,24 +50,29 @@ test {
     systemProperties TESTFSWRITEROOT : "${buildDir}/tmp/test/cmdline-vfs"
 }
 
-/*
-uploadArchives  {
-    repositories {
-        if(!version.endsWith("SNAPSHOT")) {
-            bintrayMavenDeployer {
-                username    project.properties.bintrayUserName
-                apiKey      project.properties.bintrayApiKey
-                repoOwner   bintrayUser
-                repoName    bintrayRepo
-                packageName moduleName
-                description 'A DSL for Groovy that wraps Apache VFSL'
-                tags        'groovy','vfs','dsl'
-            }
-        }
-    }
+//distTar {
+//    extension = 'tgz'
+//    compression = Compression.GZIP
+//}
+
+// TODO: Need tasks:
+//  - something to zip src
+//  - build documentation (from asciidoc) and create man page
+
+task uploadArchives (type:BintrayGenericUpload ) {
+    username    project.properties.bintrayUserName
+    apiKey      project.properties.bintrayApiKey
+    repoOwner   bintrayUser
+    repoName    bintrayRepo
+    packageName 'vfs'
+    sources distZip.outputs.files
+    sources distTar.outputs.files
+
+    dependsOn distZip, distTar
+
+    onlyIf { !version.endsWith("SNAPSHOT") }
 }
 
-apply from : '../gradle/publish.gradle'
-*/
+
 
 

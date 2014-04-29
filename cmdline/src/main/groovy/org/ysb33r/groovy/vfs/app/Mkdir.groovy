@@ -24,6 +24,8 @@ class Mkdir implements Cmd {
     Integer mode = null
     List<org.ysb33r.groovy.dsl.vfs.URI> uris = []
 
+    boolean isInteractive() { false }
+
     Integer run(VFS vfs) {
         vfs {
             uris.each {

@@ -1,0 +1,21 @@
+
+mkdir 
+-----
+
+* ```--mode``` is accepted, but not implemented.
+
+cat
+---
+
+* If any output-modifying options are used and the last line does not end on a LF, it will add a LF.
+* ```-v``` will not escape characters outside of US-ASCII. It assume sthose chaarcetrs is Unicode and printable.
+
+mv
+--
+
+* wildcards are not supported. ```--x-filter``` will be provided in a future release.
+
+cp
+--
+* wildcards are not supported. ```--x-filter``` will be provided in a future release.
+

@@ -11,16 +11,18 @@
 // ============================================================================
 package org.ysb33r.groovy.vfs.app
 
+import org.junit.Ignore
 import spock.lang.*
 
 class CmdlineSpec extends Specification {
 
+    @Shared String u1='ftp://uri/1'
+    @Shared String u2='ftp://uri/2'
     @Shared StringWriter errors
     @Shared StringWriter usage
     @Shared Cmdline cmdline
     @Shared Cmdline cmdline_E
     @Shared Cmdline cmdline_U
-    //def cmdline = new Cmdline(name:'TEST')
 
     void setup() {
         errors = new StringWriter()
@@ -28,7 +30,6 @@ class CmdlineSpec extends Specification {
         cmdline = new Cmdline(name: 'TEST')
         cmdline_E = new Cmdline(name: 'TEST_E', errorWriter: new PrintWriter(errors))
         cmdline_U = new Cmdline(name: 'TEST_U', usageWriter: new PrintWriter(usage))
-        //def cmdline = new Cmdline(name:'TEST')
     }
 
     def "A non-scheme URI should convert to a file: URI"() {
@@ -89,20 +90,8 @@ class CmdlineSpec extends Specification {
 
         expect:
         cmd instanceof Integer
-        // We don't rest for the version number itself as this requires the jar to be loaded
+        // We don't test for the version number itself as this requires the jar to be loaded
         usage =~ /TEST_U version /
-    }
-
-    @Ignore
-    def "--help / -h with command should display help for command"() {
-        expect:
-            cmdline.findParser(args as String[]) == closure
-
-        where:
-            args                || closure
-            ['mkdir','--help']  || cmdline.help
-            ['cp','-h']         || cmdline.help
-            ['mv','--parents','ftp://from.here/file','ftp://to.here/file','--help','--version'] || Cmdline.help
     }
 
     def "mkdir should accept -p, --parents , -m and --mode"() {
@@ -116,11 +105,11 @@ class CmdlineSpec extends Specification {
 
         where:
             opts                     || ints  | mode
-            ['--parents']            || true  | null
-            ['-p']                   || true  | null
-            []                       || false | null
-            ['--mode=0777']          || false | 511i
-            ['-m','0555']            || false | 365i
+            ['--parents',u1,u2]      || true  | null
+            ['-p',u1,u2]             || true  | null
+            [u1,u2]                  || false | null
+            ['--mode=0777',u1,u2]    || false | 511i
+            ['-m','0555',u1,u2]      || false | 365i
     }
 
     def "mkdir --mode should accept chmod-style octal values"() {
@@ -128,9 +117,9 @@ class CmdlineSpec extends Specification {
             Closure parser = cmdline.findParser(['mkdir'] as String[])
 
         expect:
-            parser(['--mode=099'] as String[]) == null
-            parser(['-m','199'] as String[]) == null
-            parser(['--mode=7'] as String[]) == null
+            parser(['--mode=099',u1,u2] as String[]) == null
+            parser(['-m','199',u1,u2] as String[]) == null
+            parser(['--mode=7',u1,u2] as String[]) == null
     }
 
     def "mkdir usage should be invoked by --help"() {
@@ -153,12 +142,27 @@ class CmdlineSpec extends Specification {
             cmd.uris[1].toString() == 'ftp://some.server/pub/dir'
     }
 
-    def "cat with two uris should update set them on Cat object"() {
+    def "mkdir should not set interactive mode"() {
+        given:
+            Mkdir cmd = cmdline.parse(['mkdir','./local/file'] as String[]) as Mkdir
+
+        expect:
+            cmd.isInteractive() == false
+    }
+
+    def "cat should not set interactive mode"() {
+        given:
+            Cat cmd = cmdline.parse(['cat','./local/file'] as String[]) as Cat
+
+        expect:
+            cmd.isInteractive() == false
+    }
+
+    def "cat with two uris should set them on Cat object"() {
         given:
         Cat cmd = cmdline.parse(['cat','./local/file','ftp://some.server/pub/file'] as String[]) as Cat
 
         expect:
-        cmd != null
         cmd.uris.size() == 2
         cmd.uris[0].toString().startsWith('file://')
         cmd.uris[1].toString() == 'ftp://some.server/pub/file'
@@ -166,7 +170,7 @@ class CmdlineSpec extends Specification {
 
     def "cat should accept GNU cat options"() {
         given:
-        Closure parser = cmdline.findParser(['cat'] as String[])
+            Closure parser = cmdline.findParser(['cat'] as String[])
 
         expect:
             Cat cmd= parser(opts as String[]) as Cat
@@ -178,80 +182,111 @@ class CmdlineSpec extends Specification {
             cmd?.showNonPrinting            == snp
 
         where:
-            opts           || nel   | seol  | nl    | srel  | st    | snp
-            []             || false | false | false | false | false | false
-            ['-u']         || false | false | false | false | false | false
-            ['-E']         || false | true  | false | false | false | false
-            ['--show-ends']|| false | true  | false | false | false | false
-            ['-n']         || false | false | true  | false | false | false
-            ['--number']   || false | false | true  | false | false | false
-            ['-b']         || true  | false | false | false | false | false
-            ['--number-nonblank']||true|false|false | false | false | false
-            ['-s']         || false | false | false | true  | false | false
-            ['--squeeze-blank']||false|false| false | true  | false | false
-            ['-T']         || false | false | false | false | true  | false
-            ['--show-tabs']|| false | false | false | false | true  | false
-            ['-v']         || false | false | false | false | false | true
-            ['--show-nonprinting']|| false | false | false | false | false  | true
-            ['-A']         || false | true  | false | false | true  | true
-            ['--show-all'] || false | true  | false | false | true  | true
-            ['-e']         || false | true  | false | false | false | true
-            ['-t']         || false | false | false | false | true  | true
+            opts                 || nel   | seol  | nl    | srel  | st    | snp
+            [u1,u2]              || false | false | false | false | false | false
+            ['-u',u1,u2]         || false | false | false | false | false | false
+            ['-E',u1,u2]         || false | true  | false | false | false | false
+            ['--show-ends',u1,u2]|| false | true  | false | false | false | false
+            ['-n',u1,u2]         || false | false | true  | false | false | false
+            ['--number',u1,u2]   || false | false | true  | false | false | false
+            ['-b',u1,u2]         || true  | false | false | false | false | false
+            ['--number-nonblank',u1,u2]||true|false|false | false | false | false
+            ['-s',u1,u2]         || false | false | false | true  | false | false
+            ['--squeeze-blank',u1,u2]||false|false| false | true  | false | false
+            ['-T',u1,u2]         || false | false | false | false | true  | false
+            ['--show-tabs',u1,u2]|| false | false | false | false | true  | false
+            ['-v',u1,u2]         || false | false | false | false | false | true
+            ['--show-nonprinting',u1,u2]|| false | false | false | false | false  | true
+            ['-A',u1,u2]         || false | true  | false | false | true  | true
+            ['--show-all',u1,u2] || false | true  | false | false | true  | true
+            ['-e',u1,u2]         || false | true  | false | false | false | true
+            ['-t',u1,u2]         || false | false | false | false | true  | true
 
     }
 
+    def "mv options -i, -f, -n is last option wins"() {
+        given:
+            Closure parser = cmdline.findParser(['mv'] as String[])
 
-//    ﻿SYNOPSIS
-//    mv [OPTION]... [-T] SOURCE DEST
-//    mv [OPTION]... SOURCE... DIRECTORY
-//    mv [OPTION]... -t DIRECTORY SOURCE...
-//
-//    DESCRIPTION
-//    Rename SOURCE to DEST, or move SOURCE(s) to DIRECTORY.
-//
-//    Mandatory arguments to long options are mandatory for short options too.
-//
-//    --backup[=CONTROL]
-//    make a backup of each existing destination file
-//
-//    -b     like --backup but does not accept an argument
-//
-//    -f, --force
-//    do not prompt before overwriting
-//
-//    -i, --interactive
-//    prompt before overwrite
-//
-//    -n, --no-clobber
-//    do not overwrite an existing file
-//
-//    If you specify more than one of -i, -f, -n, only the final one takes effect.
-//
-//    --strip-trailing-slashes
-//    remove any trailing slashes from each SOURCE argument
-//
-//    -S, --suffix=SUFFIX
-//    override the usual backup suffix
-//
-//    ﻿      -t, --target-directory=DIRECTORY
-//    move all SOURCE arguments into DIRECTORY
-//
-//    -T, --no-target-directory
-//    treat DEST as a normal file
-//
-//    -u, --update
-//    move  only  when the SOURCE file is newer than the destination file or
-//    when the destination file is missing
-//
-//    -v, --verbose
-//    explain what is being done
-//
-//    --help display this help and exit
-//
-//    --version
-//    output version information and exit
-//
-//    The backup suffix is '~', unless set with --suffix  or  SIMPLE_BACKUP_SUFFIX.
+        expect:
+            Mv cmd= parser(opts as String[]) as Mv
+            result == ((cmd.overwrite instanceof Closure) ? null : cmd.overwrite)
+            interactive == cmd.isInteractive()
+
+        where:
+            opts                   || result | interactive
+            ['-i','-f','-n',u1,u2] || false  | false
+            ['-f','-i','-n',u1,u2] || false  | false
+            ['-i','-n','-f',u1,u2] || true   | false
+            ['-n','-i','-f',u1,u2] || true   | false
+            ['-f','-n','-i',u1,u2] || null   | true
+            ['-n','-f','-i',u1,u2] || null   | true
+    }
+
+    def "If -T is used with mv, then only two URIs are allowed"() {
+        given:
+            Closure parser = cmdline_E.findParser(['mv'] as String[])
+            def result= parser(['-T','./local/file','ftp://some.server/pub/file',
+                               'sftp://third/broken'] as String[])
+
+        expect:
+            result == null
+            errors =~ /Only two URIs are allowed with -T/
+    }
+
+    def "If -T is used with mv and two URIs are provided, destination is a file"() {
+        given:
+            Closure parser = cmdline.findParser(['mv'] as String[])
+
+        when:
+            Mv cmd= parser(['-T','./local/file','ftp://some.server/pub/file'] as String[]) as Mv
+
+        then:
+            cmd.targetIsFile == true
+    }
+
+    def "mv should accept GNU mv options"() {
+        given:
+            Closure parser = cmdline.findParser(['mv'] as String[])
+
+        expect:
+            Mv cmd= parser(opts as String[]) as Mv
+            cmd?.stripTrailingSlashes        == sts
+            cmd?.update                      == upd
+            cmd?.verbose                     == ver
+//        def backupStrategy
+        where:
+            opts                               || sts   | upd   | ver
+            [u1,u2]                            || false | false | false
+            ['--strip-trailing-slashes',u1,u2] || true  | false | false
+            ['-u',u1,u2]                       || false | true  | false
+            ['--update',u1,u2]                 || false | true  | false
+            ['-v',u1,u2]                       || false | false | true
+            ['--verbose',u1,u2]                || false | false | true
+    }
+
+    def "When using -t, the directory should be added to the end of the URI list"() {
+        given:
+            Closure parser = cmdline.findParser(['mv'] as String[])
+
+        when:
+            Mv cmd1= parser(['-t',u1,u2] as String[]) as Mv
+            Mv cmd2= parser(["--target-directory=${u2}",u1] as String[]) as Mv
+
+        then:
+            cmd1.uris[0].toString() == u2
+            cmd1.uris[1].toString() == u1
+            cmd2.uris[0].toString() == u1
+            cmd2.uris[1].toString() == u2
+
+    }
+
+    @Ignore
+    def "mv with -b or --backup affects backupStrategy"() {
+        // -b
+        // --backup=<>
+        // cmd.backupStrategy
+        //    The backup suffix is '~', unless set with --suffix  or  SIMPLE_BACKUP_SUFFIX.
 //    The version control method may be selected via the --backup option or through
 //    the VERSION_CONTROL environment variable.  Here are the values:
 //
@@ -265,6 +300,8 @@ class CmdlineSpec extends Specification {
 //
 //    simple, never
 //    always make simple backups
+   }
+
 
 //    ﻿SYNOPSIS
 //    cp [OPTION]... [-T] SOURCE DEST

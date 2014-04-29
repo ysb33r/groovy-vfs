@@ -284,8 +284,8 @@ class CopyMoveOperations {
 					target=to.resolveFile(from.name.baseName) 
 					if(target.exists()) {
                         _recursiveDirCopyNoSmash(from, target, selector, overwrite)
-//                    } else if (selector==Selectors.EXCLUDE_SELF) {
-//                        _recursiveDirCopyNoSmash(from, target, Selectors.SELECT_ALL, overwrite)
+                    } else if (selector==Selectors.EXCLUDE_SELF) {
+                        _recursiveDirCopyNoSmash(from, to, Selectors.SELECT_ALL, overwrite)
 					} else {
 						target.copyFrom(from,selector)
 					}

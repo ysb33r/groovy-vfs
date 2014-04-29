@@ -103,6 +103,7 @@ class Cmdline {
     private  Map parseCommand(
             final Map options,
             final String[] args,
+            final Integer minURIs,
             final String usage,
             final String header='',
             final String footer=''
@@ -118,18 +119,28 @@ class Cmdline {
         cli._(longOpt: 'vfs-options','Comma-separated list of vfs.SCHEME.xyz options',required:false,valueSeparator:',')
         cli._(longOpt: 'logger', 'Turn logging on', required:false)
         options.each { keyname,o ->
-            if(o.args) {
-                cli."${keyname}"(
-                    longOpt: o.longOpt,
-                    required: false,
-                    args:o.args,
-                    argName:o.argName,
-                    o.text
-                )
-            } else if (o.longOpt) {
-                cli."${keyname}"(longOpt: o.longOpt, required: false, o.text)
+            if(keyname == 'longOpts' ) {
+                o.each { longName,v ->
+                    if(o.args) {
+                        cli._(longOpt: longName, args:v.args, optionalArg:v.optionalArg, required: false, v.text)
+                    } else {
+                        cli._(longOpt: longName, required: false, v.text)
+                    }
+                }
             } else {
-                cli."${keyname}"(required: false, o.text)
+                if (o.args) {
+                    cli."${keyname}"(
+                            longOpt: o.longOpt,
+                            required: false,
+                            args: o.args,
+                            argName: o.argName,
+                            o.text
+                    )
+                } else if (o.longOpt) {
+                    cli."${keyname}"(longOpt: o.longOpt, required: false, o.text)
+                } else {
+                    cli."${keyname}"(required: false, o.text)
+                }
             }
         }
         OptionAccessor opts
@@ -140,7 +151,7 @@ class Cmdline {
             cli.usage()
             return null
         }
-        if(!opts || opts.h) {
+        if(!opts || opts.h || opts.arguments().size() < minURIs) {
             cli.usage()
             return null
         }
@@ -156,7 +167,7 @@ class Cmdline {
         def parseResult = parseCommand(
             p : [ longOpt:'parents', text:'Make parent directories as needed' ],
             m : [ longOpt:'mode', args:1, argName:'MODE', text:'Set file mode (chmod-style) if VFS supports it (ignored)'],
-            args,
+            args,1,
             'mkdir [OPTIONS] uri1 ... '
         )
         if(parseResult?.opts) {
@@ -191,7 +202,7 @@ class Cmdline {
                 e : [ text:'Equivalent of -vE'],
                 t : [ text:'Equivalent of -vT'],
                 u : [ text:'Compatibility switch - ignored'],
-                args,
+                args,1,
                 'cat [OPTIONS] uri1 ... '
         )
         if(parseResult?.opts) {
@@ -212,6 +223,83 @@ class Cmdline {
     }
 
     private  final def parseMv = { String[] args ->
+        def parseResult = parseCommand(
+                d : [ longOpt:'force',       text:'Do not prompt before overwriting' ],
+                i : [ longOpt:'interactive', text:'Prompt before overwriting' ],
+                n : [ longOpt:'no-clobber',  text:'Do not overwrite existing file' ],
+                u : [ longOpt:'update',      text:'Move only when source is newer that destination or latter is missing' ],
+                v : [ longOpt:'verbose',     text:'Explain what is being done' ],
+                T : [ longOpt:'no-target-directory', text:'Treat destination as file'],
+                S : [ longOpt:'suffix', args:1, argName:'SUFFIX', text:'Override the usual backup suffix' ],
+                t : [ longOpt:'target-directory', args:1, argName:'DIR', text:'Move all srcURIs to destination folder URI' ],
+                b : [ text:'Like --backup=simple'],
+                longOpts : [
+                    backup : [ args:1, argName:'CONTROL', optionalArg:true, text:'Backup behaviour. Optional arg:'],
+                    'strip-trailing-slashes' : [ text: 'Remove any trailing slashes from each srcURI']
+                ],
+                args,1,
+                'mv [OPTIONS] srcUri... destUri ','mv -t destUri srcUri...',
+                '''If you specify more than one of -i, -f, -n, only the final one takes effect.
+If you specify -T then only two URIs are allowed.'''
+        )
+        if(parseResult?.opts) {
+           if(parseResult.opts.T && parseResult.uris.size() !=2 ) {
+               errormsg('Only two URIs are allowed with -T')
+               return null
+           }
+           def overwriteAction=true
+           switch( (args.reverse() as String[]).find { it in ['-n','-i','-f','--force','--no-clobber','--interactive'] } ) {
+                case '-n':
+                case '--no-clobber:':
+                   overwriteAction=false
+                   break
+                // TODO: We need to handle sftp correctly - issue with Kerberos/AD auth
+                case '-i':
+                case '--interactive':
+                   overwriteAction = { from,to ->
+                       println "Overwrite ${to}? "
+                       System.in.readLine().startsWith('Y')
+                   }
+
+           }
+           if(parseResult.opts.t) {
+               try {
+                   parseResult.uris << buildURIs([parseResult.opts.t])[0]
+               } catch (final URISyntaxException e) {
+                   errormsg(e)
+                   return null
+               }
+           }
+           if(parseResult.uris.size() < 2) {
+               errormsg "Not enough URIs specified - at least two required."
+               return null
+           }
+           return new Mv(
+                   uris:parseResult.uris,
+                   targetIsFile : parseResult.opts.T,
+                   stripTrailingSlashes : parseResult.opts.'strip-trailing-slashes',
+                   backupSuffix : parseResult.opts.S ?: (System.getenv('SIMPLE_BACKUP_SUFFIX') ?: '~'),
+                   update : parseResult.opts.u,
+                   overwrite : overwriteAction,
+                   verbose : parseResult.opts.v,
+                   interactive: (overwriteAction instanceof Closure)
+           )
+        }
+        return null
+//    The version control method may be selected via the --backup option or through
+//    the VERSION_CONTROL environment variable.  Here are the values:
+//
+//    none, off
+//    never make backups (even if --backup is given)
+//
+//    numbered, t
+//    make numbered backups
+//    ﻿       existing, nil
+//    numbered if numbered backups exist, simple otherwise
+//
+//    simple, never
+//    always make simple backups
+        // Need to read env variables SIMPLE_BACKUP_SUFFIX, VERSION_CONTROL
     }
 
     private  final def help = { ->

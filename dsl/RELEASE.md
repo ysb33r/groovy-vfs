@@ -14,6 +14,9 @@ is passed to ```VFS()```
 + [Allow cookies to be passed to http/https schemas](https://github.com/ysb33r/groovy-vfs/issues/10)
 + [Create complex URIs with a closure](https://github.com/ysb33r/groovy-vfs/issues/11)
 + [Allow option not to auto-create intermediates when create a directory](https://github.com/ysb33r/groovy-vfs/issues/18)
++ [Fixed NPE when use Apache VFS FileSelector as copy filter](https://github.com/ysb33r/groovy-vfs/issues/19)
++ Six pre-defined filters have been added for copy operations:
+```exclude_self, select_all, direct_children_only, only_files, only_folders, self_and_direct_children```
 
 0.5
 ---

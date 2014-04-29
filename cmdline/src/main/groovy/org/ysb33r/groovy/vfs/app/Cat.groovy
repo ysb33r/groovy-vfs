@@ -33,6 +33,8 @@ class Cat implements Cmd {
     List<org.ysb33r.groovy.dsl.vfs.URI> uris = []
     PrintStream out = System.out
 
+    boolean isInteractive() { false }
+
     Integer run(VFS vfs) {
         if (numberNonEmptyLines || showEndOfLines || numberLines || suppressRepeatedEmptyLines || showTabs || showNonPrinting) {
             modifyOutput(vfs)

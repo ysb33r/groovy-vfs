@@ -19,9 +19,10 @@ buildscript {
     repositories {
         jcenter()
         mavenCentral()
+        mavenLocal()
       }
       dependencies {
-        classpath 'org.ysb33r.gradle:bintray:1.0'
+        classpath 'org.ysb33r.gradle:bintray:1.1'
         classpath 'net.saliman:gradle-cobertura-plugin:2.2.2'
         classpath 'com.terrafolio:gradle-jenkins-plugin:0.3.1'
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.3'
@@ -44,8 +45,6 @@ configure(subprojects.findAll {it.name != 'jlan'}) {
     apply plugin: 'bintray-publish'
     apply plugin: 'groovy'
     apply plugin: 'cobertura'
-    apply plugin: 'maven'
-    apply plugin: 'artifactory'
 
     sourceCompatibility = 1.7
 
@@ -78,6 +77,21 @@ configure(subprojects.findAll {it.name != 'jlan'}) {
 
     }
 
+
+    cobertura {
+        format = 'xml'
+        includes = ['main/**/*.java', 'main/**/*.groovy']
+    }
+
+
+
+}
+
+configure(subprojects.findAll {it.name != 'jlan' && it.name != 'cmdline'}) {
+
+    apply plugin: 'maven'
+    apply plugin: 'artifactory'
+
     task sourcesJar(type: Jar, dependsOn: classes) {
         classifier = 'sources'
         from sourceSets.main.allSource
@@ -87,11 +101,6 @@ configure(subprojects.findAll {it.name != 'jlan'}) {
         description "An archive of the JavaDocs for Maven Central"
         classifier "javadoc"
         from javadoc
-    }
-
-    cobertura {
-        format = 'xml'
-        includes = ['main/**/*.java', 'main/**/*.groovy']
     }
 
     artifacts {
@@ -111,9 +120,8 @@ configure(subprojects.findAll {it.name != 'jlan'}) {
 
     artifactoryPublish {
         onlyIf { version.endsWith("SNAPSHOT") }
-        onlyIf { name != 'cmdline' }
+//        onlyIf { name != 'cmdline' }
     }
-
 }
 
 /*

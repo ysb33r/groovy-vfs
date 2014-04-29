@@ -16,5 +16,6 @@ import org.ysb33r.groovy.dsl.vfs.VFS
 interface Cmd {
 
     Integer run(VFS vfs)
+    boolean isInteractive()
 
 }

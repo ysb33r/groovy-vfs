@@ -35,6 +35,7 @@ import org.ysb33r.groovy.dsl.vfs.impl.StandardFileSystemManager
 import org.ysb33r.groovy.dsl.vfs.impl.ProviderSpecification
 import groovy.transform.PackageScope
 import org.apache.commons.vfs2.provider.TemporaryFileStore
+import static org.apache.commons.vfs2.Selectors.*
 
 /**
  *
@@ -72,10 +73,40 @@ import org.apache.commons.vfs2.provider.TemporaryFileStore
  * @since 0.1 */
 class VFS {
 
-//	private def fsMgr
+    /** A filter that selects all the descendants of the base folder, but does not select the base folder itself.
+     *
+      */
+    final static FileSelector exclude_self = EXCLUDE_SELF
+
+    /** A filter that selects the base file/folder, plus all its descendants.
+     *
+     */
+    final static FileSelector select_all = SELECT_ALL
+
+    /** A filter that selects only the direct children of the base folder.
+     *
+     */
+    final static FileSelector direct_children_only = SELECT_CHILDREN
+
+    /** A filter that selects only files (not folders).
+     *
+      */
+    final static FileSelector only_files = SELECT_FILES
+
+    /** A filter that selects only folders (not files).
+     *
+     */
+    final static FileSelector only_folders	= SELECT_FOLDERS
+
+    /** A filter that select the base plus its direct descendants
+     *
+     */
+    final static FileSelector self_and_direct_children = SELECT_SELF_AND_CHILDREN
+
+
     private StandardFileSystemManager fsMgr
 	private FileSystemOptions defaultFSOptions
-    
+
 	/** Constructs a Virtual File System.
 	 * 
 	 * During construction a number of properties can be passed to the underlying Apache VFS system.
@@ -352,8 +383,8 @@ class VFS {
 	 */
 	def cp ( properties=[:],from,to ) {
 		assert properties != null
-		
-		CopyMoveOperations.copy(
+
+ 		CopyMoveOperations.copy(
 			resolveURI(properties,from),
 			resolveURI(properties,to),
 			properties.smash ?: false,
