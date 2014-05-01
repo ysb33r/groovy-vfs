@@ -58,8 +58,6 @@ class CatSpec extends Specification {
             capture.toString() == new File(EXPECTEDROOT,'file1-numbered.txt').text
     }
 
-    // TODO: Test for two files with numbering and that numbering should restart
-
     def "Cat two local files and number all lines, restarting with every file" () {
         given:
         File testfile= new File(READROOT,'file1.txt')

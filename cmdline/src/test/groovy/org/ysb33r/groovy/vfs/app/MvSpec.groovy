@@ -14,7 +14,7 @@ package org.ysb33r.groovy.vfs.app
 import spock.lang.*
 import org.ysb33r.groovy.dsl.vfs.URI as vfsURI
 import org.ysb33r.groovy.dsl.vfs.VFS
-import static org.apache.commons.vfs2.Selectors.EXLUDE_SELF
+import org.ysb33r.groovy.dsl.vfs.FileActionException
 
 class MvSpec extends Specification {
 
@@ -44,8 +44,8 @@ class MvSpec extends Specification {
         given:
             File from= new File(SRCROOT,'file1.txt')
             File to=   new File(DESTROOT,'file1.txt')
-            List<vfsURI> uris = [ new vfsURI( from ),new vfsURI( to.parentFile )  ]
-            Mv cmd = new Mv( 'uris' : uris )
+            List<vfsURI> uris = [ new vfsURI( from )  ]
+            Mv cmd = new Mv( sources : uris, destination : new vfsURI( to.parentFile ) )
 
         when:
             cmd.run(vfs)
@@ -55,5 +55,121 @@ class MvSpec extends Specification {
             to.exists()
     }
 
+    def "'mv --no-clobber uri1 uri2' should fail if uri2 exists"() {
+        given:
+            File from= new File(SRCROOT,'file1.txt')
+            File to=   new File(DESTROOT,'file1.txt')
+            List<vfsURI> uris = [ new vfsURI( from )  ]
+            Mv cmd = new Mv(
+                    sources : uris,
+                    destination : new vfsURI( to.parentFile ),
+                    overwrite : false
+            )
 
+        when:
+            vfs { cp new File(SRCROOT,'file2.txt'), to }
+            cmd.run(vfs)
+
+        then:
+            thrown(FileActionException)
+            from.exists()
+
+
+    }
+
+    def "'mv --force uri1 uri2' should succeed if uri2 exists"() {
+        given:
+            File from= new File(SRCROOT,'file1.txt')
+            File to=   new File(DESTROOT,'file1.txt')
+            File seed= new File(SRCROOT,'file2.txt')
+            List<vfsURI> uris = [ new vfsURI( from )  ]
+            Mv cmd = new Mv(
+                    sources : uris,
+                    destination : new vfsURI( to.parentFile ),
+                    overwrite : true
+            )
+
+        when:
+            vfs { cp seed, to }
+            cmd.run(vfs)
+
+        then:
+            to.exists()
+            !from.exists()
+            to.text != seed.text
+    }
+
+    def "Cannot move a file if destination is specified as a file, but destination is a folder"() {
+        given:
+            File from= new File(SRCROOT,'file1.txt')
+            File to=   new File(DESTROOT,'file1.txt')
+            Mv cmd = new Mv(
+                    sources : [ new vfsURI( from )  ],
+                    destination : new vfsURI( DESTROOT ),
+                    overwrite : true,
+                    targetIsFile : true
+            )
+
+        when:
+            cmd.run(vfs)
+
+        then:
+            thrown(FileActionException)
+    }
+
+    def "Cannot move a folder if destination is specified as a file"() {
+        given:
+            File to=   new File(DESTROOT,'file1.txt')
+            Mv cmd = new Mv(
+                    sources : [ new vfsURI( SRCROOT ) ],
+                    destination : new vfsURI( to ),
+                    overwrite : true,
+                    targetIsFile : true
+            )
+
+        when:
+            cmd.run(vfs)
+
+        then:
+            thrown(FileActionException)
+    }
+
+    def "Can move a file if destination is specified as a file and destination exists" () {
+        given:
+        File from= new File(SRCROOT,'file1.txt')
+        File to=   new File(DESTROOT,'file1.txt')
+        Mv cmd = new Mv(
+                sources : [ new vfsURI( from )  ],
+                destination : new vfsURI( to ),
+                overwrite : true,
+                targetIsFile : true
+        )
+
+        when:
+            vfs { cp from, to }
+            cmd.run(vfs)
+
+        then:
+            !from.exists()
+            to.exists()
+    }
+
+    def "Can move a file if destination is specified as a file and destination does not exist" () {
+        given:
+        File from= new File(SRCROOT,'file1.txt')
+        File to=   new File(DESTROOT,'file1.txt')
+        Mv cmd = new Mv(
+                sources : [ new vfsURI( from )  ],
+                destination : new vfsURI( to ),
+                overwrite : true,
+                targetIsFile : true
+        )
+
+        when:
+            cmd.run(vfs)
+
+        then:
+            !from.exists()
+            to.exists()
+    }
 }

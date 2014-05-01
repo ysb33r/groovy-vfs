@@ -18,6 +18,7 @@ import org.ysb33r.groovy.dsl.vfs.URIException
 
 @TupleConstructor
 class Cmdline {
+    //TODO: Add encrypt, touch
      static final List<String> commands = ['cp','mv','mkdir','cat']
 
      PrintWriter errorWriter= null
@@ -115,9 +116,8 @@ class Cmdline {
             cli = new CliBuilder( 'usage':"${name} ${usage}", 'header':header, 'footer':footer )
         }
         cli.h(longOpt: 'help', 'Display command help and exit', required:false)
-//        cli.V(longOpt: 'version', 'Display version and exit', required:false)
-        cli._(longOpt: 'vfs-options','Comma-separated list of vfs.SCHEME.xyz options',required:false,valueSeparator:',')
-        cli._(longOpt: 'logger', 'Turn logging on', required:false)
+//        cli._(longOpt: 'vfs-options','Comma-separated list of vfs.SCHEME.xyz options',required:false,valueSeparator:',')
+//        cli._(longOpt: 'logger', 'Turn logging on', required:false)
         options.each { keyname,o ->
             if(keyname == 'longOpts' ) {
                 o.each { longName,v ->
@@ -219,9 +219,6 @@ class Cmdline {
         return null
     }
 
-    private  final def parseCp = { String[] args ->
-    }
-
     private  final def parseMv = { String[] args ->
         def parseResult = parseCommand(
                 d : [ longOpt:'force',       text:'Do not prompt before overwriting' ],
@@ -257,33 +254,148 @@ If you specify -T then only two URIs are allowed.'''
                 case '-i':
                 case '--interactive':
                    overwriteAction = { from,to ->
-                       println "Overwrite ${to}? "
-                       System.in.readLine().startsWith('Y')
+                       print "Overwrite ${to}? "
+                       System.console().readLine().toUpperCase().startsWith('Y')
                    }
 
            }
+
+           org.ysb33r.groovy.dsl.vfs.URI dest = null
            if(parseResult.opts.t) {
                try {
-                   parseResult.uris << buildURIs([parseResult.opts.t])[0]
+                   dest = buildURIs([parseResult.opts.t])[0]
                } catch (final URISyntaxException e) {
                    errormsg(e)
                    return null
                }
+           } else {
+               if(parseResult.uris.size() < 2) {
+                   errormsg "Not enough URIs specified - at least two required."
+                   return null
+               }
+               dest = parseResult.uris.pop()
            }
-           if(parseResult.uris.size() < 2) {
-               errormsg "Not enough URIs specified - at least two required."
-               return null
+
+           if(parseResult.opts.'strip-trailing-slashes') {
+               parseResult.uris = parseResult.uris.collect {
+                    def uriStr=it.toString()
+                    if(uriStr.endsWith('/')) {
+                        it=new vfsURI(uriStr.substring(0,uriStr.size()-1))
+                    }
+                    return it
+                }
            }
            return new Mv(
-                   uris:parseResult.uris,
+                   sources :parseResult.uris,
+                   destination : dest,
                    targetIsFile : parseResult.opts.T,
-                   stripTrailingSlashes : parseResult.opts.'strip-trailing-slashes',
                    backupSuffix : parseResult.opts.S ?: (System.getenv('SIMPLE_BACKUP_SUFFIX') ?: '~'),
                    update : parseResult.opts.u,
                    overwrite : overwriteAction,
                    verbose : parseResult.opts.v,
                    interactive: (overwriteAction instanceof Closure)
            )
+        }
+        return null
+//    The version control method may be selected via the --backup option or through
+//    the VERSION_CONTROL environment variable.  Here are the values:
+//
+//    none, off
+//    never make backups (even if --backup is given)
+//
+//    numbered, t
+//    make numbered backups
+//    ﻿       existing, nil
+//    numbered if numbered backups exist, simple otherwise
+//
+//    simple, never
+//    always make simple backups
+        // Need to read env variables SIMPLE_BACKUP_SUFFIX, VERSION_CONTROL
+    }
+
+    private  final def parseCp = { String[] args ->
+        def parseResult = parseCommand(
+                d : [ longOpt:'force',       text:'Do not prompt before overwriting' ],
+                i : [ longOpt:'interactive', text:'Prompt before overwriting' ],
+                n : [ longOpt:'no-clobber',  text:'Do not overwrite existing file' ],
+                u : [ longOpt:'update',      text:'Move only when source is newer that destination or latter is missing' ],
+                v : [ longOpt:'verbose',     text:'Explain what is being done' ],
+                T : [ longOpt:'no-target-directory', text:'Treat destination as file'],
+                S : [ longOpt:'suffix', args:1, argName:'SUFFIX', text:'Override the usual backup suffix' ],
+                t : [ longOpt:'target-directory', args:1, argName:'DIR', text:'Move all srcURIs to destination folder URI' ],
+                r : [ longOpt:'recursive',   text:'Copy directories recursively'],
+                b : [ text:'Like --backup=simple'],
+                R : [ text:'Copy directories recursively'],
+                longOpts : [
+                        backup : [ args:1, argName:'CONTROL', optionalArg:true, text:'Backup behaviour. Optional arg:'],
+                        'strip-trailing-slashes' : [ text: 'Remove any trailing slashes from each srcURI'],
+                        'remove-destination': [ text: 'Remove each existing destination file before attempting to open it']
+                ],
+                args,1,
+                'cp [OPTIONS] srcUri... destUri ','cp -t destUri srcUri...',
+                '''If you specify more than one of -i, -f, -n, only the final one takes effect.
+If you specify -T then only two URIs are allowed.'''
+        )
+        if(parseResult?.opts) {
+            if(parseResult.opts.T && parseResult.uris.size() !=2 ) {
+                errormsg('Only two URIs are allowed with -T')
+                return null
+            }
+            def overwriteAction=true
+            switch( (args.reverse() as String[]).find { it in ['-n','-i','-f','--force','--no-clobber','--interactive'] } ) {
+                case '-n':
+                case '--no-clobber:':
+                    overwriteAction=false
+                    break
+            // TODO: We need to handle sftp correctly - issue with Kerberos/AD auth
+                case '-i':
+                case '--interactive':
+                    overwriteAction = { from,to ->
+                        print "Overwrite ${to}? "
+                        System.console().readLine().toUpperCase().startsWith('Y')
+                    }
+
+            }
+
+            //TODO: parseResults.opts.'remove-destination; needs updating to correct behaviour.
+
+            org.ysb33r.groovy.dsl.vfs.URI dest = null
+            if(parseResult.opts.t) {
+                try {
+                    dest = buildURIs([parseResult.opts.t])[0]
+                } catch (final URISyntaxException e) {
+                    errormsg(e)
+                    return null
+                }
+            } else {
+                if(parseResult.uris.size() < 2) {
+                    errormsg "Not enough URIs specified - at least two required."
+                    return null
+                }
+                dest = parseResult.uris.pop()
+            }
+
+            if(parseResult.opts.'strip-trailing-slashes') {
+                parseResult.uris = parseResult.uris.collect {
+                    def uriStr=it.toString()
+                    if(uriStr.endsWith('/')) {
+                        it=new vfsURI(uriStr.substring(0,uriStr.size()-1))
+                    }
+                    return it
+                }
+            }
+
+            return new Cp(
+                    sources :parseResult.uris,
+                    destination : dest,
+                    targetIsFile : parseResult.opts.T,
+                    //backupSuffix : parseResult.opts.S ?: (System.getenv('SIMPLE_BACKUP_SUFFIX') ?: '~'),
+                    update : parseResult.opts.u,
+                    overwrite : overwriteAction,
+                    verbose : parseResult.opts.v,
+                    recursive : parseResult.opts.r || parseResult.opts.R,
+                    interactive: (overwriteAction instanceof Closure)
+            )
         }
         return null
 //    The version control method may be selected via the --backup option or through

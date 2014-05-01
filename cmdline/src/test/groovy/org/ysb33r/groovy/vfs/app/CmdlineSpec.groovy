@@ -251,21 +251,31 @@ class CmdlineSpec extends Specification {
 
         expect:
             Mv cmd= parser(opts as String[]) as Mv
-            cmd?.stripTrailingSlashes        == sts
             cmd?.update                      == upd
             cmd?.verbose                     == ver
 //        def backupStrategy
         where:
-            opts                               || sts   | upd   | ver
-            [u1,u2]                            || false | false | false
-            ['--strip-trailing-slashes',u1,u2] || true  | false | false
-            ['-u',u1,u2]                       || false | true  | false
-            ['--update',u1,u2]                 || false | true  | false
-            ['-v',u1,u2]                       || false | false | true
-            ['--verbose',u1,u2]                || false | false | true
+            opts                               || upd   | ver
+            [u1,u2]                            || false | false
+            ['-u',u1,u2]                       || true  | false
+            ['--update',u1,u2]                 || true  | false
+            ['-v',u1,u2]                       || false | true
+            ['--verbose',u1,u2]                || false | true
     }
 
-    def "When using -t, the directory should be added to the end of the URI list"() {
+    def "mv --strip-trailing-slashes should update only src uris"() {
+        given:
+        Closure parser = cmdline.findParser(['mv'] as String[])
+
+        when:
+        Mv cmd1= parser(['--strip-trailing-slashes','ftp://uri/1/','ftp://uri/2/'] as String[]) as Mv
+
+        then:
+            cmd1.sources[0].toString() == 'ftp://uri/1'
+            cmd1.destination.toString() == 'ftp://uri/2/'
+    }
+
+    def "When using -t with mv, the directory should be added to the end of the URI list"() {
         given:
             Closure parser = cmdline.findParser(['mv'] as String[])
 
@@ -274,10 +284,10 @@ class CmdlineSpec extends Specification {
             Mv cmd2= parser(["--target-directory=${u2}",u1] as String[]) as Mv
 
         then:
-            cmd1.uris[0].toString() == u2
-            cmd1.uris[1].toString() == u1
-            cmd2.uris[0].toString() == u1
-            cmd2.uris[1].toString() == u2
+            cmd1.sources[0].toString() == u2
+            cmd1.destination.toString() == u1
+            cmd2.sources[0].toString() == u1
+            cmd2.destination.toString() == u2
 
     }
 
@@ -303,117 +313,104 @@ class CmdlineSpec extends Specification {
    }
 
 
-//    ﻿SYNOPSIS
-//    cp [OPTION]... [-T] SOURCE DEST
-//    cp [OPTION]... SOURCE... DIRECTORY
-//    cp [OPTION]... -t DIRECTORY SOURCE...
-//
-//    DESCRIPTION
-//    Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY.
-//
-//    Mandatory arguments to long options are mandatory for short options too.
-//
-//    -a, --archive
-//    same as -dR --preserve=all
-//
-//    --attributes-only
-//    don't copy the file data, just the attributes
-//
-//    --backup[=CONTROL]
-//    make a backup of each existing destination file
-//
-//    -b     like --backup but does not accept an argument
-//
-//    --copy-contents
-//    copy contents of special files when recursive
-//
-//    -d     same as --no-dereference --preserve=links
-//
-//    ﻿       -f, --force
-//    if  an  existing  destination file cannot be opened, remove it and try
-//    again (redundant if the -n option is used)
-//
-//    -i, --interactive
-//    prompt before overwrite (overrides a previous -n option)
-//
-//    -H     follow command-line symbolic links in SOURCE
-//
-//    -l, --link
-//    hard link files instead of copying
-//
-//    -L, --dereference
-//    always follow symbolic links in SOURCE
-//
-//    -n, --no-clobber
-//    do not overwrite an existing file (overrides a previous -i option)
-//
-//    -P, --no-dereference
-//    never follow symbolic links in SOURCE
-//
-//    -p     same as --preserve=mode,ownership,timestamps
-//
-//    --preserve[=ATTR_LIST]
-//    preserve  the  specified  attributes  (default:   mode,ownership,time‐
-//    stamps), if possible additional attributes: context, links, xattr, all
-//
-//    --no-preserve=ATTR_LIST
-//    don't preserve the specified attributes
-//
-//    --parents
-//    use full source file name under DIRECTORY
-//    ﻿       -R, -r, --recursive
-//    copy directories recursively
-//
-//    --reflink[=WHEN]
-//    control clone/CoW copies. See below
-//
-//    --remove-destination
-//    remove  each  existing  destination  file before attempting to open it
-//    (contrast with --force)
-//
-//    --sparse=WHEN
-//    control creation of sparse files. See below
-//
-//    --strip-trailing-slashes
-//    remove any trailing slashes from each SOURCE argument
-//
-//    -s, --symbolic-link
-//    make symbolic links instead of copying
-//
-//    -S, --suffix=SUFFIX
-//    override the usual backup suffix
-//
-//    -t, --target-directory=DIRECTORY
-//    copy all SOURCE arguments into DIRECTORY
-//
-//    -T, --no-target-directory
-//    treat DEST as a normal file
-//
-//    -u, --update
-//    copy only when the SOURCE file is newer than the destination  file  or
-//    when the destination file is missing
-//
-//    -v, --verbose
-//    explain what is being done
-//    ﻿       -x, --one-file-system
-//    stay on this file system
-//
-//    --help display this help and exit
-//
-//    --version
-//    output version information and exit
-//
-//    By  default,  sparse  SOURCE  files are detected by a crude heuristic and the
-//    corresponding DEST file is  made  sparse  as  well.   That  is  the  behavior
-//    selected  by  --sparse=auto.  Specify --sparse=always to create a sparse DEST
-//    file whenever the SOURCE file contains a long enough sequence of zero  bytes.
-//    Use --sparse=never to inhibit creation of sparse files.
-//
-//    When  --reflink[=always]  is specified, perform a lightweight copy, where the
-//    data blocks are copied only when modified.  If this is not possible the  copy
-//    fails, or if --reflink=auto is specified, fall back to a standard copy.
-//
-//    The  backup  suffix is '~', unless set with --suffix or SIMPLE_BACKUP_SUFFIX.
+    def "cp options -i, -f, -n is last option wins"() {
+        given:
+            Closure parser = cmdline.findParser(['cp'] as String[])
+
+        expect:
+            Cp cmd= parser(opts as String[]) as Cp
+            result == ((cmd.overwrite instanceof Closure) ? null : cmd.overwrite)
+            interactive == cmd.isInteractive()
+
+        where:
+            opts                   || result | interactive
+            ['-i','-f','-n',u1,u2] || false  | false
+            ['-f','-i','-n',u1,u2] || false  | false
+            ['-i','-n','-f',u1,u2] || true   | false
+            ['-n','-i','-f',u1,u2] || true   | false
+            ['-f','-n','-i',u1,u2] || null   | true
+            ['-n','-f','-i',u1,u2] || null   | true
+    }
+
+    def "If -T is used with cp, then only two URIs are allowed"() {
+        given:
+            Closure parser = cmdline_E.findParser(['cp'] as String[])
+            def result= parser(['-T','./local/file','ftp://some.server/pub/file',
+                                'sftp://third/broken'] as String[])
+
+        expect:
+            result == null
+            errors =~ /Only two URIs are allowed with -T/
+    }
+
+    def "If -T is used with cp and two URIs are provided, destination is a file"() {
+        given:
+            Closure parser = cmdline.findParser(['cp'] as String[])
+
+        when:
+            Cp cmd= parser(['-T','./local/file','ftp://some.server/pub/file'] as String[]) as Cp
+
+        then:
+            cmd.targetIsFile == true
+    }
+
+    def "cp should accept GNU cp options"() {
+        given:
+            Closure parser = cmdline.findParser(['cp'] as String[])
+
+        expect:
+            Cp cmd= parser(opts as String[]) as Cp
+            cmd?.update                      == upd
+            cmd?.verbose                     == ver
+            cmd?.recursive                   == rec
+            //  def backupStrategy
+            //  --remove-destination (remove each existing destination file before attempting to open it)
+
+        where:
+            opts                               || upd   | ver   | rec
+            [u1,u2]                            || false | false | false
+            ['-u',u1,u2]                       || true  | false | false
+            ['--update',u1,u2]                 || true  | false | false
+            ['-v',u1,u2]                       || false | true  | false
+            ['--verbose',u1,u2]                || false | true  | false
+            ['-R',u1,u2]                       || false | false | true
+            ['-r',u1,u2]                       || false | false | true
+            ['--recursive',u1,u2]              || false | false | true
+    }
+
+    def "cp --strip-trailing-slashes should update only src uris"() {
+        given:
+            Closure parser = cmdline.findParser(['cp'] as String[])
+
+        when:
+            Cp cmd1= parser(['--strip-trailing-slashes','ftp://uri/1/','ftp://uri/2/'] as String[]) as Cp
+
+        then:
+            cmd1.sources[0].toString() == 'ftp://uri/1'
+            cmd1.destination.toString() == 'ftp://uri/2/'
+    }
+
+    def "When using -t with cp, the directory should be added to the end of the URI list"() {
+        given:
+            Closure parser = cmdline.findParser(['cp'] as String[])
+
+        when:
+            Cp cmd1= parser(['-t',u1,u2] as String[]) as Cp
+            Cp cmd2= parser(["--target-directory=${u2}",u1] as String[]) as Cp
+
+        then:
+            cmd1.sources[0].toString() == u2
+            cmd1.destination.toString() == u1
+            cmd2.sources[0].toString() == u1
+            cmd2.destination.toString() == u2
+    }
+
+    @Ignore
+    def "cp with -b or --backup affects backupStrategy"() {
+        // -b
+        // --backup=<>
+        // cmd.backupStrategy
+        //    The backup suffix is '~', unless set with --suffix  or  SIMPLE_BACKUP_SUFFIX.
 //    The version control method may be selected via the --backup option or through
 //    the VERSION_CONTROL environment variable.  Here are the values:
 //
@@ -422,16 +419,13 @@ class CmdlineSpec extends Specification {
 //
 //    numbered, t
 //    make numbered backups
-//
-//    existing, nil
+//    ﻿       existing, nil
 //    numbered if numbered backups exist, simple otherwise
 //
 //    simple, never
 //    always make simple backups
-//
-//    ﻿       As  a  special  case,  cp  makes a backup of SOURCE when the force and backup
-//    options are given and SOURCE and DEST are the same name for an existing, reg‐
-//    ular file.
-//
+    }
+
+
 
 }

@@ -35,6 +35,7 @@ import org.ysb33r.groovy.dsl.vfs.impl.StandardFileSystemManager
 import org.ysb33r.groovy.dsl.vfs.impl.ProviderSpecification
 import groovy.transform.PackageScope
 import org.apache.commons.vfs2.provider.TemporaryFileStore
+import org.apache.commons.vfs2.FileType
 import static org.apache.commons.vfs2.Selectors.*
 
 /**
@@ -102,7 +103,6 @@ class VFS {
      *
      */
     final static FileSelector self_and_direct_children = SELECT_SELF_AND_CHILDREN
-
 
     private StandardFileSystemManager fsMgr
 	private FileSystemOptions defaultFSOptions
@@ -499,14 +499,58 @@ class VFS {
         new ProviderDelegator( fsManager : fsMgr ) .bind (providerDSL)
     }
 
+    /** Returns a printable URI in which the password is masked
+     *
+     * @param uri
+     * @return
+     */
     def friendlyURI( FileObject uri ) {
 		return uri.name.friendlyURI
 	}
-	
+
+    /** Returns a printable URI in which the password is masked
+     *
+     * @param uri
+     * @return
+     */
 	def friendlyURI( URI uri ) {
 		return friendlyURI(resolveURI(uri))
 	}
-	
+
+    /** Returns true if URI is a file.
+     *
+     */
+    boolean isFile(uri) {
+        resolveURI(uri).type == FileType.FILE
+    }
+
+    /** Returns true if URI is a folder.
+     *
+     */
+    boolean isFolder(uri) {
+        resolveURI(uri).type == FileType.FOLDER
+    }
+
+    /** Checks to see  if URI exists
+     *
+     */
+    boolean exists(uri) {
+        resolveURI(uri).exists()
+    }
+
+    /** Returns the last modified time of a URI
+     *
+     * @param uri
+     * @return Number of seconds since epoch
+     */
+    long mtime(uri) {
+        resolveURI(uri).content.lastModifiedTime
+    }
+
+    /** Returns the logger instance that is used by this VFS
+     *
+     * @return
+     */
 	Log getLogger() {
 		fsMgr.loggerInstance()
 	}
@@ -518,4 +562,23 @@ class VFS {
 			Util.resolveURI(properties,fsMgr,defaultFSOptions,uri)
 		} 
 	}
+
+    /** Returns the type of URI - file_uri, folder_uri or non_existent_uri
+     *
+     * @param uri
+     * @return
+     */
+    private FileType type( URI uri ) {
+        this.type(resolveURI(uri))
+    }
+
+    /** Returns the type of URI - file_uri, folder_uri or non_existent_uri
+     *
+     * @param uri
+     * @return
+     */
+    private FileType type( FileObject uri ) {
+        uri.type
+    }
+
 }

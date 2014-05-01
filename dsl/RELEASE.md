@@ -17,6 +17,7 @@ is passed to ```VFS()```
 + [Fixed NPE when use Apache VFS FileSelector as copy filter](https://github.com/ysb33r/groovy-vfs/issues/19)
 + Six pre-defined filters have been added for copy operations:
 ```exclude_self, select_all, direct_children_only, only_files, only_folders, self_and_direct_children```
++ Added ```isFile```, ```isFolder```, ```mtime``` and ```exists``` keywords to VFS DSL.
 
 0.5
 ---

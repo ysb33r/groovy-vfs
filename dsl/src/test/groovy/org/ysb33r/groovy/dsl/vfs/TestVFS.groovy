@@ -206,15 +206,6 @@ import org.junit.Ignore
 			assertEquals 2,ls ("${testFsWriteURI}/one/two/four/test-files", filter:~/file\d\.txt/) .size()
 
 		}
-		
-		
-/*		
-		vfs  {
-			ls (uri,filter:~/file1\.txt/) cat(it) { 
-					assertEquals file.text,it.text
-			}
-		}
-*/		
 	}
 
     @Test
@@ -223,4 +214,27 @@ import org.junit.Ignore
 
         assertFalse vfs.fsMgr.hasProvider('file')
     }
+
+    @Test
+    void TypeShouldReturnFileFolderOrNonExistent() {
+        def vfs = new VFS()
+        def uri= testFsURI
+        def file= new File("${testFsReadOnlyRoot}/${expectedFiles[0]}")
+
+
+        assertTrue vfs.isFolder(testFsURI)
+        assertTrue vfs.isFile(file)
+        assertFalse vfs.exists( new URI(new File(testFsReadOnlyRoot,'non-existent-file') ) )
+
+    }
+
+     @Test
+     void LastModifiedTimeOfURIShouldReturnZeroIfNotSupportedOfURINotExisting() {
+         def vfs = new VFS()
+         assertTrue vfs.mtime(testFsURI) > 0
+
+         def file= new File("${testFsReadOnlyRoot}/non-existing-file")
+         assertEquals 0,vfs.mtime(testFsURI)
+
+     }
 }
