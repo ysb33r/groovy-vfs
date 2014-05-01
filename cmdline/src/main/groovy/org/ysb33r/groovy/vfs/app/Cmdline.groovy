@@ -15,10 +15,11 @@ import groovy.transform.*
 import org.apache.commons.cli.*
 import org.ysb33r.groovy.dsl.vfs.URI as vfsURI
 import org.ysb33r.groovy.dsl.vfs.URIException
+import org.ysb33r.groovy.dsl.vfs.VFS
 
 @TupleConstructor
 class Cmdline {
-    //TODO: Add encrypt, touch
+    //TODO: Add encrypt, touch, --list-schemes
      static final List<String> commands = ['cp','mv','mkdir','cat']
 
      PrintWriter errorWriter= null
@@ -43,7 +44,7 @@ class Cmdline {
             return parser(args[0])
         }
 
-        if(parser == help || parser == version ) {
+        if(parser == help || parser == version || parser == schemes ) {
             parser()
             return 0i as Integer
         }
@@ -66,6 +67,10 @@ class Cmdline {
 
         if(args[0]=='--help' || args[0]=='-h') {
             return help
+        }
+
+        if(args[0]=='--list-schemes' ) {
+            return schemes
         }
 
         if(args[0]=='--version' || args[0]=='-V') {
@@ -419,12 +424,14 @@ If you specify -T then only two URIs are allowed.'''
 Usage: [1] ${name} --help
        [2] ${name} --version
        [3] ${name} --script=ScriptFileName
-       [4] ${name} COMMAND [COMMAND-OPTIONS] URIs...
+       [4] ${name} --list-schemes
+       [5] ${name} COMMAND [COMMAND-OPTIONS] URIs...
 
 [1] Display this help and exit
 [2] Display program version and exit
-[3] Runs a script of commands as in [4] (drop leading ${name})
-[4] Execute a command with options, operating on one or more URIs
+[3] Runs a script of commands as in [5] (drop leading ${name})
+[4] Lists current supported schemes
+[5] Execute a command with options, operating on one or more URIs
     COMMAND is any of ${commands}.
     Use '${name} COMMAND --help' for command-specific help.
 
@@ -447,6 +454,17 @@ Usage: [1] ${name} --help
         }
 
         return 0i
+    }
+
+    private final def schemes = { ->
+        new VFS().fsMgr.schemes.sort().each {
+            String output="  ${it}"
+            if(usageWriter) {
+                usageWriter << output << "\n"
+            } else {
+                println output
+            }
+        }
     }
 
     private  final def scriptParser = { final String filename ->

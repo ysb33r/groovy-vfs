@@ -56,7 +56,7 @@ class CmdlineSpec extends Specification {
             usage =~ /Usage: \[1\] TEST_U --help/
             usage =~ /\[1\] Display this help and exit/
             usage =~ /\[3\] TEST_U --script=ScriptFileName/
-            usage =~ /\[3\] Runs a script of commands as in \[4\] \(drop leading TEST_U\)/
+            usage =~ /\[3\] Runs a script of commands as in \[5\] \(drop leading TEST_U\)/
             cmd instanceof Integer
     }
 
@@ -68,7 +68,7 @@ class CmdlineSpec extends Specification {
         expect:
             cmd instanceof Integer
             usage =~ /\[2\] TEST_U --version/
-            usage =~ /\[4\] TEST_U COMMAND \[COMMAND-OPTIONS\] URIs\.{3}/
+            usage =~ /\[5\] TEST_U COMMAND \[COMMAND-OPTIONS\] URIs\.{3}/
             usage =~ /\[2\] Display program version and exit/
 
     }

@@ -9,11 +9,28 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ============================================================================
 
+buildscript {
+    repositories {
+        maven {
+            name 'Bintray Asciidoctor repo'
+            url  'http://dl.bintray.com/content/aalmiray/asciidoctor'
+        }
+        jcenter()
+    }
+
+
+    dependencies {
+        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:0.7.0'
+    }
+}
+
 import org.ysb33r.gradle.bintray.BintrayGenericUpload
 
-import javax.print.attribute.standard.Compression
-
 apply plugin : 'application'
+apply plugin : 'asciidoctor'
+
+// TEMPORARY version
+version='0.1'
 
 group = 'org.ysb33r.groovy'
 archivesBaseName = 'cmdline-vfs'
@@ -50,14 +67,48 @@ test {
     systemProperties TESTFSWRITEROOT : "${buildDir}/tmp/test/cmdline-vfs"
 }
 
-//distTar {
-//    extension = 'tgz'
-//    compression = Compression.GZIP
-//}
+asciidoctor {
+    asciidoctor {
+        sourceDir = new File(projectDir,'/src/asciidoc')
+        //sourceDocumentName = srcDoc
+        outputDir = new File(buildDir,'docs')
+        logDocuments = true
+        backends = ['html5']
+        options = [
+                eruby: 'erubis',
+                attributes: [
+                        icons: 'font',
+                        'source-highlighter': 'prettify',
+                        experimental: true,
+                        copycss: true,
+                        idprefix: '',
+                        idseparator: '-'
+                ]
+        ]
 
-// TODO: Need tasks:
-//  - something to zip src
-//  - build documentation (from asciidoc) and create man page
+    }
+
+}
+
+distTar {
+    extension = 'tgz'
+    compression = Compression.GZIP
+    from(new File(buildDir,'docs')) {
+        into "${applicationName}-${version}/docs"
+    }
+
+    dependsOn asciidoctor
+}
+
+distZip {
+    from(new File(buildDir,'docs')) {
+        into "${applicationName}-${version}/docs"
+    }
+
+    dependsOn asciidoctor
+}
+
+
 
 task uploadArchives (type:BintrayGenericUpload ) {
     username    project.properties.bintrayUserName
@@ -73,6 +124,8 @@ task uploadArchives (type:BintrayGenericUpload ) {
     onlyIf { !version.endsWith("SNAPSHOT") }
 }
 
+// TODO: Zip Source
+// TODO: Generate man pages from asciidocs
 
 
 
