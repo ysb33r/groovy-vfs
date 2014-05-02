@@ -108,6 +108,11 @@ distZip {
     dependsOn asciidoctor
 }
 
+task sourcesZip(type: Zip, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+    baseName = applicationName
+}
 
 
 task uploadArchives (type:BintrayGenericUpload ) {
@@ -118,14 +123,14 @@ task uploadArchives (type:BintrayGenericUpload ) {
     packageName 'vfs'
     sources distZip.outputs.files
     sources distTar.outputs.files
+    sources sourcesZip.outputs.files
 
-    dependsOn distZip, distTar
+    dependsOn distZip, distTar, sourcesZip
 
     onlyIf { !version.endsWith("SNAPSHOT") }
 }
 
-// TODO: Zip Source
-// TODO: Generate man pages from asciidocs
+// TODO: ISSUE #20 - Generate man pages from asciidocs
 
 
 
