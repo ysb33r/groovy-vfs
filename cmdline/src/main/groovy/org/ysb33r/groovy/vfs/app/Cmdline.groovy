@@ -19,7 +19,9 @@ import org.ysb33r.groovy.dsl.vfs.VFS
 
 @TupleConstructor
 class Cmdline {
-    //TODO: Add encrypt, touch, --list-schemes
+    // TODO: ISSUE #22 - Add encrypt
+    // TODO: ISSUE #23 - Add touch
+    // TODO: ISSUE #24 - Add rm
      static final List<String> commands = ['cp','mv','mkdir','cat']
 
      PrintWriter errorWriter= null
@@ -255,7 +257,6 @@ If you specify -T then only two URIs are allowed.'''
                 case '--no-clobber:':
                    overwriteAction=false
                    break
-                // TODO: We need to handle sftp correctly - issue with Kerberos/AD auth
                 case '-i':
                 case '--interactive':
                    overwriteAction = { from,to ->
@@ -352,7 +353,6 @@ If you specify -T then only two URIs are allowed.'''
                 case '--no-clobber:':
                     overwriteAction=false
                     break
-            // TODO: We need to handle sftp correctly - issue with Kerberos/AD auth
                 case '-i':
                 case '--interactive':
                     overwriteAction = { from,to ->
@@ -362,7 +362,7 @@ If you specify -T then only two URIs are allowed.'''
 
             }
 
-            //TODO: parseResults.opts.'remove-destination; needs updating to correct behaviour.
+            // TODO: ISSUE #26 - parseResults.opts.'remove-destination; needs updating to correct behaviour.
 
             org.ysb33r.groovy.dsl.vfs.URI dest = null
             if(parseResult.opts.t) {

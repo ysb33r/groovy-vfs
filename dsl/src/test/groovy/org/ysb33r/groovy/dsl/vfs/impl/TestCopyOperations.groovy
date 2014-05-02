@@ -244,7 +244,6 @@ class TestCopyOperations {
 	}
 
 
-	// TODO: Like to update this test to include deeper directory copies
 	@Test
 	void copyDirectoryToExistingDirectoryWithSameNamedSubfolder_RecursiveOnOverwriteOffSmashOff_PopulatesSubFolder() {
 		def vfs=VFS.manager
@@ -494,8 +493,7 @@ class TestCopyOperations {
 		assertEquals srcFile.text,fileUnderTest.text
     }
 
-	// TODO: What about using a closure as a filter?
-	// TODO: What about using with a normal selector from VFS
+	// TODO: ISSUE #4 - What about using a closure as a filter?
 
     @Test
     void copyFileWithExcludeSelfSelectorToExistingDirectory_CopiesFilesBelowDirectory() {

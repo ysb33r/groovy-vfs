@@ -25,11 +25,7 @@ repositories {
 }   
 
 dependencies {
-//    if (project.properties.BUILD_FOR_JAVA6) {
-//        compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: '2.2+'
-//    } else {
-        compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: '2.2+', classifier: 'indy'
-//    }
+    compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: '2.2+', classifier: 'indy'
     testCompile group: 'com.jcraft',            name: 'jsch', version:'0.1.48'
 	
  /*

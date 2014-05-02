@@ -101,9 +101,8 @@ class Util {
             } else if (builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,String[]) ) {
                 // vfs.ftp.shortMonthNames
                 throw new java.lang.Exception("Cannot support arrays as yet")
-                // TODO: vfs.http.cookies org.apache.commons.httpclient.Cookie[]
-                // TODO: vfs.http.proxyAuthenticator org.apache.commons.vfs2.UserAuthenticator
-                // TODO: vfs.res.classLoader java.lang.ClassLoader
+                // TODO: ISSUE #10 - vfs.http.cookies org.apache.commons.httpclient.Cookie[]
+                // TODO: ISSUE #17 - vfs.http.proxyAuthenticator org.apache.commons.vfs2.UserAuthenticator
             } else {
                 log fsMgr, 'warn', "'${opt}' is not a valid property for '${scheme}'"
             }

@@ -172,7 +172,6 @@ class CopyMoveOperations {
     }
     
 	/** Creates a VFS selector from a passed in filter
-	 * @todo Closure
 	 * @return
 	 */
 	private static FileSelector _createSelector(filter) {
@@ -192,15 +191,6 @@ class CopyMoveOperations {
 				break
 			case FileSelector:
                 selector=filter
-				break
-			case Closure:
-				assert false,"TODO: Using a closure as a filter NEEDS IMPLEMENTATION"
-				/* Milestone: 0.4
-				selector = [
-					'includeFile' : { fsi -> filter.call(fsi) },
-					'traverseDescendents' : traverse
-				] as FileSelector
-				*/
 				break
 			default:
 				throw new FilterException("Supplied type (${filter?.class}) is not suitable for a filter")

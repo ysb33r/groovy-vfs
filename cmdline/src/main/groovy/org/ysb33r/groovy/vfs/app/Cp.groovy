@@ -47,10 +47,10 @@ class Cp implements Cmd {
      */
     boolean recursive = false
 
-    // TODO: Implement update - Needs support from DSL. Maybe property taking a boolean or closure
-    // TODO: Implement verbose - Probably needs support from DSL via a closure passed as property
-    // TODO: How to define backupStrategy
-    // TODO: Implement Backups
+    // TODO: ISSUE #27 - Implement update - Needs support from DSL. Maybe property taking a boolean or closure
+    // TODO: ISSUE #28 - Implement verbose - Probably needs support from DSL via a closure passed as property
+    // TODO: ISSUE #29 - How to define backupStrategy
+    // TODO: ISSUE #29 - Implement Backups
     //    The backup suffix is '~', unless set with --suffix  or  SIMPLE_BACKUP_SUFFIX.
     //    The version control method may be selected via the --backup option or through
     //    the VERSION_CONTROL environment variable.  Here are the values:
