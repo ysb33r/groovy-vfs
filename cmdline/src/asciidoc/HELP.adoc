@@ -3,9 +3,9 @@ HELP
 
 This is a pre-release version with little documentation, but neither should much documentation be needed. If you are
 familiar for the basic UNIX command-line utilities such as +cp+, +mv+, +mkdir+ and +cat+ then this will be easy to use.
-MOst of the command-line options from the GNU version of these are supported.s
+Most of the command-line options from the GNU versions of these utilities are supported.
 
-Assuming that you have unpack the distribution to a directory called VFSDIR then set +PATH+ to include +bin+.
+Assuming that you have unpack the distribution to a directory called VFSDIR then set +PATH+ to include +VFSDIR/bin+.
 
 Run +vfs --help+ for a basic help page or to get command-specific help run something like +vfs cp --help+ or
 +vfs mv --help+.
