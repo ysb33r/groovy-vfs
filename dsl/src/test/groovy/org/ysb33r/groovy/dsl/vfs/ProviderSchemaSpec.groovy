@@ -44,7 +44,8 @@ class ProviderSchemaSpec extends Specification  {
 
                     provider className : 'org.apache.commons.vfs2.provider.tar.TarFileProvider',
                             schemes : ['tar'],
-                            dependsOnClasses : ['org.apache.commons.vfs2.provider.tar.TarInputStream']
+ // 2.0                           dependsOnClasses : ['org.apache.commons.vfs2.provider.tar.TarInputStream']
+                            dependsOnClasses : ['org.apache.commons.compress.archivers.tar.TarArchiveOutputStream']
 
                     provider className : 'org.apache.commons.vfs2.provider.tar.TarFileProvider',
                             schemes : ['tgz'],

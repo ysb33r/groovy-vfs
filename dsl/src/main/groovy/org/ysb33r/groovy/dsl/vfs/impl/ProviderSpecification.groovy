@@ -43,14 +43,15 @@ class ProviderSpecification {
             new Provider(
                     className : 'org.apache.commons.vfs2.provider.tar.TarFileProvider',
                     schemes : [ 'tar'],
-                    dependsOnClasses : [ 'org.apache.commons.vfs2.provider.tar.TarInputStream' ]
-// 2.1                    dependsOnClasses : [ 'org.apache.commons.compress.archivers.tar.TarArchiveOutputStream' ]
+// 2.0                    dependsOnClasses : [ 'org.apache.commons.vfs2.provider.tar.TarInputStream' ]
+                    dependsOnClasses : [ 'org.apache.commons.compress.archivers.tar.TarArchiveOutputStream' ]
+
             ),
             new Provider(
                     className : 'org.apache.commons.vfs2.provider.bzip2.Bzip2FileProvider',
                     schemes : [ 'bz2'],
-                    dependsOnClasses : [ 'org.apache.commons.vfs2.provider.bzip2.CBZip2InputStream' ]
-// 2.1                    dependsOnClasses : [ 'org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream' ]
+// 2.0                    dependsOnClasses : [ 'org.apache.commons.vfs2.provider.bzip2.CBZip2InputStream' ]
+                    dependsOnClasses : [ 'org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream' ]
             ),
             new Provider(
                     className : 'org.apache.commons.vfs2.provider.gzip.GzipFileProvider',

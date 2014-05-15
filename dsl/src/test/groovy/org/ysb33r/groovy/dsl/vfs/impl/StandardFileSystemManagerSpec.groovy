@@ -90,7 +90,8 @@ class StandardFileSystemManagerSpec extends Specification {
         def provider = new Provider(
                 className : 'org.apache.commons.vfs2.provider.tar.TarFileProvider',
                 schemes : [ 'tar'],
-                dependsOnClasses : [ 'org.apache.commons.vfs2.provider.tar.TarInputStream' ]
+                dependsOnClasses : [ 'org.apache.commons.compress.archivers.tar.TarArchiveOutputStream' ]
+//2.0                dependsOnClasses : [ 'org.apache.commons.vfs2.provider.tar.TarInputStream' ]
         )
 
         when:

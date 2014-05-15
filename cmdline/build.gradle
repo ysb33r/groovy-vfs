@@ -29,9 +29,6 @@ import org.ysb33r.gradle.bintray.BintrayGenericUpload
 apply plugin : 'application'
 apply plugin : 'asciidoctor'
 
-// TEMPORARY version
-version='0.1'
-
 group = 'org.ysb33r.groovy'
 archivesBaseName = 'cmdline-vfs'
 mainClassName = 'org.ysb33r.groovy.vfs.app.Run'
@@ -51,7 +48,7 @@ repositories {
 }   
 
 dependencies {
-    compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: '2.2+', classifier: 'indy'
+    compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: '[2.0,2.3]', classifier: 'indy'
     compile 'commons-cli:commons-cli:1.2'
     runtime 'commons-io:commons-io:2.4'
     runtime 'commons-net:commons-net:3.+'
@@ -124,6 +121,9 @@ task uploadArchives (type:BintrayGenericUpload ) {
     sources distZip.outputs.files
     sources distTar.outputs.files
     sources sourcesZip.outputs.files
+
+    gpgSign true
+    gpgPassphrase project.properties.bintrayGpgPassphrase
 
     dependsOn distZip, distTar, sourcesZip
 

@@ -30,15 +30,15 @@ sourceSets {
       }
     test {
       groovy {
-        srcDirs "${project(':dsl').projectDir}/src/test/groovy", "${projectDir}/src/test/groovy"
+          srcDirs "${project(':dsl').projectDir}/src/test/groovy", "${projectDir}/src/test/groovy"
       }
       resources {
-        srcDirs "${project(':dsl').projectDir}/src/test/resources"
+          srcDirs "${project(':dsl').projectDir}/src/test/resources"
       }
     }
   }
 }  
-  
+
 test {
     systemProperties TESTFSREADROOT : "${project(':dsl').projectDir}"   
 }

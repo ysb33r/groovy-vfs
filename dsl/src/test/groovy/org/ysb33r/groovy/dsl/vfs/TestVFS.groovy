@@ -228,13 +228,13 @@ import org.junit.Ignore
 
     }
 
-     @Test
-     void LastModifiedTimeOfURIShouldReturnZeroIfNotSupportedOfURINotExisting() {
+     @Test(expected=FileSystemException)
+     void LastModifiedTimeOfURIShouldThrowExceptionIfURINotExisting() {
          def vfs = new VFS()
          assertTrue vfs.mtime(testFsURI) > 0
 
-         def file= new File("${testFsReadOnlyRoot}/non-existing-file")
-         assertEquals 0,vfs.mtime(testFsURI)
+         def file= new File("${testFsReadOnlyRoot}/somewhere/a/non-existing-file")
+         assertEquals 0,vfs.mtime(file)
 
      }
 }

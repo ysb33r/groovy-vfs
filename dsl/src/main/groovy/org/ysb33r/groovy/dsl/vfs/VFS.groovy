@@ -542,9 +542,14 @@ class VFS {
      *
      * @param uri
      * @return Number of seconds since epoch
+     * @throw FileSystemException if URI does not exist.
      */
     long mtime(uri) {
-        resolveURI(uri).content.lastModifiedTime
+        try {
+            resolveURI(uri).content.lastModifiedTime
+        } catch( final org.apache.commons.vfs2.FileSystemException e) {
+            throw new FileSystemException(e)
+        }
     }
 
     /** Returns the logger instance that is used by this VFS
