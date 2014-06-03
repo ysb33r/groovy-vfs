@@ -4,6 +4,9 @@ If you like it, then tweet about it using ```#groovyvfs``` as the hashtag.
 
 Groovy Code
 ===========
+
+[ ![Download](https://api.bintray.com/packages/ysb33r/grysb33r/groovy-vfs/images/download.png) ](https://bintray.com/ysb33r/grysb33r/groovy-vfs/_latestVersion)
+
 ```groovy
 
 @Grapes([
