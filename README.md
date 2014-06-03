@@ -67,6 +67,8 @@ vfs {
 Gradle plugin (INCUBATING)
 ============================
 
+[ ![Download](https://api.bintray.com/packages/ysb33r/grysb33r/vfs-gradle-plugin/images/download.png) ](https://bintray.com/ysb33r/grysb33r/vfs-gradle-plugin/_latestVersion)
+
 It is now possible to use this in Gradle as an extension to the project class.
 The interface is very experimental and may change without much warning in future
 releases of this plugin.
