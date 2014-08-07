@@ -48,7 +48,8 @@ configure(subprojects.findAll {it.name != 'jlan'}) {
 
     apply plugin: 'bintray-publish'
     apply plugin: 'groovy'
-    apply plugin: 'cobertura'
+//    TODO: Fix Cobertura
+//    apply plugin: 'cobertura'
 
     sourceCompatibility = 1.7
 
@@ -84,10 +85,11 @@ configure(subprojects.findAll {it.name != 'jlan'}) {
     }
 
 
-    cobertura {
-        format = 'xml'
-        includes = ['main/**/*.java', 'main/**/*.groovy']
-    }
+//    TODO: Fix Cobertura
+//    cobertura {
+//        format  'xml'
+//        includes = ['main/**/*.java', 'main/**/*.groovy']
+//    }
 
 
 

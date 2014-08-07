@@ -70,7 +70,7 @@ asciidoctor {
         //sourceDocumentName = srcDoc
         outputDir = new File(buildDir,'docs')
         logDocuments = true
-        backends = ['html5']
+        backend = 'html5'
         options = [
                 eruby: 'erubis',
                 attributes: [

@@ -59,7 +59,7 @@ download {
     // in Gradle 2.0. Please read http://gradle.org/docs/current/dsl/org.gradle.api.plugins.ExtraPropertiesExtension.html
     // for information on the replacement for dynamic properties.
     // Deprecated dynamic property: "archive" on "task ':jlan:download'", value: "alfresco-jlan-source_5...".
-    setProperty('archive','alfresco-jlan-source_5_0_0.zip')
+    ext.set('archive','alfresco-jlan-source_5_0_0.zip')
 
     onlyIf {
         !new File(buildDir,property('archive')).exists()

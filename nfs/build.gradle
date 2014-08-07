@@ -1,5 +1,5 @@
 // ============================================================================
-// (C) Copyright Schalk W. Cronje 2013
+// (C) Copyright Schalk W. Cronje 2014
 //
 // This software is licensed under the Apache License 2.0
 // See http://www.apache.org/licenses/LICENSE-2.0 for license details
@@ -9,60 +9,58 @@
 // See the License for the specific language governing permissions and limitations under the License.
 //
 // ============================================================================
+extensions.moduleName = 'groovy-nfs'
+group = 'org.ysb33r.groovy'
+archivesBaseName = 'groovy-nfs'
+version = '0.0.1-SNAPSHOT'
 
-ext.moduleName = 'vfs-gradle-plugin'
-group = 'org.ysb33r.gradle'
-archivesBaseName = 'vfs-gradle-plugin'
+ext {
+    bintrayDescription = 'Library to create NFS client'
+    bintrayTags = ['groovy', 'nfs', 'networking']
+}
+
+repositories {
+    jcenter()
+}
 
 dependencies {
-    compile gradleApi()
-    compile localGroovy()
-    compile 'org.slf4j:jcl-over-slf4j:1.7.2'
+    compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: groovyVer , classifier: 'indy'
+    compile 'org.slf4j:slf4j-api:1.7.+'
 
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
-    testCompile 'junit:junit:4.+'
+
 }
 
-sourceSets {
-    main {
-      groovy {
-        srcDirs "${project(':dsl').projectDir}/src/main/groovy", "${projectDir}/src/main/groovy"
-      }
-    test {
-      groovy {
-          srcDirs "${project(':dsl').projectDir}/src/test/groovy", "${projectDir}/src/test/groovy"
-      }
-      resources {
-          srcDirs "${project(':dsl').projectDir}/src/test/resources"
-      }
-    }
-  }
-}  
+manifest {
+    attributes 'Implementation-Title': 'Groovy NFS Client', 'Implementation-Version': version
+}
 
 test {
-    systemProperties TESTFSREADROOT : "${project(':dsl').projectDir}"   
-}
 
-jar {
-    manifest {
-        attributes 'Implementation-Title': moduleName, 'Implementation-Version': version
+    systemProperties 'TESTFSREADROOT'  : new File(projectDir,'src/test/resources/test-files').absolutePath
+    systemProperties 'TESTFSWRITEROOT' : new File(buildDir,'tmp').absolutePath
+
+    if(gradle.startParameter.isOffline()) {
+        systemProperties 'TEST.OFFLINE' : '1'
     }
+
 }
 
-uploadArchives {
+uploadArchives  {
     repositories {
-        if (!version.endsWith("SNAPSHOT")) {
+        if(!version.endsWith("SNAPSHOT")) {
             bintrayMavenDeployer {
                 username project.properties.bintrayUserName
                 apiKey project.properties.bintrayApiKey
                 repoOwner bintrayUser
                 repoName bintrayRepo
                 packageName moduleName
-                description 'This is a plugin for Gradle that utilises the Groovy VFS DSL'
-                tags 'gradle', 'groovy', 'vfs', 'groovy-vfs'
+                description bintrayDescription
+                tags bintrayTags
             }
         }
     }
 }
 
 apply from : '../gradle/publish.gradle'
+

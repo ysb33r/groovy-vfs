@@ -76,7 +76,7 @@ class Util {
     }
     
     /** Sets a single option on a FileSystemOptions instance
-     * @param scheme The protocol scheme to set the option on i.e. 'ftp'
+     * @param scheme The ip scheme to set the option on i.e. 'ftp'
      * @param opt The specific option to set i.e. 'passiveMode'
      * @param fsMgr The current virtual file system instance that is in use
      * @param fsOpt The file system options instance associated with the VFS that needs updating
