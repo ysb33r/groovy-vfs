@@ -81,13 +81,13 @@ buildscript {
 	mavenCentral()
       }
       dependencies {
-        classpath 'org.ysb33r.gradle:vfs-gradle-plugin:0.5'
+        classpath 'org.ysb33r.gradle:vfs-gradle-plugin:0.5.1'
         classpath 'commons-net:commons-net:3.+'  // If you want to use ftp 
         classpath 'commons-httpclient:commons-httpclient:3.1' // If you want http/https
         classpath 'com.jcraft:jsch:0.1.48'  // If you want sftp
       }
 }
-apply plugin : 'vfs'
+apply plugin : 'org.ysb33r.vfs'
 
 // Create a VFS task
 task copyReadme << { 

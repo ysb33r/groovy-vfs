@@ -31,7 +31,7 @@ class VfsSpec extends spock.lang.Specification {
     
     def "Can apply Vfs plugin to project"() {
         given:
-            project.apply plugin:'vfs'
+            project.apply plugin:'org.ysb33r.vfs'
         
         expect:
             project.__vfs instanceof org.ysb33r.groovy.dsl.vfs.VFS
@@ -41,7 +41,7 @@ class VfsSpec extends spock.lang.Specification {
         FtpFileSystemConfigBuilder fscb
         
         given:
-            project.apply plugin:'vfs'
+            project.apply plugin:'org.ysb33r.vfs'
             fscb = project.__vfs.fsMgr.getFileSystemConfigBuilder('ftp') as FtpFileSystemConfigBuilder
             fscb.setPassiveMode( project.__vfs.defaultFSOptions, false)
             project.vfs {
@@ -61,7 +61,7 @@ class VfsSpec extends spock.lang.Specification {
         Integer count= 0
         given:
             testFsWriteRoot.deleteDir()
-            project.apply plugin:'vfs'
+            project.apply plugin:'org.ysb33r.vfs'
             project.vfs {
                 cp testFsURI,"${testFsWriteURI}/one/two/three", recursive:true
             }
