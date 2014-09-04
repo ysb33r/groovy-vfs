@@ -10,6 +10,7 @@
 //
 // ============================================================================
 
+ext.gradleID = 'org.ysb33r.vfs'
 ext.moduleName = 'vfs-gradle-plugin'
 group = 'org.ysb33r.gradle'
 archivesBaseName = 'vfs-gradle-plugin'
@@ -59,6 +60,12 @@ uploadArchives  {
             packageName moduleName
             description 'This is a plugin for Gradle that utilises the Groovy VFS DSL'
             tags        'gradle','groovy','vfs','groovy-vfs'
+            licenses          'Apache-2.0'
+            vcsUrl            'https://github.com/ysb33r/groovy-vfs.git'
+            autoCreatePackage true
+            updatePackage     true
+            versionAttributes 'gradle-plugin' : "org.ysb33r.vfs:${group}:${archivesBaseName}"
+
         }
     }
 }
