@@ -25,7 +25,7 @@ repositories {
 }
 
 dependencies {
-    compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: groovyVer , classifier: 'indy'
+    compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: groovyVer
     compile "org.apache.commons:commons-vfs2:${vfsVersion}"
     compile 'org.slf4j:slf4j-api:1.7.+'
     compile "org.apache.jclouds:jclouds-all:${jCloudsVersion}"
@@ -51,9 +51,9 @@ test {
     systemProperties 'S3KEY'           : project.properties.AWSSecretKey
     systemProperties 'S3BUCKET'        : 'groovy-vfs-test-bucket'
 
-    if(gradle.startParameter.isOffline()) {
+//    if(gradle.startParameter.isOffline()) {
         systemProperties 'TEST.OFFLINE' : '1'
-    }
+//    }
 
 }
 

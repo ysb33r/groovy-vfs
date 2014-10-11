@@ -11,30 +11,28 @@
 
 buildscript {
     repositories {
-        maven {
-            name 'Bintray Asciidoctor repo'
-            url  'http://dl.bintray.com/content/aalmiray/asciidoctor'
-        }
         jcenter()
     }
 
-
     dependencies {
-        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:0.7.0'
+        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.0'
     }
 }
 
 import org.ysb33r.gradle.bintray.BintrayGenericUpload
 
 apply plugin : 'application'
-apply plugin : 'asciidoctor'
+apply plugin: 'org.asciidoctor.gradle.asciidoctor'
 
 group = 'org.ysb33r.groovy'
 archivesBaseName = 'cmdline-vfs'
 mainClassName = 'org.ysb33r.groovy.vfs.app.Run'
 applicationName = 'vfs'
 applicationDefaultJvmArgs=["-Dvfs.scriptname=${applicationName}"]
-bintrayRepo = 'nanook'
+
+ext {
+    bintrayRepo = 'nanook'
+}
 
 jar {
     manifest {
@@ -48,7 +46,7 @@ repositories {
 }   
 
 dependencies {
-    compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: '[2.0,2.3]', classifier: 'indy'
+    compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: groovyVer
     compile 'commons-cli:commons-cli:1.2'
     runtime 'commons-io:commons-io:2.4'
     runtime 'commons-net:commons-net:3.+'

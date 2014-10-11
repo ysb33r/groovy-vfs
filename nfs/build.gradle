@@ -24,7 +24,7 @@ repositories {
 }
 
 dependencies {
-    compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: groovyVer , classifier: 'indy'
+    compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: groovyVer
     compile 'org.slf4j:slf4j-api:1.7.+'
 
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'

@@ -25,7 +25,7 @@ repositories {
 }   
 
 dependencies {
-    compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: '[2.0,2.3]', classifier: 'indy'
+    compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: groovyVer
     testCompile group: 'com.jcraft',            name: 'jsch', version:'0.1.48'
 	
  /*

@@ -10,11 +10,6 @@
 //
 // ============================================================================
 
-apply plugin : 'eclipse'
-apply plugin : 'idea'
-apply plugin : 'jenkins'
-apply plugin : 'project-report'
-
 buildscript {
     repositories {
         jcenter()
@@ -24,57 +19,44 @@ buildscript {
       dependencies {
         classpath 'org.ysb33r.gradle:bintray:1.4-SNAPSHOT'
         classpath 'net.saliman:gradle-cobertura-plugin:2.2.2'
-        classpath 'com.terrafolio:gradle-jenkins-plugin:0.3.1'
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.3'
       }
 }
 
+allprojects {
+    version = '0.7-SNAPSHOT'
+}
+
 subprojects {
 
-    apply plugin: 'idea'
-
-    version = '0.6-SNAPSHOT'
+    apply plugin : 'org.ysb33r.bintray'
 
     ext {
-        bintrayRepo = 'grysb33r'
-        bintrayUser = 'ysb33r'
-        groovyVer   = '2.3+'
-        vfsVersion  = '2.1-SNAPSHOT'
+        vfsVersion = '2.1-SNAPSHOT'
+        groovyVer  = '[2.1,2.5]'
+    }
+
+    repositories {
+        jcenter()
+        mavenLocal()
+        maven { url 'https://oss.jfrog.org/artifactory/repo' }
     }
 
 }
 
 configure(subprojects.findAll {it.name != 'jlan'}) {
 
-    apply plugin: 'bintray-publish'
     apply plugin: 'groovy'
-//    TODO: Fix Cobertura
-//    apply plugin: 'cobertura'
+    apply plugin: 'maven'
+    apply plugin: 'artifactory'
 
     sourceCompatibility = 1.7
-
-    // Currently CodeNarc fails when used with JDK8.
-    if (!org.gradle.internal.SystemProperties.javaVersion.startsWith('1.8.') && !it.name=='smb-provider') {
-        apply plugin: 'codenarc'
-
-        codenarcTest {
-            onlyIf { false }
-        }
-    }
-
-    repositories {
-        jcenter()
-        maven { url 'http://repository.codehaus.org' }
-        maven { url 'https://oss.jfrog.org/artifactory/repo' }
-        mavenLocal()
-    }
 
     dependencies {
         compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7+'
         compile ("org.apache.commons:commons-vfs2:${vfsVersion}") {
-//            compile ('org.apache.commons:commons-vfs2:2.0') {
-		    exclude group:'org.apache.maven.scm'
-	    }
+            exclude group:'org.apache.maven.scm'
+        }
         compile 'org.apache.commons:commons-compress:1.6'
         testCompile 'org.apache.ftpserver:ftpserver-core:1.0.6'
         testCompile 'commons-io:commons-io:2.4'
@@ -83,22 +65,6 @@ configure(subprojects.findAll {it.name != 'jlan'}) {
         testRuntime 'org.slf4j:slf4j-simple:1.7.5'
 
     }
-
-
-//    TODO: Fix Cobertura
-//    cobertura {
-//        format  'xml'
-//        includes = ['main/**/*.java', 'main/**/*.groovy']
-//    }
-
-
-
-}
-
-configure(subprojects.findAll {it.name != 'jlan' && it.name != 'cmdline'}) {
-
-    apply plugin: 'maven'
-    apply plugin: 'artifactory'
 
     task sourcesJar(type: Jar, dependsOn: classes) {
         classifier = 'sources'
@@ -131,26 +97,6 @@ configure(subprojects.findAll {it.name != 'jlan' && it.name != 'cmdline'}) {
 //        onlyIf { name != 'cmdline' }
     }
 }
-
-/*
-jenkins {
-    servers {
-        "DEV@Cloud" {
-            url cloudbeesJenkinsUrl
-            secure true
-            username cloudbeesUserName
-            password cloudbeesPassword
-        }
-    }    
-    
-    defaultServer servers."DEV@Cloud"
-    
-    jobs {
-        
-    }
-    
-}
-*/
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.0'
