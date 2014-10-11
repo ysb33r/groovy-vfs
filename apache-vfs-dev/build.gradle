@@ -1,11 +1,50 @@
+buildscript {
+    repositories { jcenter() }
+    dependencies {
+        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:1.12.+'
+    }
+}
+
+repositories {
+    jcenter()
+//    mavenCentral()
+}
+
+apply plugin: 'provided-base'
 apply plugin: 'java'
+
+version = '2.1-GROOVYFS'
+sourceCompatibility = '1.6'
 
 ext {
     baseSrcDir = "${projectDir}/commons-vfs/core"
 
     depsFromPom = { ->
+        def parentPom = new XmlSlurper().parse(new File("${baseSrcDir}/../pom.xml"))
         def pom = new XmlSlurper().parse(new File("${baseSrcDir}/pom.xml"))
-        pom.dependencies.children()
+        def deps = [:]
+        pom.dependencies.children().collect {
+            def sc = 'compile'
+            if(it?.scope == 'test') {
+                sc = 'testCompile'
+            } else if (it?.provided) {
+                sc = 'provided'
+            } else if (it?.optional) {
+                sc = 'optional'
+            }
+            def key = "${it.groupId}:${it.artifactId}".toString()
+
+            deps[key] = [  scope : sc ]
+        }
+
+        parentPom.dependencyManagement.dependencies.children().each {
+            def key = "${it.groupId}:${it.artifactId}".toString()
+            if(deps[key]) {
+                deps[key].version = it.version
+            }
+        }
+
+        deps
     }
 }
 
@@ -28,12 +67,24 @@ sourceSets {
     }
 }
 
-repositories {
-    jcenter()
-}
-
 dependencies {
-    depsFromPom().each { d ->
-        d.artifactId
+    depsFromPom().each { key,map ->
+        String dep = "${key}:${map.version}"
+        println "*** ${dep}"
+
+//        if(d?.scope == 'test') {
+//            testCompile dep
+//        } else if (d?.provided) {
+//            provided dep
+//        } else if (d?.optional) {
+//            optional dep
+//        } else {
+//            compile dep
+//        }
+
+        "${map.scope}" dep
     }
 }
+
+// TODO: Add -Xlint:deprecation to compile
+// TODO: Add LICENSE, NOTICE to jar (metaInf)
