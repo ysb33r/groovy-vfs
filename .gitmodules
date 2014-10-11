@@ -1,0 +1,3 @@
+[submodule "apache-vfs-dev/commons-vfs"]
+	path = apache-vfs-dev/commons-vfs
+	url = https://github.com/apache/commons-vfs.git

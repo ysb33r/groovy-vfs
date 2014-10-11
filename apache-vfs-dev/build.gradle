@@ -1,0 +1,39 @@
+apply plugin: 'java'
+
+ext {
+    baseSrcDir = "${projectDir}/commons-vfs/core"
+
+    depsFromPom = { ->
+        def pom = new XmlSlurper().parse(new File("${baseSrcDir}/pom.xml"))
+        pom.dependencies.children()
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs "${baseSrcDir}/src/main/java"
+        }
+        resources {
+            srcDirs "${baseSrcDir}/src/main/resources"
+        }
+    }
+    test {
+        java {
+            srcDirs "${baseSrcDir}/src/test/java"
+        }
+        resources {
+            srcDirs "${baseSrcDir}/src/test/resources"
+        }
+    }
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    depsFromPom().each { d ->
+        d.artifactId
+    }
+}
