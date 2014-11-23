@@ -18,19 +18,21 @@ package org.ysb33r.groovy.dsl.vfs
 
 import java.util.regex.Pattern
 import org.apache.commons.logging.impl.NoOpLog
-import org.apache.commons.vfs2.AllFileSelector
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelector
-import org.apache.commons.vfs2.FileSystemManager
 import org.apache.commons.vfs2.FileSystemOptions
 import org.apache.commons.vfs2.Selectors;
 import org.apache.commons.vfs2.provider.AbstractFileSystem
-import org.apache.commons.vfs2.impl.StandardFileSystemManager
 import org.ysb33r.groovy.dsl.vfs.impl.CopyMoveOperations
 import org.ysb33r.groovy.dsl.vfs.impl.Util
 import org.ysb33r.groovy.dsl.vfs.impl.ConfigDelegator
+import org.ysb33r.groovy.dsl.vfs.impl.ProviderDelegator
 import org.apache.commons.logging.Log
-import groovy.transform.PackageScope
+import org.ysb33r.groovy.dsl.vfs.impl.StandardFileSystemManager
+import org.ysb33r.groovy.dsl.vfs.impl.ProviderSpecification
+import org.apache.commons.vfs2.provider.TemporaryFileStore
+import org.apache.commons.vfs2.FileType
+import static org.apache.commons.vfs2.Selectors.*
 
 /**
  *
@@ -68,9 +70,39 @@ import groovy.transform.PackageScope
  * @since 0.1 */
 class VFS {
 
-	private def fsMgr
+    /** A filter that selects all the descendants of the base folder, but does not select the base folder itself.
+     *
+      */
+    final static FileSelector exclude_self = EXCLUDE_SELF
+
+    /** A filter that selects the base file/folder, plus all its descendants.
+     *
+     */
+    final static FileSelector select_all = SELECT_ALL
+
+    /** A filter that selects only the direct children of the base folder.
+     *
+     */
+    final static FileSelector direct_children_only = SELECT_CHILDREN
+
+    /** A filter that selects only files (not folders).
+     *
+      */
+    final static FileSelector only_files = SELECT_FILES
+
+    /** A filter that selects only folders (not files).
+     *
+     */
+    final static FileSelector only_folders	= SELECT_FOLDERS
+
+    /** A filter that select the base plus its direct descendants
+     *
+     */
+    final static FileSelector self_and_direct_children = SELECT_SELF_AND_CHILDREN
+
+    private StandardFileSystemManager fsMgr
 	private FileSystemOptions defaultFSOptions
-    
+
 	/** Constructs a Virtual File System.
 	 * 
 	 * During construction a number of properties can be passed to the underlying Apache VFS system.
@@ -81,25 +113,63 @@ class VFS {
      * <li> logger Sets the logger to use. Unlike the Apache VFS2 default behaviour, not providing this property, will turn off VFS logging completely
      * <li> replicator - Sets the replicator
      * <li> temporaryFileStore - Sets the temporary file store
+     * <li> ignoreDefaultProviders - Don't load any providers (overrides scanForVfsProviderXml, legacyPluginLoader)
+     * <li> scanForVfsProviderXml - Look for META-INF/vfs-provider.xml files
+     * <li> legacyPluginLoader - Load using providers.xml file from Apache VFS (implies scanForVfsProviderXml)
      * <p>
      * In addition any global filesystem options can also be set 
      * vfs.FILESYSTEM.OPTION i.e. <code> 'vfs.ftp.passiveMode' : true </code>
      * 
      * @param properties Default properties for initialising the system 
 	 */
-	VFS( Map properties=[:] ) {
+	VFS( Map properties=[:], Closure pluginLoader = null ) {
 		fsMgr = new StandardFileSystemManager()
 		
-		[ 'cacheStrategy','defaultProvider','filesCache','replicator','temporaryFileStore' ].each {
-			if(properties.hasProperty(it)) {
-				fsMgr."set${it.capitalize()}"(properties[it])
-			}
-		}
-		
-		fsMgr.setLogger( properties.containsKey('logger') ? properties['logger'] : new NoOpLog() )
-		fsMgr.init()
-		fsMgr.metaClass.loggerInstance = {->fsMgr.getLogger()}
-		
+        Log vfslog = properties.containsKey('logger') ? properties['logger'] : new NoOpLog()
+
+        if(properties.containsKey('defaultProvider')) {
+            vfslog.debug "'defaultProvider' ignored as from v0.6. Use Provider configuration closure instead."
+        }
+
+        TemporaryFileStore tfs
+        if(properties.containsKey('temporaryFileStore')) {
+            switch(properties.temporaryFileStore) {
+                case File:
+                case String:
+                    tfs= Util.tempFileStoreFromPath(properties.temporaryFileStore)
+                    break
+
+                case TemporaryFileStore:
+                    tfs= properties.temporaryFileStore
+                    break
+
+                default:
+                    throw FileSystemException("temporaryFileStore needs to be File/String/TemporaryFileStore")
+            }
+        }
+
+        boolean legacy = properties.legacyPluginLoader
+        boolean scanForVfsXml = legacy ?: properties.scanForVfsProviderXml
+        ProviderSpecification ps = ProviderSpecification.DEFAULT_PROVIDERS
+        if( properties.containsKey('ignoreDefaultProviders') && properties.ignoreDefaultProviders != false ) {
+            ps = new ProviderSpecification()
+            legacy = false
+            scanForVfsXml = false
+        }
+
+
+
+		fsMgr.init(
+            ps,
+            legacy,
+            scanForVfsXml,
+            tfs,
+            properties.replicator,
+            vfslog,
+            properties.cacheStrategy,
+            properties.filesCache
+        )
+
 		defaultFSOptions = Util.buildOptions(properties,fsMgr)
   	}
 
@@ -238,11 +308,19 @@ class VFS {
 
 	/** Creates a folder on any VFS that allows this functionality
 	 * @param properties Any additional vfs properties
+     * @li intermediates. Set to false if intermediate folders should not be created.
 	 * @param uri Folder that needs to be created
 	 */
 	def mkdir ( properties=[:],uri ) {
 		assert properties != null
-		resolveURI(properties,uri).createFolder()
+		def fo= resolveURI(properties,uri)
+        if (properties.intermediates != null && properties.intermediates==false) {
+            def parent = fo.parent
+            if(!parent.exists()) {
+                throw new FileActionException("Cannot create directory - '${friendlyURI(parent)}' does not exist and intermediates==false")
+            }
+        }
+        fo.createFolder()
 	}
 
 	/** Copies files.
@@ -302,8 +380,8 @@ class VFS {
 	 */
 	def cp ( properties=[:],from,to ) {
 		assert properties != null
-		
-		CopyMoveOperations.copy(
+
+ 		CopyMoveOperations.copy(
 			resolveURI(properties,from),
 			resolveURI(properties,to),
 			properties.smash ?: false,
@@ -408,15 +486,73 @@ class VFS {
     def options( properties=[:] ) {
         defaultFSOptions = Util.buildOptions(properties, fsMgr, defaultFSOptions)    
     }
-    
-	def friendlyURI( FileObject uri ) {
+
+    /** Allows to additional scheme providers, operation providers, mime type maps and extension maps to be added
+     *
+     * @param providerDSL
+     * @return
+     */
+    def extend( Closure providerDSL ) {
+        new ProviderDelegator( fsManager : fsMgr ) .bind (providerDSL)
+    }
+
+    /** Returns a printable URI in which the password is masked
+     *
+     * @param uri
+     * @return
+     */
+    def friendlyURI( FileObject uri ) {
 		return uri.name.friendlyURI
 	}
-	
+
+    /** Returns a printable URI in which the password is masked
+     *
+     * @param uri
+     * @return
+     */
 	def friendlyURI( URI uri ) {
 		return friendlyURI(resolveURI(uri))
 	}
-	
+
+    /** Returns true if URI is a file.
+     *
+     */
+    boolean isFile(uri) {
+        resolveURI(uri).type == FileType.FILE
+    }
+
+    /** Returns true if URI is a folder.
+     *
+     */
+    boolean isFolder(uri) {
+        resolveURI(uri).type == FileType.FOLDER
+    }
+
+    /** Checks to see  if URI exists
+     *
+     */
+    boolean exists(uri) {
+        resolveURI(uri).exists()
+    }
+
+    /** Returns the last modified time of a URI
+     *
+     * @param uri
+     * @return Number of seconds since epoch
+     * @throw FileSystemException if URI does not exist.
+     */
+    long mtime(uri) {
+        try {
+            resolveURI(uri).content.lastModifiedTime
+        } catch( final org.apache.commons.vfs2.FileSystemException e) {
+            throw new FileSystemException(e)
+        }
+    }
+
+    /** Returns the logger instance that is used by this VFS
+     *
+     * @return
+     */
 	Log getLogger() {
 		fsMgr.loggerInstance()
 	}
@@ -428,4 +564,23 @@ class VFS {
 			Util.resolveURI(properties,fsMgr,defaultFSOptions,uri)
 		} 
 	}
+
+    /** Returns the type of URI - file_uri, folder_uri or non_existent_uri
+     *
+     * @param uri
+     * @return
+     */
+    private FileType type( URI uri ) {
+        this.type(resolveURI(uri))
+    }
+
+    /** Returns the type of URI - file_uri, folder_uri or non_existent_uri
+     *
+     * @param uri
+     * @return
+     */
+    private FileType type( FileObject uri ) {
+        uri.type
+    }
+
 }
