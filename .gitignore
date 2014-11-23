@@ -1,5 +1,8 @@
 *~
-
+.idea
+*.iml
+*.iws
+*.ipr
 /kroovybanapp/.settings/
 */build
 */bin
@@ -12,3 +15,4 @@ dsl/.*
 .gradle
 .build
 build
+gradle-app.setting
