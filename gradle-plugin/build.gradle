@@ -15,25 +15,30 @@ ext.moduleName = 'vfs-gradle-plugin'
 group = 'org.ysb33r.gradle'
 archivesBaseName = 'vfs-gradle-plugin'
 
+//ext {
+//    groovyDep = project.dependencies.localGroovy()
+//    groovyDepString = "${groovyDep.group}:${groovyDep.name}:${groovyDep.version}"
+//}
+
+//configurations.testCompile {
+//    resolutionStrategy.setForcedModules groovyDepString
+//}
+
 dependencies {
+    compile project( path:':dsl',configuration:'noGroovy')
     compile gradleApi()
     compile localGroovy()
-    // TODO: Fix this issue with groovy
-//    compile project(':dsl') {
-//        exclude module : 'groovy-all'
-//    }
-    compile ('org.ysb33r.groovy:groovy-vfs:0.6-SNAPSHOT') {
-        exclude module : 'groovy-all'
-    }
+
     compile 'org.slf4j:jcl-over-slf4j:1.7.2'
 
     testCompile ('org.spockframework:spock-core:0.7-groovy-2.0') {
         exclude module : 'groovy-all'
     }
-      }
+}
+
 
 test {
-    systemProperties TESTFSREADROOT : "${project(':dsl').projectDir}"   
+    systemProperties TESTFSREADROOT : projectDir
 }
 
 jar {

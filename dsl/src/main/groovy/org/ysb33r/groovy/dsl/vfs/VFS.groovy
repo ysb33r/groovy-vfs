@@ -16,6 +16,14 @@
  */
 package org.ysb33r.groovy.dsl.vfs
 
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
+import org.apache.commons.vfs2.CacheStrategy
+import org.apache.commons.vfs2.FileSelectInfo
+import org.apache.commons.vfs2.FilesCache
+import org.apache.commons.vfs2.provider.FileReplicator
+import org.ysb33r.groovy.dsl.vfs.impl.StandardFileSystemManager
+
 import java.util.regex.Pattern
 import org.apache.commons.logging.impl.NoOpLog
 import org.apache.commons.vfs2.FileObject;
@@ -28,7 +36,6 @@ import org.ysb33r.groovy.dsl.vfs.impl.Util
 import org.ysb33r.groovy.dsl.vfs.impl.ConfigDelegator
 import org.ysb33r.groovy.dsl.vfs.impl.ProviderDelegator
 import org.apache.commons.logging.Log
-import org.ysb33r.groovy.dsl.vfs.impl.StandardFileSystemManager
 import org.ysb33r.groovy.dsl.vfs.impl.ProviderSpecification
 import org.apache.commons.vfs2.provider.TemporaryFileStore
 import org.apache.commons.vfs2.FileType
@@ -68,6 +75,7 @@ import static org.apache.commons.vfs2.Selectors.*
  * 
  * @author Schalk W. Cronjé
  * @since 0.1 */
+@CompileStatic
 class VFS {
 
     /** A filter that selects all the descendants of the base folder, but does not select the base folder itself.
@@ -125,7 +133,7 @@ class VFS {
 	VFS( Map properties=[:], Closure pluginLoader = null ) {
 		fsMgr = new StandardFileSystemManager()
 		
-        Log vfslog = properties.containsKey('logger') ? properties['logger'] : new NoOpLog()
+        Log vfslog = properties.containsKey('logger') ? (properties['logger'] as Log): new NoOpLog()
 
         if(properties.containsKey('defaultProvider')) {
             vfslog.debug "'defaultProvider' ignored as from v0.6. Use Provider configuration closure instead."
@@ -135,16 +143,19 @@ class VFS {
         if(properties.containsKey('temporaryFileStore')) {
             switch(properties.temporaryFileStore) {
                 case File:
+                    tfs= Util.tempFileStoreFromPath(properties.temporaryFileStore as File)
+                    break
+
                 case String:
-                    tfs= Util.tempFileStoreFromPath(properties.temporaryFileStore)
+                    tfs= Util.tempFileStoreFromPath(properties.temporaryFileStore as String)
                     break
 
                 case TemporaryFileStore:
-                    tfs= properties.temporaryFileStore
+                    tfs= properties.temporaryFileStore as TemporaryFileStore
                     break
 
                 default:
-                    throw FileSystemException("temporaryFileStore needs to be File/String/TemporaryFileStore")
+                    throw new FileSystemException('temporaryFileStore needs to be File/String/TemporaryFileStore')
             }
         }
 
@@ -158,25 +169,25 @@ class VFS {
         }
 
 
-
-		fsMgr.init(
+		fsMgr.init (
             ps,
             legacy,
             scanForVfsXml,
             tfs,
-            properties.replicator,
+            properties.replicator as FileReplicator,
             vfslog,
-            properties.cacheStrategy,
-            properties.filesCache
+            properties.cacheStrategy as CacheStrategy,
+            properties.filesCache as FilesCache
         )
 
-		defaultFSOptions = Util.buildOptions(properties,fsMgr)
+		defaultFSOptions = Util.buildOptions(properties,fsMgr) as FileSystemOptions
   	}
 
 	/**
 	 * Executes a sequence of operations on the same VFS
 	 */
-	def script = { Closure c ->
+    @CompileDynamic
+	def script ( Closure c ) {
 		def newc=c.clone()
 		newc.delegate=this
 		newc.call()
@@ -220,20 +231,21 @@ class VFS {
 	 * }	
 	 * 
 	 */
-	def ls ( properties=[:],uri,Closure c ) {
+    @CompileDynamic
+	def ls ( Map properties=[:],uri,Closure c ) {
 		assert properties != null
 		def children
 		def ruri=resolveURI(properties,uri)
-		boolean recurse = properties.containsKey('recursive') ? properties.recursive : false
+		boolean recurse = properties.containsKey('recursive') ? (properties['recursive'] as boolean): false
 		
 		if( properties.containsKey('filter') ) {
 			
 			def selector
-			def traverse = { fsi -> fsi.depth==0 || recurse }
+			def traverse = { FileSelectInfo fsi -> fsi.depth==0 || recurse }
 			switch (properties.filter) {
 				case Pattern :
 					selector = [
-						'includeFile' : { fsi -> fsi.file.name.baseName ==~ properties.filter },
+						'includeFile' : { FileSelectInfo fsi -> fsi.file.name.baseName ==~ properties.filter },
 						'traverseDescendents' : traverse
 					]
 					break
@@ -242,13 +254,13 @@ class VFS {
 					break
 				case Closure:
 					selector = [
-						'includeFile' : { fsi -> properties.filter.call(fsi) },
+						'includeFile' : { FileSelectInfo fsi -> (properties.filter as Closure).call(fsi) },
 						'traverseDescendents' : traverse
 					]
 					break
 				default:
 					selector = [
-						'includeFile' : { fsi -> fsi.file.name.baseName ==~ /"${properties.filter.toString()}"/ },
+						'includeFile' : { FileSelectInfo fsi -> fsi.file.name.baseName ==~ /"${properties.filter.toString()}"/ },
 						'traverseDescendents' : traverse
 					]
 			}
@@ -263,7 +275,7 @@ class VFS {
 		}
 		
 		if(c) {
-			def newc=c.clone()
+			Closure newc=c.clone()
 			newc.delegate=this
 			return children.collect { newc.call(it) }
 		} else {
@@ -276,7 +288,7 @@ class VFS {
 	 * @param uri
     *
 	 */
-	def ls ( properties=[:],uri ) { ls(properties,uri,null) }
+	def ls ( Map properties=[:],uri ) { ls(properties,uri,null) }
 	
 	/** Allows for the content of a local or remote file object to be read
      *
@@ -292,7 +304,7 @@ class VFS {
      * }
      * @endcode
      */
-	def cat ( properties=[:],uri,Closure c ) {
+	def cat ( Map properties=[:],uri,Closure c ) {
 		assert properties != null
         assert c != null
         FileObject fo=resolveURI(properties,uri)
@@ -311,7 +323,8 @@ class VFS {
      * @li intermediates. Set to false if intermediate folders should not be created.
 	 * @param uri Folder that needs to be created
 	 */
-	def mkdir ( properties=[:],uri ) {
+    @CompileDynamic
+	def mkdir ( Map properties=[:],uri ) {
 		assert properties != null
 		def fo= resolveURI(properties,uri)
         if (properties.intermediates != null && properties.intermediates==false) {
@@ -378,15 +391,15 @@ class VFS {
 	 * </table>
 	 *    
 	 */
-	def cp ( properties=[:],from,to ) {
+	def cp ( Map properties=[:],from,to ) {
 		assert properties != null
 
  		CopyMoveOperations.copy(
 			resolveURI(properties,from),
 			resolveURI(properties,to),
-			properties.smash ?: false,
-			properties.overwrite ?: false,
-			properties.recursive ?: false,
+			properties.smash as boolean ?: false,
+			properties.overwrite as boolean  ?: false,
+			properties.recursive as boolean  ?: false,
 			properties.filter
 		)
 	}
@@ -437,15 +450,15 @@ class VFS {
 	 * </tr>
 	 * </table>
 	 */
-	def mv ( properties=[:],from,to ) {
+	def mv ( Map properties=[:],from,to ) {
 		assert properties != null
 		
 		CopyMoveOperations.move(
 			resolveURI(properties,from),
 			resolveURI(properties,to),
-			properties.smash ?: false,
-			properties.overwrite ?: false,
-            properties.intermediates ?: true
+			properties.smash as boolean?: false,
+			properties.overwrite as boolean ?: false,
+            properties.intermediates as boolean ?: true
 		)
 	}
 
@@ -466,6 +479,7 @@ class VFS {
      * 
      * @endcode
     */
+    @CompileDynamic
     def options( Closure cfgDSL ) {
         defaultFSOptions = new ConfigDelegator( fsManager : fsMgr, fsOpts : defaultFSOptions ) .bind (cfgDSL)
     }
@@ -483,8 +497,8 @@ class VFS {
      * 
      * @endcode
     */
-    def options( properties=[:] ) {
-        defaultFSOptions = Util.buildOptions(properties, fsMgr, defaultFSOptions)    
+    def options( Map properties=[:] ) {
+        defaultFSOptions = Util.buildOptions(properties, fsMgr, defaultFSOptions) as FileSystemOptions
     }
 
     /** Allows to additional scheme providers, operation providers, mime type maps and extension maps to be added
@@ -556,8 +570,9 @@ class VFS {
 	Log getLogger() {
 		fsMgr.loggerInstance()
 	}
-	
-	private def resolveURI (properties=[:],uri) {
+
+    @CompileDynamic
+	private FileObject resolveURI (Map properties=[:],uri) {
 		if (uri instanceof FileObject) {
 			properties.size() ?	Util.resolveURI(properties,fsMgr,uri.fileSystem.fileSystemOptions,uri.name.getURI()) : uri
 		} else {

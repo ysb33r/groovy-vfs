@@ -40,6 +40,13 @@ dependencies {
     
 }
 
+configurations {
+    noGroovy {
+        extendsFrom configurations.default
+        exclude module : 'groovy-all'
+    }
+}
+
 test {
     systemProperties TESTFSREADROOT : "${projectDir}"   
     systemProperties "ratpack.port" : 9999
