@@ -17,7 +17,7 @@ buildscript {
         mavenLocal()
       }
       dependencies {
-        classpath 'org.ysb33r.gradle:bintray:1.4'
+        classpath 'org.ysb33r.gradle:bintray:1.3.1'
         classpath 'net.saliman:gradle-cobertura-plugin:2.2.2'
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.3'
       }
