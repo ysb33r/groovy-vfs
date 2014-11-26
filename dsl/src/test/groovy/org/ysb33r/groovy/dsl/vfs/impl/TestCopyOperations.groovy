@@ -14,7 +14,7 @@ import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 import org.ysb33r.groovy.dsl.vfs.FileActionException
-import org.apache.commons.vfs2.Selectors;
+import org.apache.commons.vfs2.Selectors
 import org.apache.commons.vfs2.VFS
 import org.apache.commons.vfs2.FileType
 import org.apache.commons.vfs2.AllFileSelector
@@ -39,14 +39,15 @@ class TestCopyOperations {
 
 	@Before
 	void setUp() {
-		if (!testFsWriteRoot.exists()) {
-			testFsWriteRoot.mkdirs()
+		if (testFsWriteRoot.exists()) {
+            testFsWriteRoot.deleteDir()
 		}
+        testFsWriteRoot.mkdirs()
 	}
 
 	@After
 	void tearDown() {
-		testFsWriteRoot.deleteDir()
+
 	}
 
 	// ------------------------------------------------------------------------
@@ -265,7 +266,7 @@ class TestCopyOperations {
 			assertTrue "Expected ${targetDir}/file${it}.txt",new File("${targetDir}/file${it}.txt").exists()
 			assertEquals FileType.FILE,expected.type
 			
-			// The reason for this next assertion is a bug in the code also 
+			// The reason for this next assertion is that a bug in the code also
 			// caused duplication of file[34] in the parent directory
 			expected=to.resolveFile("file${it}.txt")
 			assertFalse "Don't want ${targetDir}/../file${it}.txt",expected.exists()
@@ -491,11 +492,26 @@ class TestCopyOperations {
 	
 		CopyMoveOperations.copy(from,to,false,true,false,~/file2\.txt/)
 		assertEquals srcFile.text,fileUnderTest.text
-}
+    }
 
-	// TODO: What about using a closure as a filter?
-	// TODO: What about using with a normal selector from VFS
-	
+	// TODO: ISSUE #4 - What about using a closure as a filter?
+
+    @Test
+    void copyFileWithExcludeSelfSelectorToExistingDirectory_CopiesFilesBelowDirectory() {
+        def vfs=VFS.manager
+        def srcFile=new File("${testFsReadOnlyRoot}")
+        def from=vfs.toFileObject(srcFile)
+        def to=vfs.toFileObject(testFsWriteRoot)
+
+        CopyMoveOperations.copy(from,to,false,false,true,Selectors.EXCLUDE_SELF)
+
+        assertTrue new File(testFsWriteRoot,'file1.txt').exists()
+        assertTrue new File(testFsWriteRoot,'file2.txt').exists()
+        assertTrue new File(testFsWriteRoot,'test-subdir').exists()
+        assertTrue new File(testFsWriteRoot,'test-subdir/file3.txt').exists()
+
+    }
+
 	// ------------------------------------------------------------------------
 	// Directory -> Directory, With Filter
 	// ------------------------------------------------------------------------
