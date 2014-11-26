@@ -1,5 +1,5 @@
 // ============================================================================
-// (C) Copyright Schalk W. Cronje 2013
+// (C) Copyright Schalk W. Cronje 2014
 //
 // This software is licensed under the Apache License 2.0
 // See http://www.apache.org/licenses/LICENSE-2.0 for license details
@@ -9,13 +9,13 @@
 // See the License for the specific language governing permissions and limitations under the License.
 //
 // ============================================================================
+package org.ysb33r.groovy.vfsplugin.cloud.core
 
-rootProject.name = 'groovy-vfs'
+import org.apache.commons.vfs2.FileSystemConfigBuilder
 
-include 'dsl'
-include 'gradle-plugin'
-include 'jlan'
-include 'smb-provider'
-include 'cmdline'
-include 'cloud-provider-core'
-
+/**
+ * Created by schalkc on 08/05/2014.
+ */
+abstract class AbstractCloudFileSystemConfigBuilder extends FileSystemConfigBuilder {
+    protected AbstractCloudFileSystemConfigBuilder(final String prefix) { super(prefix) }
+}

@@ -1,0 +1,77 @@
+// ============================================================================
+// (C) Copyright Schalk W. Cronje 2014
+//
+// This software is licensed under the Apache License 2.0
+// See http://www.apache.org/licenses/LICENSE-2.0 for license details
+//
+// Unless required by applicable law or agreed to in writing, software distributed under the License is
+// distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and limitations under the License.
+//
+// ============================================================================
+extensions.moduleName = 'groovy-vfs-cloud-core'
+group = 'org.ysb33r.groovy'
+archivesBaseName = 'groovy-vfs-cloud-core'
+version = '0.1' + (version.endsWith('SNAPSHOT') ? '-SNAPSHOT' : '')
+
+ext {
+    bintrayDescription = 'Library to support cloud providers for Groovy VFS'
+    bintrayTags = ['groovy', 'vfs', 'cloud']
+    jCloudsVersion = '1.7.2'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: groovyVer
+    compile "org.apache.commons:commons-vfs2:${vfsVersion}"
+    compile 'org.slf4j:slf4j-api:1.7.+'
+    compile "org.apache.jclouds:jclouds-all:${jCloudsVersion}"
+    compile "org.apache.jclouds.driver:jclouds-jsch:${jCloudsVersion}"
+//    compile 'org.apache.jclouds.driver:jclouds-slf4j:1.7.1'
+
+    testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
+    //testCompile project(':dsl')
+
+    // Required for S3
+    testCompile 'org.apache.jclouds.provider:aws-s3:${jCloudsVersion}'
+}
+
+manifest {
+    attributes 'Implementation-Title': 'Groovy VFS Cloud Provider Core', 'Implementation-Version': version
+}
+
+test {
+
+    systemProperties 'TESTFSREADROOT'  : new File(projectDir,'src/test/resources/test-files').absolutePath
+    systemProperties 'TESTFSWRITEROOT' : new File(buildDir,'tmp').absolutePath
+    systemProperties 'S3ID'            : project.properties.AWSAccessKeyId
+    systemProperties 'S3KEY'           : project.properties.AWSSecretKey
+    systemProperties 'S3BUCKET'        : 'groovy-vfs-test-bucket'
+
+//    if(gradle.startParameter.isOffline()) {
+        systemProperties 'TEST.OFFLINE' : '1'
+//    }
+
+}
+
+uploadArchives  {
+    repositories {
+        if(!version.endsWith("SNAPSHOT")) {
+            bintrayMavenDeployer {
+                username project.properties.bintrayUserName
+                apiKey project.properties.bintrayApiKey
+                repoOwner bintrayUser
+                repoName bintrayRepo
+                packageName moduleName
+                description bintrayDescription
+                tags bintrayTags
+            }
+        }
+    }
+}
+
+apply from : '../gradle/publish.gradle'
+
