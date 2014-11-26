@@ -1,0 +1,6 @@
+     1	This is test file #4 - Next line is blank
+
+     2	This is test file #4 - Next line contains spaces
+     3	              
+     4	This is test file #4 - Next line is blank
+

@@ -1,0 +1,10 @@
+This is test file #3 - Next line is blank
+
+This is test file #3 - Next two line contains spaces and tabs (not suppression)
+			
+                                   
+This is test file #3 - Next three lines are blank (needs to be suppressed)
+
+
+
+This is test file #3 - final line (No LF)
