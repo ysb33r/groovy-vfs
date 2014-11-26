@@ -3,7 +3,7 @@
 *.iml
 *.iws
 *.ipr
-/kroovybanapp/.settings/
+*/out
 */build
 */bin
 */dist

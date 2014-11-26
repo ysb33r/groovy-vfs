@@ -1,0 +1,68 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+extensions.moduleName = 'groovy-vfs-smb-provider'
+group = 'org.ysb33r.groovy'
+archivesBaseName = 'groovy-vfs-smb-provider'
+
+ext {
+    bintrayDescription = 'An SMB provider for Groovy VFS'
+    bintrayTags = ['groovy', 'vfs', 'smb', 'cifs']
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: groovyVer
+    compile "org.apache.commons:commons-vfs2:${vfsVersion}"
+    compile 'jcifs:jcifs:1.3.17'
+    testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
+    testCompile project(':dsl')
+
+    testCompile fileTree( dir : "${project(':jlan').buildDir}/libs", include: '*.jar' )
+}
+
+manifest {
+    attributes 'Implementation-Title': 'Groovy VFS SMB Provider', 'Implementation-Version': version
+}
+
+test {
+    systemProperties 'JLANCONFIG' : new File(buildDir,'tmp/jlanserver.xml').absolutePath
+    systemProperties 'SMBPORT' : 1139
+    systemProperties 'TESTFSWRITEROOT' : new File(projectDir,'build/tmp').absolutePath
+    systemProperties 'ROOT' : projectDir.absolutePath
+}
+
+compileTestGroovy {
+    dependsOn ':jlan:jar'
+}
+
+test.doFirst {
+    copy {
+        from (new File(projectDir,'src/test/resources')) {
+            include 'jlanserver.xml'
+            filter(ReplaceTokens,tokens:[PROJECTDIR:projectDir.absolutePath])
+        }
+        into new File(buildDir,'tmp')
+    }
+}
+
+uploadArchives  {
+    repositories {
+        if(!version.endsWith("SNAPSHOT")) {
+            bintrayMavenDeployer {
+                username project.properties.bintrayUserName
+                apiKey project.properties.bintrayApiKey
+                repoOwner bintrayUser
+                repoName bintrayRepo
+                packageName moduleName
+                description 'An SMB provider for Groovy VFS'
+                tags ['groovy', 'vfs', 'smb', 'cifs']
+            }
+        }
+    }
+}
+
+apply from : '../gradle/publish.gradle'
+

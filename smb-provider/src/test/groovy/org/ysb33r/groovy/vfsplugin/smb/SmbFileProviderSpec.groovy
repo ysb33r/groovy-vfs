@@ -1,5 +1,5 @@
 // ============================================================================
-// (C) Copyright Schalk W. Cronje 2013
+// (C) Copyright Schalk W. Cronje 2014
 //
 // This software is licensed under the Apache License 2.0
 // See http://www.apache.org/licenses/LICENSE-2.0 for license details
@@ -9,10 +9,16 @@
 // See the License for the specific language governing permissions and limitations under the License.
 //
 // ============================================================================
+package org.ysb33r.groovy.vfsplugin.smb
 
-rootProject.name = 'groovy-vfs'
+import spock.lang.*
 
-include 'dsl'
-include 'gradle-plugin'
-include 'jlan'
-include 'smb-provider'
+class SmbFileProviderSpec extends Specification {
+    def "Getting capabilities should not cause a ClassCastException"() {
+        given:
+            def sfp = new SmbFileProvider()
+
+        expect:
+            SmbFileProvider.CAPABILITIES == sfp.getCapabilities()
+    }
+}
