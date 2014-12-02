@@ -46,9 +46,13 @@ class Cmdline {
             return parser(args[0])
         }
 
-        if(parser == help || parser == version || parser == schemes ) {
+        if(parser == help || parser == version ) {
             parser()
             return 0i as Integer
+        }
+
+        if(parser== schemes) {
+            return parser()
         }
 
         return parser(args.drop(1))
@@ -456,16 +460,22 @@ Usage: [1] ${name} --help
         return 0i
     }
 
-    private final def schemes = { ->
-        new VFS().fsMgr.schemes.sort().each {
-            String output="  ${it}"
-            if(usageWriter) {
-                usageWriter << output << "\n"
-            } else {
-                println output
-            }
-        }
-    }
+    private final def schemes = {  ->
+        return [
+            run : { VFS vfs ->
+                vfs.fsMgr.schemes.sort().each {
+                    String output="  ${it}"
+                    if(usageWriter) {
+                        usageWriter << output << "\n"
+                    } else {
+                        println output
+                    }
+                }
+                0i
+            },
+            isInteractive : { -> false }
+        ] as Cmd
+v    }
 
     private  final def scriptParser = { final String filename ->
         // Remove --script= from filename

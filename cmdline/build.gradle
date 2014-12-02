@@ -15,6 +15,7 @@ buildscript {
     }
 
     dependencies {
+        // TODO: Upgradle to 1.5.1 as soon as it is released.
         classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.0'
     }
 }
@@ -46,7 +47,7 @@ repositories {
 }   
 
 dependencies {
-    compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: groovyVer
+//    compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: groovyVer
     compile 'commons-cli:commons-cli:1.2'
     runtime 'commons-io:commons-io:2.4'
     runtime 'commons-net:commons-net:3.+'
@@ -55,7 +56,8 @@ dependencies {
     runtime 'com.jcraft:jsch:0.1.48'
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
     compile project(':dsl')
-    compile project(':smb-provider')
+    runtime project(':smb-provider')
+    runtime project(':cloud-provider-core')
 }
 
 test {
@@ -66,7 +68,7 @@ test {
 asciidoctor {
     asciidoctor {
         sourceDir = new File(projectDir,'/src/asciidoc')
-        //sourceDocumentName = srcDoc
+        sourceDocumentNames = [ 'HELP.adoc','LICENSE.adoc','RELEASE-NOTES.adoc']
         outputDir = new File(buildDir,'docs')
         logDocuments = true
         backend = 'html5'
@@ -83,7 +85,6 @@ asciidoctor {
         ]
 
     }
-
 }
 
 distTar {
@@ -101,7 +102,7 @@ distZip {
         into "${applicationName}-${version}/docs"
     }
 
-    dependsOn asciidoctor
+//    dependsOn asciidoctor
 }
 
 task sourcesZip(type: Zip, dependsOn: classes) {

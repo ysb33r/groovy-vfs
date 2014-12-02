@@ -11,6 +11,7 @@
 // ============================================================================
 package org.ysb33r.groovy.vfs.app
 
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.ysb33r.groovy.dsl.vfs.VFS
 
@@ -35,8 +36,15 @@ class Run {
         System.exit(255)
     }
 
+    @CompileDynamic
     Run(final List<Cmd> cmd) {
         vfs = new VFS()
+        vfs.script {
+            extend {
+                provider className: 'org.ysb33r.groovy.vfsplugin.smb.SmbFileProvider', schemes: ['smb','cifs']
+                provider className: 'org.ysb33r.groovy.vfsplugin.cloud.s3.S3FileProvider', schemes: ['s3']
+            }
+        }
         commands = cmd
     }
 
@@ -44,10 +52,9 @@ class Run {
         def input = System.in
         try {
             commands.each { Cmd cmd ->
-                System.in = cmd.isInteractive() ? input : null
+                System.in = (cmd.isInteractive() ? input  : null) as InputStream
                 cmd.run(vfs)
             }
-
             return 0
         } catch(final Exception e) {
             System.err.println e
