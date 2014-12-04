@@ -1,5 +1,5 @@
 language: groovy
-script: ./gradlew clean build  -PbintrayUserName= -PbintrayApiKey
+script: ./gradlew clean build  -PbintrayUserName= -PbintrayApiKey --info
 jdk:
  - oraclejdk7
  - openjdk7
