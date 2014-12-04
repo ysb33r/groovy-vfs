@@ -1,7 +1,7 @@
-HELP
-====
+= HELP
 
-This is a pre-release version with little documentation, but neither should much documentation be needed. If you are
+
+This is a beta release version with little documentation, but neither should much documentation be needed. If you are
 familiar for the basic UNIX command-line utilities such as +cp+, +mv+, +mkdir+ and +cat+ then this will be easy to use.
 Most of the command-line options from the GNU versions of these utilities are supported.
 

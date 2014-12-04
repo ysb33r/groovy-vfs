@@ -15,8 +15,7 @@ buildscript {
     }
 
     dependencies {
-        // TODO: Upgradle to 1.5.1 as soon as it is released.
-        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.0'
+        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.1'
     }
 }
 
@@ -66,31 +65,20 @@ test {
 }
 
 asciidoctor {
-    asciidoctor {
-        sourceDir = new File(projectDir,'/src/asciidoc')
-        sourceDocumentNames = [ 'HELP.adoc','LICENSE.adoc','RELEASE-NOTES.adoc']
-        outputDir = new File(buildDir,'docs')
-        logDocuments = true
-        backend = 'html5'
-        options = [
-                eruby: 'erubis',
-                attributes: [
-                        icons: 'font',
-                        'source-highlighter': 'prettify',
-                        experimental: true,
-                        copycss: true,
-                        idprefix: '',
-                        idseparator: '-'
-                ]
-        ]
+    backends 'html5'
+    options eruby: 'erubis'
 
-    }
+    attributes icons: 'font', 'source-highlighter': 'prettify',
+               experimental: true, copycss: true,
+               idprefix: '',
+               idseparator: '-'
+
 }
 
 distTar {
     extension = 'tgz'
     compression = Compression.GZIP
-    from(new File(buildDir,'docs')) {
+    from(new File(buildDir,'asciidoc')) {
         into "${applicationName}-${version}/docs"
     }
 
@@ -98,11 +86,11 @@ distTar {
 }
 
 distZip {
-    from(new File(buildDir,'docs')) {
+    from(new File(buildDir,'asciidoc')) {
         into "${applicationName}-${version}/docs"
     }
 
-//    dependsOn asciidoctor
+    dependsOn asciidoctor
 }
 
 task sourcesZip(type: Zip, dependsOn: classes) {
