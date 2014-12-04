@@ -12,7 +12,7 @@
 extensions.moduleName = 'groovy-vfs-cloud-core'
 group = 'org.ysb33r.groovy'
 archivesBaseName = 'groovy-vfs-cloud-core'
-version = '0.1' + (version.endsWith('SNAPSHOT') ? '-SNAPSHOT' : '')
+version = '0.1' + (version.endsWith('SNAPSHOT') ? '-SNAPSHOT' : '-beta1')
 
 ext {
     bintrayDescription = 'Library to support cloud providers for Groovy VFS'

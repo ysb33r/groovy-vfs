@@ -68,10 +68,11 @@ asciidoctor {
     backends 'html5'
     options eruby: 'erubis'
 
-    attributes icons: 'font', 'source-highlighter': 'prettify',
-               experimental: true, copycss: true,
-               idprefix: '',
-               idseparator: '-'
+    attributes  icons: 'font', 'source-highlighter': 'prettify',
+                experimental: true, copycss: true,
+                idprefix: '',
+                idseparator: '-',
+                revnumber: version
 
 }
 
@@ -91,7 +92,10 @@ distZip {
     }
 
     dependsOn asciidoctor
+
 }
+
+
 
 task sourcesZip(type: Zip, dependsOn: classes) {
     classifier = 'sources'

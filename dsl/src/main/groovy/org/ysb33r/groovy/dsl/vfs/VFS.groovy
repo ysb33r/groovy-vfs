@@ -136,7 +136,7 @@ class VFS {
         Log vfslog = properties.containsKey('logger') ? (properties['logger'] as Log): new NoOpLog()
 
         if(properties.containsKey('defaultProvider')) {
-            vfslog.debug "'defaultProvider' ignored as from v0.6. Use Provider configuration closure instead."
+            vfslog.debug "'defaultProvider' ignored as from v1.0. Use Provider configuration closure instead."
         }
 
         TemporaryFileStore tfs
