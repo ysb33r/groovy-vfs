@@ -107,7 +107,7 @@ task sourcesZip(type: Zip, dependsOn: classes) {
 task uploadArchives (type:BintrayGenericUpload ) {
     username    project.properties.bintrayUserName
     apiKey      project.properties.bintrayApiKey
-    repoOwner   bintrayUser
+    repoOwner   project.properties.bintrayUserName
     repoName    bintrayRepo
     packageName 'vfs'
     sources distZip.outputs.files

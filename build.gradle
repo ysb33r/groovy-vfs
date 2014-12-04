@@ -34,6 +34,8 @@ subprojects {
     ext {
         vfsVersion = '2.0'
         groovyVer  = '[2.1,2.5]'
+        bintrayRepo= 'grysb33r'
+        bintrayUser= 'ysb33r'
     }
 
     repositories {
