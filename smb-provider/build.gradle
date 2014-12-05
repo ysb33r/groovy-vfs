@@ -17,9 +17,8 @@ dependencies {
     compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: groovyVer
     compile "org.apache.commons:commons-vfs2:${vfsVersion}"
     compile 'jcifs:jcifs:1.3.17'
-    testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
-    testCompile project(':dsl')
 
+    testCompile project(':dsl')
     testCompile fileTree( dir : "${project(':jlan').buildDir}/libs", include: '*.jar' )
 }
 

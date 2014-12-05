@@ -24,9 +24,6 @@ dependencies {
 
     compile 'org.slf4j:jcl-over-slf4j:1.7.2'
 
-    testCompile ('org.spockframework:spock-core:0.7-groovy-2.0') {
-        exclude module : 'groovy-all'
-    }
 }
 
 

@@ -7,6 +7,8 @@
 
 package org.ysb33r.groovy.dsl.vfs
 
+import org.apache.commons.logging.LogFactory
+
 import static org.junit.Assert.*
 
 import org.apache.commons.vfs2.FileSystemOptions
@@ -77,6 +79,15 @@ import org.junit.Ignore
 		supportedSchemes.each { 
 			assertTrue "Expected to support '${it}', Only had ${schemes.toString()}", schemes.contains(it) 
 		} 	
+	}
+
+	@Test
+	void ctorWithFileStoreAndLoggerShouldNotThrow() {
+		def vfs = new VFS (
+			logger : LogFactory.getLog('testvfs'),
+				temporaryFileStore : "${testFsWriteRoot}/vfs".toString()
+		)
+		assertNotNull vfs.fsMgr
 	}
 
 	@Test

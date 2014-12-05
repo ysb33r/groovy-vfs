@@ -220,7 +220,7 @@ class StandardFileSystemManager extends DefaultFileSystemManager
     }
 
     private void loadFromProviderSpec (final ProviderSpecification providerSpec) {
-        providerSpec.providers.each { Provider it -> addProvider(it) }
+        providerSpec.providers.each { Provider it ->  addProvider(it) }
         providerSpec.operationProviders.each { OperationProvider it -> addOperationProvider(it) }
         addProvider(providerSpec.defaultProvider,true)
         providerSpec.mimeTypes.each { MimeType it -> addMimeTypeMap(it.key, it.scheme) }
