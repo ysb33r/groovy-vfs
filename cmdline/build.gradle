@@ -19,10 +19,9 @@ buildscript {
     }
 }
 
-import org.ysb33r.gradle.bintray.BintrayGenericUpload
 
 apply plugin : 'application'
-apply plugin: 'org.asciidoctor.gradle.asciidoctor'
+apply plugin : 'org.asciidoctor.gradle.asciidoctor'
 
 group = 'org.ysb33r.groovy'
 archivesBaseName = 'cmdline-vfs'
@@ -31,6 +30,9 @@ applicationName = 'vfs'
 applicationDefaultJvmArgs=["-Dvfs.scriptname=${applicationName}"]
 
 ext {
+    moduleName = 'vfs'
+    bintrayDescription = 'A command-line utility for file operations on various local & remote virtual filesystems'
+    bintrayTags = ['groovy', 'vfs']
     bintrayRepo = 'nanook'
 }
 
@@ -42,11 +44,9 @@ jar {
 
 repositories {
     mavenCentral()
-    //maven { url 'https://oss.jfrog.org/artifactory/libs-snapshot' }
-}   
+}
 
 dependencies {
-//    compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: groovyVer
     compile 'commons-cli:commons-cli:1.2'
     runtime 'commons-io:commons-io:2.4'
     runtime 'commons-net:commons-net:3.+'
@@ -94,8 +94,6 @@ distZip {
 
 }
 
-
-
 task sourcesZip(type: Zip, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
@@ -103,25 +101,15 @@ task sourcesZip(type: Zip, dependsOn: classes) {
 }
 
 
-task uploadArchives (type:BintrayGenericUpload ) {
-    username    project.properties.bintrayUserName
-    apiKey      project.properties.bintrayApiKey
-    repoOwner   project.properties.bintrayUserName
-    repoName    bintrayRepo
-    packageName 'vfs'
+
+// TODO: ISSUE #20 - Generate man pages from asciidocs
+
+apply from : '../gradle/publish.gradle'
+
+uploadArchives {
     sources distZip.outputs.files
     sources distTar.outputs.files
     sources sourcesZip.outputs.files
 
-    gpgSign true
-    gpgPassphrase project.properties.bintrayGpgPassphrase
-
     dependsOn distZip, distTar, sourcesZip
-
-    onlyIf { !version.endsWith("SNAPSHOT") }
 }
-
-// TODO: ISSUE #20 - Generate man pages from asciidocs
-
-
-

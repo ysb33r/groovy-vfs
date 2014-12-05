@@ -9,12 +9,12 @@
 // See the License for the specific language governing permissions and limitations under the License.
 //
 // ============================================================================
-extensions.moduleName = 'groovy-vfs-cloud-core'
 group = 'org.ysb33r.groovy'
 archivesBaseName = 'groovy-vfs-cloud-core'
-version = '0.1' + (version.endsWith('SNAPSHOT') ? '-SNAPSHOT' : '-beta1')
+version = '0.1' + (versionModifier.size() ? "-${versionModifier}": '')
 
 ext {
+    moduleName = 'groovy-vfs-cloud-core'
     bintrayDescription = 'Library to support cloud providers for Groovy VFS'
     bintrayTags = ['groovy', 'vfs', 'cloud']
     jCloudsVersion = '1.7.2'
@@ -52,22 +52,6 @@ test {
         systemProperties 'TEST.OFFLINE' : '1'
 //    }
 
-}
-
-uploadArchives  {
-    repositories {
-        if(!version.endsWith("SNAPSHOT")) {
-            bintrayMavenDeployer {
-                username project.properties.bintrayUserName
-                apiKey project.properties.bintrayApiKey
-                repoOwner bintrayUser
-                repoName bintrayRepo
-                packageName moduleName
-                description bintrayDescription
-                tags bintrayTags
-            }
-        }
-    }
 }
 
 apply from : '../gradle/publish.gradle'

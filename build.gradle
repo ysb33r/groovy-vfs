@@ -15,31 +15,42 @@ buildscript {
         jcenter()
       }
       dependencies {
-        classpath 'org.ysb33r.gradle:bintray:1.5'
         classpath 'net.saliman:gradle-cobertura-plugin:2.2.2'
-        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.3'
       }
 }
 
 allprojects {
-    version = '1.0-SNAPSHOT'
+    ext {
+        versionModifier = 'beta1'
+        versionNumber   = '1.0'
+    }
+    version = versionNumber + (versionModifier.size() ? "-${versionModifier}": '')
 }
 
 subprojects {
 
-    apply plugin : 'org.ysb33r.bintray'
+    buildscript {
+        repositories {
+            jcenter()
+        }
+        dependencies {
+            classpath 'org.ysb33r.gradle:bintray:1.5'
+            classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.3'
+//            classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
+        }
+    }
 
     ext {
-        vfsVersion = '2.0'
-        groovyVer  = '[2.1,2.3.99]'
-        bintrayRepo= 'grysb33r'
-        bintrayUser= 'ysb33r'
+        vfsVersion       = '2.0'
+        groovyVer        = '[2.1,2.3.99]'
+        bintrayRepo      = 'grysb33r'
+        bintrayUser      = 'ysb33r'
+        bintrayLicense   = 'Apache-2.0'
+        bintrayAttributes= [:]
     }
 
     repositories {
         jcenter()
-//        mavenLocal()
-//        maven {  url 'https://oss.jfrog.org/artifactory/repo' }
     }
 
 }
@@ -48,7 +59,6 @@ configure(subprojects.findAll {it.name != 'jlan'}) {
 
     apply plugin: 'groovy'
     apply plugin: 'maven'
-    apply plugin: 'artifactory'
 
     sourceCompatibility = 1.7
     targetCompatibility = 1.7
@@ -86,21 +96,6 @@ configure(subprojects.findAll {it.name != 'jlan'}) {
         archives sourcesJar, javadocJar
     }
 
-    artifactory {
-        publish {
-            contextUrl = 'http://oss.jfrog.org'
-            repository {
-                repoKey = 'oss-snapshot-local'
-                username = project.properties.bintrayUserName
-                password = project.properties.bintrayApiKey
-            }
-        }
-    }
-
-    artifactoryPublish {
-        onlyIf { version.endsWith("SNAPSHOT") }
-//        onlyIf { name != 'cmdline' }
-    }
 }
 
 task wrapper(type: Wrapper) {

@@ -1,16 +1,14 @@
+
 import org.apache.tools.ant.filters.ReplaceTokens
 
-extensions.moduleName = 'groovy-vfs-smb-provider'
 group = 'org.ysb33r.groovy'
 archivesBaseName = 'groovy-vfs-smb-provider'
 
 ext {
+    moduleName = 'groovy-vfs-smb-provider'
     bintrayDescription = 'An SMB provider for Groovy VFS'
     bintrayTags = ['groovy', 'vfs', 'smb', 'cifs']
-}
-
-repositories {
-    jcenter()
+    bintrayLicense = 'LGPL-2.1'
 }
 
 dependencies {
@@ -44,22 +42,6 @@ test.doFirst {
             filter(ReplaceTokens,tokens:[PROJECTDIR:projectDir.absolutePath])
         }
         into new File(buildDir,'tmp')
-    }
-}
-
-uploadArchives  {
-    repositories {
-        if(!version.endsWith("SNAPSHOT")) {
-            bintrayMavenDeployer {
-                username project.properties.bintrayUserName
-                apiKey project.properties.bintrayApiKey
-                repoOwner bintrayUser
-                repoName bintrayRepo
-                packageName moduleName
-                description 'An SMB provider for Groovy VFS'
-                tags ['groovy', 'vfs', 'smb', 'cifs']
-            }
-        }
     }
 }
 

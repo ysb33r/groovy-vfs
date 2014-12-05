@@ -10,10 +10,16 @@
 //
 // ============================================================================
 
-ext.gradleID = 'org.ysb33r.vfs'
-ext.moduleName = 'vfs-gradle-plugin'
 group = 'org.ysb33r.gradle'
 archivesBaseName = 'vfs-gradle-plugin'
+
+ext {
+    gradleID = 'org.ysb33r.vfs'
+    moduleName = 'vfs-gradle-plugin'
+    bintrayDescription = 'This is a plugin for Gradle that utilises the Groovy VFS DSL'
+    bintrayTags = ['gradle','groovy','vfs','groovy-vfs']
+    bintrayAttributes = [ 'gradle-plugin' : "org.ysb33r.vfs:${group}:${archivesBaseName}" ]
+}
 
 configurations.all { exclude module: 'groovy-all' }
 
@@ -34,28 +40,6 @@ test {
 jar {
     manifest {
         attributes 'Implementation-Title': moduleName, 'Implementation-Version': version
-    }
-}
-
-uploadArchives  {
-    repositories {
-        if (!version.endsWith("SNAPSHOT")) {
-        bintrayMavenDeployer {
-            username    project.properties.bintrayUserName
-            apiKey      project.properties.bintrayApiKey
-            repoOwner   bintrayUser
-            repoName    bintrayRepo
-            packageName moduleName
-            description 'This is a plugin for Gradle that utilises the Groovy VFS DSL'
-            tags        'gradle','groovy','vfs','groovy-vfs'
-            licenses          'Apache-2.0'
-            vcsUrl            'https://github.com/ysb33r/groovy-vfs.git'
-            autoCreatePackage true
-            updatePackage     true
-            versionAttributes 'gradle-plugin' : "org.ysb33r.vfs:${group}:${archivesBaseName}"
-
-            }
-        }
     }
 }
 

@@ -9,9 +9,14 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ============================================================================
 
-extensions.moduleName = 'groovy-vfs'
-group = 'org.ysb33r.groovy' 
+group = 'org.ysb33r.groovy'
 archivesBaseName = 'groovy-vfs'
+
+ext {
+    moduleName = 'groovy-vfs'
+    bintrayDescription = 'A DSL for Groovy that wraps Apache VFSL'
+    bintrayTags = ['groovy','vfs','dsl']
+}
 
 jar {
     manifest {
@@ -42,22 +47,6 @@ dependencies {
 test {
     systemProperties TESTFSREADROOT : "${projectDir}"   
     systemProperties "ratpack.port" : 9999
-}
-
-uploadArchives  {
-    repositories {
-        if(!version.endsWith("SNAPSHOT")) {
-            bintrayMavenDeployer {
-                username    project.properties.bintrayUserName
-                apiKey      project.properties.bintrayApiKey
-                repoOwner   bintrayUser
-                repoName    bintrayRepo
-                packageName moduleName
-                description 'A DSL for Groovy that wraps Apache VFSL'
-                tags        'groovy','vfs','dsl'
-            }
-        }
-    }
 }
 
 apply from : '../gradle/publish.gradle'
