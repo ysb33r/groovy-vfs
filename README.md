@@ -1,9 +1,11 @@
+# Groovy VFS
+
 A DSL for Groovy to wrap around the Apache VFS libraries.
 
 If you like it, then tweet about it using ```#groovyvfs``` as the hashtag.
 
-Groovy Code
-===========
+## Groovy Library
+
 
 [ ![Download](https://api.bintray.com/packages/ysb33r/grysb33r/groovy-vfs/images/download.png) ](https://bintray.com/ysb33r/grysb33r/groovy-vfs/_latestVersion)
 
@@ -64,8 +66,8 @@ vfs {
 ```
 
 
-Gradle plugin (INCUBATING)
-============================
+## Gradle plugin
+
 
 [ ![Download](https://api.bintray.com/packages/ysb33r/grysb33r/vfs-gradle-plugin/images/download.png) ](https://bintray.com/ysb33r/grysb33r/vfs-gradle-plugin/_latestVersion)
 
@@ -108,21 +110,21 @@ vfs {
 
 If you want to see what VFS is going run gradle with ```--debug```
 
-Adding extra plugins
-====================
+## Adding extra plugins
+
 
 From v1.0 onwards additional plugins can be loaded via a new ```extend``` block. For more details see this gist:
 https://gist.github.com/ysb33r/9916940
 
 
-SMB provider (EXPERIMENTAL)
-===========================
+## SMB provider
+[ ![Download](https://api.bintray.com/packages/ysb33r/grysb33r/groovy-vfs-smb-provider/images/download.png) ](https://bintray.com/ysb33r/grysb33r/groovy-vfs-smb-provider/_latestVersion)
 
-A provider for accessing SMB shares is now possible and will be supported from v0.6 onwards. The plugin
-must be loaded separately.
+
+A provider for accessing SMB shares is now avavilable. The plugin must be loaded separately.
 
 ```groovy
-@Grab( 'org.ysb33r.groovy:groovy-vfs-smb-provider:1.0-SNAPSHOT' ),
+@Grab( 'org.ysb33r.groovy:groovy-vfs-smb-provider:1.0-beta1' ),
 @Grab( 'jcifs:jcifs:1.3.17' ),
 
 vfs {
@@ -140,14 +142,43 @@ vfs {
   smb://DOMAIN%5cUSERNAME:PASSWORD@HOSTNAME/SHARE/PATH
 ```
 
-Documentation
-=============
+## S3 provider (EXPERIMENTAL)
+[ ![Download](https://api.bintray.com/packages/ysb33r/grysb33r/groovy-vfs-cloud-core/images/download.png) ](https://bintray.com/ysb33r/grysb33r/groovy-vfs-cloud-core/_latestVersion)
+
+
+A provider for accessing S3 shares is now available and will be fully supported in future version. The plugin
+must be loaded separately.
+
+```groovy
+@Grab( 'org.ysb33r.groovy:groovy-vfs-cloud-core:0.1-beta1' ),
+@Grab( 'org.apache.jclouds:jclouds-all:1.7.2' )
+@Grab( 'org.apache.jclouds.driver:jclouds-jsch:1.7.2' )
+@Grab( 'org.apache.jclouds.provider:aws-s3:1.7.2'
+vfs {
+  extend {
+    provider className: 'org.ysb33r.groovy.vfsplugin.cloud.s3.S3FileProvider', schemes: ['s3']
+  }
+
+  cp 'smb://id:key@bucket/dir/file', new File('localfile.txt)
+}
+```
+
+*NOTE:* Although S# does not actually support folders, this is simulated trhough the use of folder names containing `/`
+characters.
+
+
+
+## Command-line utility
+[ ![Download](https://api.bintray.com/packages/ysb33r/nanook/vfs/images/download.png) ](https://bintray.com/ysb33r/nanook/vfs/_latestVersion)
+
+A command-line utility mimicking a number of GNU shell utilities is available.
+
+## Documentation
 
 + See https://github.com/ysb33r/groovy-vfs/wiki for more detailed documentation.
 + Greach2014 presentation on v0.5 - http://www.slideshare.net/ysb33r/groovy-vfs-32889561
 
-Credits
-=======
+## Credits
 
 It is seldom that these kind of libraries happen in isolation. It is therefore prudent 
 that I acknowledge the inputs of others in the creation of groovy-vfs
