@@ -14,3 +14,8 @@ rootProject.name = 'groovy-vfs'
 
 include 'dsl'
 include 'gradle-plugin'
+include 'jlan'
+include 'smb-provider'
+include 'cmdline'
+include 'cloud-provider-core'
+

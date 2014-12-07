@@ -1,11 +1,13 @@
 // ============================================================================
-// Copyright (C) Schalk W. Cronje 2012
+// Copyright (C) Schalk W. Cronje 2012 - 2014
 //
-// This software is licensed under the Apche License 2.0
+// This software is licensed under the Apache License 2.0
 // See http://www.apache.org/licenses/LICENSE-2.0 for license details
 // ============================================================================
 
 package org.ysb33r.groovy.dsl.vfs
+
+import org.apache.commons.logging.LogFactory
 
 import static org.junit.Assert.*
 
@@ -80,6 +82,15 @@ import org.junit.Ignore
 	}
 
 	@Test
+	void ctorWithFileStoreAndLoggerShouldNotThrow() {
+		def vfs = new VFS (
+			logger : LogFactory.getLog('testvfs'),
+				temporaryFileStore : "${testFsWriteRoot}/vfs".toString()
+		)
+		assertNotNull vfs.fsMgr
+	}
+
+	@Test
 	void basicFileListingShouldProvideAccessToFileNames() {
 		def vfs = new VFS()		
 		def uri= testFsURI
@@ -125,8 +136,18 @@ import org.junit.Ignore
 		vfs.mkdir("${testFsWriteURI}/one/two/three")
 		assertTrue testDir.exists() 
 	}
-	
-	@Test
+
+     @Test(expected=FileActionException)
+     void creatingDirectoryShouldCreateParentsTooUnlessIntermediatesFalse() {
+         def vfs = new VFS()
+
+         def testDir=new File("${testFsWriteRoot}/one/two/three")
+         assertFalse testDir.exists()
+         vfs.mkdir("${testFsWriteURI}/one/two/three", intermediates:false)
+     }
+
+
+    @Test
 	void copyFileToExistingDirectoryAddsToDirectoryIfRecursive() {
 		def vfs = new VFS()
 		vfs.cp( recursive:true, testFsURI, testFsWriteURI ) 
@@ -196,16 +217,35 @@ import org.junit.Ignore
 			assertEquals 2,ls ("${testFsWriteURI}/one/two/four/test-files", filter:~/file\d\.txt/) .size()
 
 		}
-		
-		
-/*		
-		vfs  {
-			ls (uri,filter:~/file1\.txt/) cat(it) { 
-					assertEquals file.text,it.text
-			}
-		}
-*/		
 	}
 
+    @Test
+    void CreatingVFS_ignoreDefaultProviders_shouldNotLoadAnyPlugins() {
+        def vfs= new VFS(ignoreDefaultProviders:true)
 
+        assertFalse vfs.fsMgr.hasProvider('file')
+    }
+
+    @Test
+    void TypeShouldReturnFileFolderOrNonExistent() {
+        def vfs = new VFS()
+        def uri= testFsURI
+        def file= new File("${testFsReadOnlyRoot}/${expectedFiles[0]}")
+
+
+        assertTrue vfs.isFolder(testFsURI)
+        assertTrue vfs.isFile(file)
+        assertFalse vfs.exists( new URI(new File(testFsReadOnlyRoot,'non-existent-file') ) )
+
+    }
+
+     @Test(expected=FileSystemException)
+     void LastModifiedTimeOfURIShouldThrowExceptionIfURINotExisting() {
+         def vfs = new VFS()
+         assertTrue vfs.mtime(testFsURI) > 0
+
+         def file= new File("${testFsReadOnlyRoot}/somewhere/a/non-existing-file")
+         assertEquals 0,vfs.mtime(file)
+
+     }
 }

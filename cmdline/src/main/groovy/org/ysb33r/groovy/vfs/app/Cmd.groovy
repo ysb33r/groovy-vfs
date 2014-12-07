@@ -1,5 +1,5 @@
 // ============================================================================
-// (C) Copyright Schalk W. Cronje 2013
+// (C) Copyright Schalk W. Cronje 2014
 //
 // This software is licensed under the Apache License 2.0
 // See http://www.apache.org/licenses/LICENSE-2.0 for license details
@@ -9,10 +9,13 @@
 // See the License for the specific language governing permissions and limitations under the License.
 //
 // ============================================================================
-// This file has the single purpose of faking out Groovy 2.x transforms so that
-// the code can compile under 1.8
-// ============================================================================
-package groovy.transform
+package org.ysb33r.groovy.vfs.app
 
-public @interface CompileStatic {}
-public @interface TypeChecked {}
+import org.ysb33r.groovy.dsl.vfs.VFS
+
+interface Cmd {
+
+    Integer run(VFS vfs)
+    boolean isInteractive()
+
+}

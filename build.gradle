@@ -1,5 +1,5 @@
 // ============================================================================
-// (C) Copyright Schalk W. Cronje 2013
+// (C) Copyright Schalk W. Cronje 2013-2014
 //
 // This software is licensed under the Apache License 2.0
 // See http://www.apache.org/licenses/LICENSE-2.0 for license details
@@ -10,88 +10,95 @@
 //
 // ============================================================================
 
-apply plugin : 'eclipse'
-apply plugin : 'idea'
-apply plugin : 'jenkins'
-
 buildscript {
     repositories {
-        mavenCentral()
         jcenter()
-        mavenLocal()
       }
       dependencies {
-        classpath 'org.ysb33r.gradle:bintray:1.4-SNAPSHOT'
-        classpath 'com.terrafolio:gradle-jenkins-plugin:0.3.1'
+        classpath 'net.saliman:gradle-cobertura-plugin:2.2.2'
       }
+}
+
+allprojects {
+    ext {
+        versionModifier = 'beta1'
+        versionNumber   = '1.0'
+    }
+    version = versionNumber + (versionModifier.size() ? "-${versionModifier}": '')
 }
 
 subprojects {
 
-    apply plugin : 'org.ysb33r.bintray'
-    apply plugin : 'groovy'
-    apply plugin : 'maven'
-    
-    // Currently CodeNarc fails when used with JDK8.
-    if (!org.gradle.internal.SystemProperties.javaVersion.startsWith('1.8.')) {
-        apply plugin : 'codenarc'
+    buildscript {
+        repositories {
+            jcenter()
+            mavenLocal()
+        }
+        dependencies {
+            classpath 'org.ysb33r.gradle:bintray:1.6'
+            classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.3'
+//            classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
+        }
     }
-    
-    repositories {
-        jcenter()
-        maven { url  'http://repository.codehaus.org' }
-        maven {  url 'https://oss.jfrog.org/artifactory/repo' }
-    }
-    
-    version = '0.5.1'
 
     ext {
-        bintrayRepo = 'grysb33r'
-        bintrayUser = 'ysb33r'
+        vfsVersion       = '2.0'
+        groovyVer        = '[2.1,2.3.99]'
+        bintrayRepo      = 'grysb33r'
+        bintrayUser      = 'ysb33r'
+        bintrayLicense   = 'Apache-2.0'
+        bintrayAttributes= [:]
     }
-    
+
+    repositories {
+        jcenter()
+    }
+
+}
+
+configure(subprojects.findAll {it.name != 'jlan'}) {
+
+    apply plugin: 'groovy'
+    apply plugin: 'maven'
+
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
+
     dependencies {
-        compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5+'        
-        compile 'org.apache.commons:commons-vfs2:2.0'
+        compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7+'
+        compile ("org.apache.commons:commons-vfs2:${vfsVersion}") {
+            exclude group:'org.apache.maven.scm'
+        }
+        compile 'org.apache.commons:commons-compress:1.6'
         testCompile 'org.apache.ftpserver:ftpserver-core:1.0.6'
         testCompile 'commons-io:commons-io:2.4'
         testCompile 'commons-net:commons-net:3.+'
         testRuntime 'commons-httpclient:commons-httpclient:3.1'
         testRuntime 'org.slf4j:slf4j-simple:1.7.5'
-    
+
+        testCompile ('org.spockframework:spock-core:0.7-groovy-2.0') {
+            exclude module : 'groovy-all'
+        }
+
     }
-    
+
     task sourcesJar(type: Jar, dependsOn: classes) {
         classifier = 'sources'
         from sourceSets.main.allSource
     }
-    
-    artifacts {
-        archives sourcesJar
-    }
-    
-}
 
-/*
-jenkins {
-    servers {
-        "DEV@Cloud" {
-            url cloudbeesJenkinsUrl
-            secure true
-            username cloudbeesUserName
-            password cloudbeesPassword
-        }
-    }    
-    
-    defaultServer servers."DEV@Cloud"
-    
-    jobs {
-        
+    task javadocJar(type: Jar) {
+        description "An archive of the JavaDocs for Maven Central"
+        classifier "javadoc"
+        from javadoc
     }
-    
+
+    artifacts {
+        archives sourcesJar, javadocJar
+    }
+
 }
-*/
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.11'
+    gradleVersion = '2.0'
 }

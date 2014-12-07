@@ -27,7 +27,7 @@ class VfsPlugin implements Plugin<Project> {
 
             project.ext.__vfs = new VFS (
                 logger : LogFactory.getLog('vfs'),
-                temporaryFileStore : "${project.gradle.gradleUserHomeDir}/vfs"
+                temporaryFileStore : "${project.gradle.gradleUserHomeDir}/vfs".toString()
             )
             project.ext.vfs = { Closure c -> project.__vfs.script(c) }
             project.logger.debug 'Added project.vfs'

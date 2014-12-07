@@ -1,14 +1,18 @@
+# Groovy VFS
+
 A DSL for Groovy to wrap around the Apache VFS libraries.
 
 If you like it, then tweet about it using ```#groovyvfs``` as the hashtag.
 
-Groovy Code
-===========
+## Groovy Library
+
+
+[ ![Download](https://api.bintray.com/packages/ysb33r/grysb33r/groovy-vfs/images/download.png) ](https://bintray.com/ysb33r/grysb33r/groovy-vfs/_latestVersion)
+
 ```groovy
 
 @Grapes([
-    @GrabResolver( name='grysb33r', root='http://dl.bintray.com/ysb33r/grysb33r' ),
-	@Grab( 'org.ysb33r.groovy:groovy-vfs:0.4' ),
+	@Grab( 'org.ysb33r.groovy:groovy-vfs:0.5' ),
 	@Grab( 'commons-net:commons-net:3.+' ), // If you want to use ftp 
     @Grab( 'commons-httpclient:commons-httpclient:3.1'), // If you want http/https
     @Grab( 'com.jcraft:jsch:0.1.48' ) // If you want sftp
@@ -62,8 +66,10 @@ vfs {
 ```
 
 
-Gradle plugin (EXPERIMENTAL)
-=============
+## Gradle plugin
+
+
+[ ![Download](https://api.bintray.com/packages/ysb33r/grysb33r/vfs-gradle-plugin/images/download.png) ](https://bintray.com/ysb33r/grysb33r/vfs-gradle-plugin/_latestVersion)
 
 It is now possible to use this in Gradle as an extension to the project class.
 The interface is very experimental and may change without much warning in future
@@ -73,9 +79,8 @@ releases of this plugin.
 
 buildscript {
     repositories {
+        jcenter()
         mavenCentral()
-        mavenRepo(url: 'http://repository.codehaus.org')
-        mavenRepo(url: 'http://dl.bintray.com/ysb33r/grysb33r')
       }
       dependencies {
         classpath 'org.ysb33r.gradle:vfs-gradle-plugin:0.5.1'
@@ -101,19 +106,79 @@ vfs {
     }
   }
 }
-
-
 ```
 
-If you want to see what VFS is going run gradle with --debug
+If you want to see what VFS is going run gradle with ```--debug```
 
-Documentation
-=============
+## Adding extra plugins
 
-See https://github.com/ysb33r/groovy-vfs/wiki for more detailed documentation.
 
-Credits
-=======
+From v1.0 onwards additional plugins can be loaded via a new ```extend``` block. For more details see this gist:
+https://gist.github.com/ysb33r/9916940
+
+
+## SMB provider
+[ ![Download](https://api.bintray.com/packages/ysb33r/grysb33r/groovy-vfs-smb-provider/images/download.png) ](https://bintray.com/ysb33r/grysb33r/groovy-vfs-smb-provider/_latestVersion)
+
+
+A provider for accessing SMB shares is now avavilable. The plugin must be loaded separately.
+
+```groovy
+@Grab( 'org.ysb33r.groovy:groovy-vfs-smb-provider:1.0-beta1' ),
+@Grab( 'jcifs:jcifs:1.3.17' ),
+
+vfs {
+  extend {
+    provider className: 'org.ysb33r.groovy.vfsplugin.smb.SmbFileProvider', schemes: ['smb','cifs']
+  }
+
+  cp 'smb://someserver/share/dir/file', new File('localfile.txt)
+}
+```
+
+*NOTE:* when embedding windows credentials in the URL use ```%5C``` in place of backslash i.e.
+
+```
+  smb://DOMAIN%5cUSERNAME:PASSWORD@HOSTNAME/SHARE/PATH
+```
+
+## S3 provider (EXPERIMENTAL)
+[ ![Download](https://api.bintray.com/packages/ysb33r/grysb33r/groovy-vfs-cloud-core/images/download.png) ](https://bintray.com/ysb33r/grysb33r/groovy-vfs-cloud-core/_latestVersion)
+
+
+A provider for accessing S3 shares is now available and will be fully supported in future version. The plugin
+must be loaded separately.
+
+```groovy
+@Grab( 'org.ysb33r.groovy:groovy-vfs-cloud-core:0.1-beta1' ),
+@Grab( 'org.apache.jclouds:jclouds-all:1.7.2' )
+@Grab( 'org.apache.jclouds.driver:jclouds-jsch:1.7.2' )
+@Grab( 'org.apache.jclouds.provider:aws-s3:1.7.2'
+vfs {
+  extend {
+    provider className: 'org.ysb33r.groovy.vfsplugin.cloud.s3.S3FileProvider', schemes: ['s3']
+  }
+
+  cp 'smb://id:key@bucket/dir/file', new File('localfile.txt)
+}
+```
+
+*NOTE:* Although S# does not actually support folders, this is simulated trhough the use of folder names containing `/`
+characters.
+
+
+
+## Command-line utility
+[ ![Download](https://api.bintray.com/packages/ysb33r/nanook/vfs/images/download.png) ](https://bintray.com/ysb33r/nanook/vfs/_latestVersion)
+
+A command-line utility mimicking a number of GNU shell utilities is available.
+
+## Documentation
+
++ See https://github.com/ysb33r/groovy-vfs/wiki for more detailed documentation.
++ Greach2014 presentation on v0.5 - http://www.slideshare.net/ysb33r/groovy-vfs-32889561
+
+## Credits
 
 It is seldom that these kind of libraries happen in isolation. It is therefore prudent 
 that I acknowledge the inputs of others in the creation of groovy-vfs
@@ -121,5 +186,7 @@ that I acknowledge the inputs of others in the creation of groovy-vfs
 + Luke Daley (https://gist.github.com/alkemist/7943781) for helping to use Ratpack as a Mock HTTP Server in unit tests.
 + Will_lp (https://gist.github.com/will-lp/5785180) & Jim White (https://gist.github.com/jimwhite/5784982) 
 offered great suggestions when I got stuck with the config DSL.
-+ Jez Higgins, Rob Fletcher, Giovanni Asproni, Balachandran Sivakumar, Burkhard Kloss & Tim Barker who helped shape the design decision
-to auto-create intermediates during a move operation.
++ Jez Higgins, Rob Fletcher, Giovanni Asproni, Balachandran Sivakumar, Burkhard Kloss & Tim Barker who helped shape the
+design decision to auto-create intermediates during a move operation.
++ Maarten Boekhold for testing the SMB Provider plugin
++ Everyone from Greach 2014 that provided feedback

@@ -1,0 +1,92 @@
+buildscript {
+    repositories {
+        jcenter()
+        mavenLocal()
+
+    }
+    dependencies {
+        classpath 'org.ysb33r.gradle:bintray:1.6'
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.3'
+//            classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
+    }
+}
+
+//apply plugin: 'com.jfrog.bintray'
+apply plugin: 'org.ysb33r.bintray'
+
+import org.ysb33r.gradle.bintray.BintrayGenericUpload
+
+
+if(bintrayRepo != 'grysb33r' ) {
+
+
+    task uploadArchives (type:BintrayGenericUpload ) {
+        username    project.properties.bintrayUserName
+        apiKey      project.properties.bintrayApiKey
+        repoOwner   project.properties.bintrayUserName
+        repoName    bintrayRepo
+        packageName moduleName
+        tags        bintrayTags
+        licenses    bintrayLicense
+        vcsUrl      'https://github.com/ysb33r/groovy-vfs.git'
+        autoCreatePackage true
+        updatePackage true
+
+        gpgSign true
+        gpgPassphrase project.properties.bintrayGpgPassphrase
+
+        onlyIf { !version.endsWith("SNAPSHOT") }
+    }
+
+} else {
+    apply plugin : 'maven'
+    apply plugin: 'artifactory' // 'com.jfrog.artifactory'
+
+    install {
+        repositories.mavenInstaller {
+            pom.artifactId = archivesBaseName
+        }
+    }
+
+    uploadArchives {
+        repositories {
+            if (!version.endsWith("SNAPSHOT")) {
+                bintrayMavenDeployer {
+                    username project.properties.bintrayUserName
+                    apiKey project.properties.bintrayApiKey
+                    repoOwner bintrayUser
+                    repoName bintrayRepo
+                    packageName moduleName
+                    description bintrayDescription
+                    tags bintrayTags
+                    licenses bintrayLicense
+                    vcsUrl 'https://github.com/ysb33r/groovy-vfs.git'
+
+                    if (bintrayAttributes.size()) {
+                        versionAttributes bintrayAttributes
+                    }
+                    autoCreatePackage true
+                    updatePackage true
+
+                }
+            }
+        }
+    }
+
+    artifactory {
+        publish {
+            contextUrl = 'http://oss.jfrog.org'
+            repository {
+                repoKey = 'oss-snapshot-local'
+                username = project.properties.bintrayUserName
+                password = project.properties.bintrayApiKey
+            }
+        }
+    }
+
+    artifactoryPublish {
+        onlyIf { version.endsWith("SNAPSHOT") }
+    }
+
+}
+

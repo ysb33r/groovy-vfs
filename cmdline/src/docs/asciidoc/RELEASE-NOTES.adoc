@@ -1,0 +1,43 @@
+= RELEASE NOTES
+
+
+Expect this version to have some bugs. Please raise defects on GitHub - https://github.com/ysb33r/groovy-vfs/issues?state=open
+
+== Overall
+* Current version is not localisable
+* `--script` planned, but not implemented.
+* Use `vfs --list-schemes` to see which schemes are supported.
+
+== mkdir
+
+* `--mode` is accepted, but not implemented.
+
+== cat
+
+* If any output-modifying options are used and the last line does not end on a LF, it will add a LF.
+* `-v` will not escape characters outside of US-ASCII. It assumes those characters are Unicode and printable.
+
+== mv
+
+* wildcards are not supported. `--x-filter` will be provided in a future release. https://github.com/ysb33r/groovy-vfs/issues/33[#33]
+* `--update` accepted, but not implemented
+* `--verbose` accepted, but not implemented https://github.com/ysb33r/groovy-vfs/issues/28[#28]
+* `--suffix`, `-b`  and `--backup` accepted, but not implemented. * `--verbose` accepted, but not implemented https://github.com/ysb33r/groovy-vfs/issues/29[#29]
+
+* Non-GNU option `--intermediates` might be added in future to support creation of intermediares. https://github.com/ysb33r/groovy-vfs/issues/35[#35]
+
+== cp
+* wildcards are not supported. `--x-filter` will be provided in a future release. https://github.com/ysb33r/groovy-vfs/issues/34[#34]
+* Non-GNU option `--intermediates` might be added in future to support creation of intermediares.
+* `--remove-destination` accepted, but ignored. https://github.com/ysb33r/groovy-vfs/issues/26[#26]
+* `--verbose` accepted, but not implemented https://github.com/ysb33r/groovy-vfs/issues/28[#28]
+
+.The following options are not supported
+* `--attributes-only`, `-p`, `--preserve`, `--no-preserve`, - attributes not portable across virtual filesystems.
+* `--copy-contents` - special files only detectable on local file system.
+* `-d`, `-H`, `-l`, `--link`, `-L`, `--dereference`, `-P`, `--no-reference`,
+  `--reflink`, `-s`, `--symbolic-link` - links only detectable on local file system.
+* `--parents` - in this context there are no relative URLs. See `intermediates` instead.
+* `-a`, `--archive` - as `-dR --preserve=all` not supported either
+* `--sparse` - Sparse files not portable across virtual filesystems.
+

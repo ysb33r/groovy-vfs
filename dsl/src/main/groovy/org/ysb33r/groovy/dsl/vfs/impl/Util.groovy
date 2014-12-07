@@ -13,15 +13,18 @@
 
 package org.ysb33r.groovy.dsl.vfs.impl
 
+import groovy.transform.CompileDynamic
 import org.apache.commons.logging.Log
 import org.apache.commons.vfs2.FileSystemOptions
 import org.apache.commons.vfs2.FileObject
 import org.apache.commons.vfs2.FileSystemManager
 import org.ysb33r.groovy.dsl.vfs.OptionException
 import org.ysb33r.groovy.dsl.vfs.URI;
-import groovy.transform.TypeChecked
 import groovy.transform.CompileStatic
+import org.apache.commons.vfs2.provider.TemporaryFileStore
+import org.apache.commons.vfs2.impl.DefaultFileReplicator
 
+@CompileStatic
 class Util {
 
 	/** Resolves a file from a URI.
@@ -30,7 +33,8 @@ class Util {
 	 * @param defaultFSOptions Default filesystem options that is used as a baseline
 	 * @param uri URI instance or something that can be converted to a URI
 	 */
-	static FileObject resolveURI (properties=[:],FileSystemManager fsMgr,FileSystemOptions defaultFSOptions,uri) {
+    @CompileDynamic
+	static FileObject resolveURI (Map properties=[:],FileSystemManager fsMgr,FileSystemOptions defaultFSOptions,def uri) {
 		def u = uri instanceof URI ? uri : new URI(uri)
 		def fo = this.buildOptions(u,fsMgr,defaultFSOptions)
 		fsMgr.resolveFile(u.toString(), properties ? this.buildOptions(properties,fsMgr,fo) : fo )
@@ -45,6 +49,7 @@ class Util {
 	 * @param fsMgr File system manager
 	 * @param baseFSOpt If supplied this is used as the initial file system options
 	 */
+    @CompileDynamic
 	static def buildOptions (Map options,FileSystemManager fsMgr, FileSystemOptions baseFSOpt=null) {
 		def fsOpt = baseFSOpt ? baseFSOpt.clone() : new FileSystemOptions() 
 		options.each { k,v ->
@@ -63,6 +68,7 @@ class Util {
      * @param fsMgr File system manager
      * @param baseFSOpt If supplied this is used as the initial file system options
      */
+    @CompileDynamic
     static def buildOptions ( URI uri, FileSystemManager fsMgr, FileSystemOptions baseFSOpt=null ) {
         def fsOpt = baseFSOpt ? baseFSOpt.clone() : new FileSystemOptions()
         uri.properties().each { scheme,options ->
@@ -74,12 +80,13 @@ class Util {
     }
     
     /** Sets a single option on a FileSystemOptions instance
-     * @param scheme The protocol scheme to set the option on i.e. 'ftp'
+     * @param scheme The ip scheme to set the option on i.e. 'ftp'
      * @param opt The specific option to set i.e. 'passiveMode'
      * @param fsMgr The current virtual file system instance that is in use
      * @param fsOpt The file system options instance associated with the VFS that needs updating
      * @param v The object value that the option needs to be updated to
      */
+    @CompileDynamic
     static def setOption ( String scheme, String opt, FileSystemManager fsMgr, FileSystemOptions fsOpt,  v ) {
 
         final String LEVEL = 'debug'
@@ -99,21 +106,41 @@ class Util {
             } else if (builder.metaClass.respondsTo(builder,setterName,FileSystemOptions,String[]) ) {
                 // vfs.ftp.shortMonthNames
                 throw new java.lang.Exception("Cannot support arrays as yet")
-                // TODO: vfs.http.cookies org.apache.commons.httpclient.Cookie[]
-                // TODO: vfs.http.proxyAuthenticator org.apache.commons.vfs2.UserAuthenticator
-                // TODO: vfs.res.classLoader java.lang.ClassLoader
+                // TODO: ISSUE #10 - vfs.http.cookies org.apache.commons.httpclient.Cookie[]
+                // TODO: ISSUE #17 - vfs.http.proxyAuthenticator org.apache.commons.vfs2.UserAuthenticator
             } else {
                 log fsMgr, 'warn', "'${opt}' is not a valid property for '${scheme}'"
             }
         }
         return fsOpt
     }
-    
-	private static def setValue = { builder,operation,fsOpts,value ->
+
+    /** Creates an Apache VFS TemporaryFileStore instance from a File instance
+     *
+     * @param f Directory to use
+     * @return TemporaryFileStore
+     */
+    static TemporaryFileStore tempFileStoreFromPath( File f ) {
+        new DefaultFileReplicator(f)
+    }
+
+    /** Creates an Apache VFS TemporaryFileStore instance from a directory name
+     *
+     * @param s Directory to use
+     * @return TemporaryFileStore
+     */
+    static TemporaryFileStore tempFileStoreFromPath( String s ) {
+        tempFileStoreFromPath(new File(s))
+    }
+
+    @CompileDynamic
+	private static def setValue  ( builder,operation,fsOpts,value ) {
 		builder."${operation}"(fsOpts,value)
 	}
 
-	private static def setBooleanValue = { builder,operation,fsOpts,value ->
+
+    @CompileDynamic
+	private static def setBooleanValue (builder,operation,fsOpts,value) {
 		switch (value) {
 			case String:
 				this.setBooleanValueFromValidString(builder,operation,fsOpts,value)
@@ -135,11 +162,13 @@ class Util {
 		}
 	}
 
-	private static def setBooleanValueFromValidString = { builder,operation,fsOpts,String value ->
+    @CompileDynamic
+	private static def setBooleanValueFromValidString (builder,operation,fsOpts,String value ) {
 		builder."${operation}"(fsOpts,value.toBoolean())
 		
 	}
-    
+
+    @CompileDynamic
 	private static void log (FileSystemManager fsMgr,String level,Object data) {
         if(fsMgr.metaClass.respondsTo(fsMgr,'loggerInstance')) {
             fsMgr.loggerInstance()."${level}" (data)

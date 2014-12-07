@@ -16,21 +16,30 @@
  */
 package org.ysb33r.groovy.dsl.vfs
 
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
+import org.apache.commons.vfs2.CacheStrategy
+import org.apache.commons.vfs2.FileSelectInfo
+import org.apache.commons.vfs2.FilesCache
+import org.apache.commons.vfs2.provider.FileReplicator
+import org.ysb33r.groovy.dsl.vfs.impl.StandardFileSystemManager
+
 import java.util.regex.Pattern
 import org.apache.commons.logging.impl.NoOpLog
-import org.apache.commons.vfs2.AllFileSelector
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelector
-import org.apache.commons.vfs2.FileSystemManager
 import org.apache.commons.vfs2.FileSystemOptions
 import org.apache.commons.vfs2.Selectors;
 import org.apache.commons.vfs2.provider.AbstractFileSystem
-import org.apache.commons.vfs2.impl.StandardFileSystemManager
 import org.ysb33r.groovy.dsl.vfs.impl.CopyMoveOperations
 import org.ysb33r.groovy.dsl.vfs.impl.Util
 import org.ysb33r.groovy.dsl.vfs.impl.ConfigDelegator
+import org.ysb33r.groovy.dsl.vfs.impl.ProviderDelegator
 import org.apache.commons.logging.Log
-import groovy.transform.PackageScope
+import org.ysb33r.groovy.dsl.vfs.impl.ProviderSpecification
+import org.apache.commons.vfs2.provider.TemporaryFileStore
+import org.apache.commons.vfs2.FileType
+import static org.apache.commons.vfs2.Selectors.*
 
 /**
  *
@@ -66,11 +75,42 @@ import groovy.transform.PackageScope
  * 
  * @author Schalk W. Cronjé
  * @since 0.1 */
+@CompileStatic
 class VFS {
 
-	private def fsMgr
+    /** A filter that selects all the descendants of the base folder, but does not select the base folder itself.
+     *
+      */
+    final static FileSelector exclude_self = EXCLUDE_SELF
+
+    /** A filter that selects the base file/folder, plus all its descendants.
+     *
+     */
+    final static FileSelector select_all = SELECT_ALL
+
+    /** A filter that selects only the direct children of the base folder.
+     *
+     */
+    final static FileSelector direct_children_only = SELECT_CHILDREN
+
+    /** A filter that selects only files (not folders).
+     *
+      */
+    final static FileSelector only_files = SELECT_FILES
+
+    /** A filter that selects only folders (not files).
+     *
+     */
+    final static FileSelector only_folders	= SELECT_FOLDERS
+
+    /** A filter that select the base plus its direct descendants
+     *
+     */
+    final static FileSelector self_and_direct_children = SELECT_SELF_AND_CHILDREN
+
+    private StandardFileSystemManager fsMgr
 	private FileSystemOptions defaultFSOptions
-    
+
 	/** Constructs a Virtual File System.
 	 * 
 	 * During construction a number of properties can be passed to the underlying Apache VFS system.
@@ -81,32 +121,73 @@ class VFS {
      * <li> logger Sets the logger to use. Unlike the Apache VFS2 default behaviour, not providing this property, will turn off VFS logging completely
      * <li> replicator - Sets the replicator
      * <li> temporaryFileStore - Sets the temporary file store
+     * <li> ignoreDefaultProviders - Don't load any providers (overrides scanForVfsProviderXml, legacyPluginLoader)
+     * <li> scanForVfsProviderXml - Look for META-INF/vfs-provider.xml files
+     * <li> legacyPluginLoader - Load using providers.xml file from Apache VFS (implies scanForVfsProviderXml)
      * <p>
      * In addition any global filesystem options can also be set 
      * vfs.FILESYSTEM.OPTION i.e. <code> 'vfs.ftp.passiveMode' : true </code>
      * 
      * @param properties Default properties for initialising the system 
 	 */
-	VFS( Map properties=[:] ) {
+	VFS( Map properties=[:], Closure pluginLoader = null ) {
 		fsMgr = new StandardFileSystemManager()
 		
-		[ 'cacheStrategy','defaultProvider','filesCache','replicator','temporaryFileStore' ].each {
-			if(properties.hasProperty(it)) {
-				fsMgr."set${it.capitalize()}"(properties[it])
-			}
-		}
-		
-		fsMgr.setLogger( properties.containsKey('logger') ? properties['logger'] : new NoOpLog() )
-		fsMgr.init()
-		fsMgr.metaClass.loggerInstance = {->fsMgr.getLogger()}
-		
-		defaultFSOptions = Util.buildOptions(properties,fsMgr)
+        Log vfslog = properties.containsKey('logger') ? (properties['logger'] as Log): new NoOpLog()
+
+        if(properties.containsKey('defaultProvider')) {
+            vfslog.debug "'defaultProvider' ignored as from v1.0. Use Provider configuration closure instead."
+        }
+
+        TemporaryFileStore tfs
+        if(properties.containsKey('temporaryFileStore')) {
+            switch(properties.temporaryFileStore) {
+                case File:
+                    tfs= Util.tempFileStoreFromPath(properties.temporaryFileStore as File)
+                    break
+
+                case String:
+                    tfs= Util.tempFileStoreFromPath(properties.temporaryFileStore as String)
+                    break
+
+                case TemporaryFileStore:
+                    tfs= properties.temporaryFileStore as TemporaryFileStore
+                    break
+
+                default:
+                    throw new FileSystemException('temporaryFileStore needs to be File/String/TemporaryFileStore')
+            }
+        }
+
+        boolean legacy = properties.legacyPluginLoader
+        boolean scanForVfsXml = legacy ?: properties.scanForVfsProviderXml
+        ProviderSpecification ps = ProviderSpecification.DEFAULT_PROVIDERS
+        if( properties.containsKey('ignoreDefaultProviders') && properties.ignoreDefaultProviders != false ) {
+            ps = new ProviderSpecification()
+            legacy = false
+            scanForVfsXml = false
+        }
+
+
+		fsMgr.init (
+            ps,
+            legacy,
+            scanForVfsXml,
+            tfs,
+            properties.replicator as FileReplicator,
+            vfslog,
+            properties.cacheStrategy as CacheStrategy,
+            properties.filesCache as FilesCache
+        )
+
+		defaultFSOptions = Util.buildOptions(properties,fsMgr) as FileSystemOptions
   	}
 
 	/**
 	 * Executes a sequence of operations on the same VFS
 	 */
-	def script = { Closure c ->
+    @CompileDynamic
+	def script ( Closure c ) {
 		def newc=c.clone()
 		newc.delegate=this
 		newc.call()
@@ -150,20 +231,21 @@ class VFS {
 	 * }	
 	 * 
 	 */
-	def ls ( properties=[:],uri,Closure c ) {
+    @CompileDynamic
+	def ls ( Map properties=[:],uri,Closure c ) {
 		assert properties != null
 		def children
 		def ruri=resolveURI(properties,uri)
-		boolean recurse = properties.containsKey('recursive') ? properties.recursive : false
+		boolean recurse = properties.containsKey('recursive') ? (properties['recursive'] as boolean): false
 		
 		if( properties.containsKey('filter') ) {
 			
 			def selector
-			def traverse = { fsi -> fsi.depth==0 || recurse }
+			def traverse = { FileSelectInfo fsi -> fsi.depth==0 || recurse }
 			switch (properties.filter) {
 				case Pattern :
 					selector = [
-						'includeFile' : { fsi -> fsi.file.name.baseName ==~ properties.filter },
+						'includeFile' : { FileSelectInfo fsi -> fsi.file.name.baseName ==~ properties.filter },
 						'traverseDescendents' : traverse
 					]
 					break
@@ -172,13 +254,13 @@ class VFS {
 					break
 				case Closure:
 					selector = [
-						'includeFile' : { fsi -> properties.filter.call(fsi) },
+						'includeFile' : { FileSelectInfo fsi -> (properties.filter as Closure).call(fsi) },
 						'traverseDescendents' : traverse
 					]
 					break
 				default:
 					selector = [
-						'includeFile' : { fsi -> fsi.file.name.baseName ==~ /"${properties.filter.toString()}"/ },
+						'includeFile' : { FileSelectInfo fsi -> fsi.file.name.baseName ==~ /"${properties.filter.toString()}"/ },
 						'traverseDescendents' : traverse
 					]
 			}
@@ -193,7 +275,7 @@ class VFS {
 		}
 		
 		if(c) {
-			def newc=c.clone()
+			Closure newc=c.clone()
 			newc.delegate=this
 			return children.collect { newc.call(it) }
 		} else {
@@ -206,7 +288,7 @@ class VFS {
 	 * @param uri
     *
 	 */
-	def ls ( properties=[:],uri ) { ls(properties,uri,null) }
+	def ls ( Map properties=[:],uri ) { ls(properties,uri,null) }
 	
 	/** Allows for the content of a local or remote file object to be read
      *
@@ -222,7 +304,7 @@ class VFS {
      * }
      * @endcode
      */
-	def cat ( properties=[:],uri,Closure c ) {
+	def cat ( Map properties=[:],uri,Closure c ) {
 		assert properties != null
         assert c != null
         FileObject fo=resolveURI(properties,uri)
@@ -238,11 +320,20 @@ class VFS {
 
 	/** Creates a folder on any VFS that allows this functionality
 	 * @param properties Any additional vfs properties
+     * @li intermediates. Set to false if intermediate folders should not be created.
 	 * @param uri Folder that needs to be created
 	 */
-	def mkdir ( properties=[:],uri ) {
+    @CompileDynamic
+	def mkdir ( Map properties=[:],uri ) {
 		assert properties != null
-		resolveURI(properties,uri).createFolder()
+		def fo= resolveURI(properties,uri)
+        if (properties.intermediates != null && properties.intermediates==false) {
+            def parent = fo.parent
+            if(!parent.exists()) {
+                throw new FileActionException("Cannot create directory - '${friendlyURI(parent)}' does not exist and intermediates==false")
+            }
+        }
+        fo.createFolder()
 	}
 
 	/** Copies files.
@@ -300,15 +391,15 @@ class VFS {
 	 * </table>
 	 *    
 	 */
-	def cp ( properties=[:],from,to ) {
+	def cp ( Map properties=[:],from,to ) {
 		assert properties != null
-		
-		CopyMoveOperations.copy(
+
+ 		CopyMoveOperations.copy(
 			resolveURI(properties,from),
 			resolveURI(properties,to),
-			properties.smash ?: false,
-			properties.overwrite ?: false,
-			properties.recursive ?: false,
+			properties.smash as boolean ?: false,
+			properties.overwrite as boolean  ?: false,
+			properties.recursive as boolean  ?: false,
 			properties.filter
 		)
 	}
@@ -359,15 +450,15 @@ class VFS {
 	 * </tr>
 	 * </table>
 	 */
-	def mv ( properties=[:],from,to ) {
+	def mv ( Map properties=[:],from,to ) {
 		assert properties != null
 		
 		CopyMoveOperations.move(
 			resolveURI(properties,from),
 			resolveURI(properties,to),
-			properties.smash ?: false,
-			properties.overwrite ?: false,
-            properties.intermediates ?: true
+			properties.smash as boolean?: false,
+			properties.overwrite as boolean ?: false,
+            properties.intermediates as boolean ?: true
 		)
 	}
 
@@ -388,6 +479,7 @@ class VFS {
      * 
      * @endcode
     */
+    @CompileDynamic
     def options( Closure cfgDSL ) {
         defaultFSOptions = new ConfigDelegator( fsManager : fsMgr, fsOpts : defaultFSOptions ) .bind (cfgDSL)
     }
@@ -405,27 +497,105 @@ class VFS {
      * 
      * @endcode
     */
-    def options( properties=[:] ) {
-        defaultFSOptions = Util.buildOptions(properties, fsMgr, defaultFSOptions)    
+    def options( Map properties=[:] ) {
+        defaultFSOptions = Util.buildOptions(properties, fsMgr, defaultFSOptions) as FileSystemOptions
     }
-    
-	def friendlyURI( FileObject uri ) {
+
+    /** Allows to additional scheme providers, operation providers, mime type maps and extension maps to be added
+     *
+     * @param providerDSL
+     * @return
+     */
+    def extend( Closure providerDSL ) {
+        new ProviderDelegator( fsManager : fsMgr ) .bind (providerDSL)
+    }
+
+    /** Returns a printable URI in which the password is masked
+     *
+     * @param uri
+     * @return
+     */
+    def friendlyURI( FileObject uri ) {
 		return uri.name.friendlyURI
 	}
-	
+
+    /** Returns a printable URI in which the password is masked
+     *
+     * @param uri
+     * @return
+     */
 	def friendlyURI( URI uri ) {
 		return friendlyURI(resolveURI(uri))
 	}
-	
+
+    /** Returns true if URI is a file.
+     *
+     */
+    boolean isFile(uri) {
+        resolveURI(uri).type == FileType.FILE
+    }
+
+    /** Returns true if URI is a folder.
+     *
+     */
+    boolean isFolder(uri) {
+        resolveURI(uri).type == FileType.FOLDER
+    }
+
+    /** Checks to see  if URI exists
+     *
+     */
+    boolean exists(uri) {
+        resolveURI(uri).exists()
+    }
+
+    /** Returns the last modified time of a URI
+     *
+     * @param uri
+     * @return Number of seconds since epoch
+     * @throw FileSystemException if URI does not exist.
+     */
+    long mtime(uri) {
+        try {
+            resolveURI(uri).content.lastModifiedTime
+        } catch( final org.apache.commons.vfs2.FileSystemException e) {
+            throw new FileSystemException(e)
+        }
+    }
+
+    /** Returns the logger instance that is used by this VFS
+     *
+     * @return
+     */
 	Log getLogger() {
 		fsMgr.loggerInstance()
 	}
-	
-	private def resolveURI (properties=[:],uri) {
+
+    @CompileDynamic
+	private FileObject resolveURI (Map properties=[:],uri) {
 		if (uri instanceof FileObject) {
 			properties.size() ?	Util.resolveURI(properties,fsMgr,uri.fileSystem.fileSystemOptions,uri.name.getURI()) : uri
 		} else {
 			Util.resolveURI(properties,fsMgr,defaultFSOptions,uri)
 		} 
 	}
+
+    /** Returns the type of URI - file_uri, folder_uri or non_existent_uri
+     *
+     * @param uri
+     * @return
+     */
+    private FileType type( URI uri ) {
+        this.type(resolveURI(uri))
+    }
+
+    /** Returns the type of URI - file_uri, folder_uri or non_existent_uri
+     *
+     * @param uri
+     * @return
+     */
+    private FileType type( FileObject uri ) {
+        uri.type
+    }
+
 }

@@ -1,0 +1,10 @@
+language: groovy
+script: ./gradlew clean build  -PbintrayUserName= -PbintrayApiKey --info
+jdk:
+ - oraclejdk7
+ - openjdk7
+os:
+ - linux
+ - osx
+env: TERM=dumb
+#after_success: ./gradlew coveralls -PbintrayUser= -PbintrayApiKey
