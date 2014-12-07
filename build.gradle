@@ -32,9 +32,10 @@ subprojects {
     buildscript {
         repositories {
             jcenter()
+            mavenLocal()
         }
         dependencies {
-            classpath 'org.ysb33r.gradle:bintray:1.5'
+            classpath 'org.ysb33r.gradle:bintray:1.6'
             classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.3'
 //            classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
         }

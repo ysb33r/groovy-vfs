@@ -1,14 +1,17 @@
 buildscript {
     repositories {
         jcenter()
+        mavenLocal()
+
     }
     dependencies {
-        classpath 'org.ysb33r.gradle:bintray:1.5'
+        classpath 'org.ysb33r.gradle:bintray:1.6'
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.3'
 //            classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
     }
 }
 
+//apply plugin: 'com.jfrog.bintray'
 apply plugin: 'org.ysb33r.bintray'
 
 import org.ysb33r.gradle.bintray.BintrayGenericUpload
@@ -23,9 +26,9 @@ if(bintrayRepo != 'grysb33r' ) {
         repoOwner   project.properties.bintrayUserName
         repoName    bintrayRepo
         packageName moduleName
-        tags bintrayTags
-        licenses bintrayLicense
-        vcsUrl 'https://github.com/ysb33r/groovy-vfs.git'
+        tags        bintrayTags
+        licenses    bintrayLicense
+        vcsUrl      'https://github.com/ysb33r/groovy-vfs.git'
         autoCreatePackage true
         updatePackage true
 

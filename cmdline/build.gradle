@@ -113,3 +113,13 @@ uploadArchives {
 
     dependsOn distZip, distTar, sourcesZip
 }
+
+//bintray {
+//    filesSpec { //When uploading any arbitrary files ('filesSpec' is a standard Gradle CopySpec)
+//        from distZip.outputs.files
+//        from distTar.outputs.files
+//        from sourcesZip.outputs.files
+////        into 'standalone_files/level1'
+////        rename '(.+)\\.(.+)', '$1-suffix.$2'
+//    }
+//}
