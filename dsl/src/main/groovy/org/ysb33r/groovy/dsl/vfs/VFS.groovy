@@ -595,7 +595,16 @@ class VFS {
 		return friendlyURI(resolveURI(uri))
 	}
 
-    /** Returns true if URI is a file.
+	/** Creates an unresolved {@code org.ysb33r.groovy.URI} object
+	 *
+	 * @param uriText
+	 * @return URI
+	 */
+	URI uri(CharSequence uriText) {
+		new URI(uriText.toString())
+	}
+
+	/** Returns true if URI is a file.
      *
      */
     boolean isFile(uri) {

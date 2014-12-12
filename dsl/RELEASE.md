@@ -8,6 +8,8 @@
 + [Allow cookies to be passed to http/https schemas](https://github.com/ysb33r/groovy-vfs/issues/10)
 
 ## 1.0 - Roadmap
++ [Send arbitrary content to a remote file](https://github.com/ysb33r/groovy-vfs/issues/39)
++ [uri keyword](https://github.com/ysb33r/groovy-vfs/issues/38)
 + [Add option to mkdir to not automatically create intermediate paths](https://github.com/ysb33r/groovy-vfs/issues/18)
 + Support for `mkdir`
 + `defaultProvider` will be ignored when constructing a `VFS` object. Use `provider` configuration closure instead.
