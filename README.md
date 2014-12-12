@@ -10,7 +10,6 @@ If you like it, then tweet about it using ```#groovyvfs``` as the hashtag.
 [ ![Download](https://api.bintray.com/packages/ysb33r/grysb33r/groovy-vfs/images/download.png) ](https://bintray.com/ysb33r/grysb33r/groovy-vfs/_latestVersion)
 
 ```groovy
-
 @Grapes([
 	@Grab( 'org.ysb33r.groovy:groovy-vfs:0.5' ),
 	@Grab( 'commons-net:commons-net:3.+' ), // If you want to use ftp 
@@ -61,7 +60,14 @@ vfs {
     
     // Download a compressed archive and unpack to local directory
     cp 'tbz2:ftp:/first.example/myFiles.tar.bz2", new File( '../unpack-here' ), recursive:true
-     
+
+    // Replace content of a file with text
+    overwrite 'ftp://first.example/myfile?vfs.ftp.passiveMode=1' with 'this text'
+    overwrite 'ftp://first.example/myfile?vfs.ftp.passiveMode=1', { strm -> strm << 'this text' }
+
+    // Append content to a file
+    append 'ftp://first.example/myfile?vfs.ftp.passiveMode=1' with 'this text'
+    append 'ftp://first.example/myfile?vfs.ftp.passiveMode=1', { strm -> strm << 'this text' }
 }
 ```
 

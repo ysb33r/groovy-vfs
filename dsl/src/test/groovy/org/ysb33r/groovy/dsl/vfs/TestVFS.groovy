@@ -248,4 +248,42 @@ import org.junit.Ignore
          assertEquals 0,vfs.mtime(file)
 
      }
-}
+
+	 @Test
+	 void EchoFromStringMustUpdateFile() {
+		 def vfs = new VFS()
+
+		 File dest = new File(testFsWriteRoot,'echo-file.txt')
+
+		 vfs {
+			 overwrite dest with 'test text'
+		 }
+
+		 assertEquals 'test text',dest.text
+
+		 vfs {
+			 append dest with ' more text'
+		 }
+
+		 assertEquals 'test text more text',dest.text
+	 }
+
+	 @Test
+	 void EchoFromClosureMustUpdateFile() {
+		 def vfs = new VFS()
+
+		 File dest = new File(testFsWriteRoot,'echo-file.txt')
+
+		 vfs {
+			 overwrite dest, { it << 'test text' }
+		 }
+
+		 assertEquals 'test text',dest.text
+
+		 vfs {
+			 append dest, { it << ' more text' }
+		 }
+
+		 assertEquals 'test text more text',dest.text
+	 }
+ }
