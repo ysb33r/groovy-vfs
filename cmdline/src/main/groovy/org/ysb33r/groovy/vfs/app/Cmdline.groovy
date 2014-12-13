@@ -243,7 +243,8 @@ class Cmdline {
                 b : [ text:'Like --backup=simple'],
                 longOpts : [
                     backup : [ args:1, argName:'CONTROL', optionalArg:true, text:'Backup behaviour. Optional arg:'],
-                    'strip-trailing-slashes' : [ text: 'Remove any trailing slashes from each srcURI']
+                    'strip-trailing-slashes' : [ text: 'Remove any trailing slashes from each srcURI'],
+                    parents : [ text : 'Make parent directories as needed']
                 ],
                 args,1,
                 'mv [OPTIONS] srcUri... destUri ','mv -t destUri srcUri...',
@@ -303,6 +304,7 @@ If you specify -T then only two URIs are allowed.'''
                    update : parseResult.opts.u,
                    overwrite : overwriteAction,
                    verbose : parseResult.opts.v,
+                   intermediates: parseResult.opts.parents,
                    interactive: (overwriteAction instanceof Closure)
            )
         }

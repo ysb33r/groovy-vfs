@@ -263,6 +263,20 @@ class CmdlineSpec extends Specification {
             ['--verbose',u1,u2]                || false | true
     }
 
+    def "mv --parents"() {
+        given:
+            Closure parser = cmdline.findParser(['mv'] as String[])
+
+        expect:
+            Mv cmd= parser(opts as String[]) as Mv
+            cmd?.intermediates                      == result
+
+        where:
+            opts                               || result
+            [u1,u2]                            || false
+            ['--parents',u1,u2]                || true
+    }
+
     def "mv --strip-trailing-slashes should update only src uris"() {
         given:
         Closure parser = cmdline.findParser(['mv'] as String[])

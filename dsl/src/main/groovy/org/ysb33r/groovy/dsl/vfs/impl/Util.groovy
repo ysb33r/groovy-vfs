@@ -71,7 +71,7 @@ class Util {
     @CompileDynamic
     static def buildOptions ( URI uri, FileSystemManager fsMgr, FileSystemOptions baseFSOpt=null ) {
         def fsOpt = baseFSOpt ? baseFSOpt.clone() : new FileSystemOptions()
-        uri.properties().each { scheme,options ->
+        uri.properties.each { scheme,options ->
             options.each { k,v ->
                 fsOpt = setOption( scheme,k,fsMgr,fsOpt, v)
             }

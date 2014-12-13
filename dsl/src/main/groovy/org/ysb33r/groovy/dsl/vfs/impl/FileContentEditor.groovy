@@ -11,7 +11,9 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.apache.commons.vfs2.FileContent
 import org.apache.commons.vfs2.FileObject
+import org.apache.commons.vfs2.FileType
 import org.apache.commons.vfs2.provider.AbstractFileSystem
+import org.ysb33r.groovy.dsl.vfs.FileActionException
 
 /**
  * Created by schalkc on 12/12/14.
@@ -24,6 +26,8 @@ class FileContentEditor {
     boolean append
 
     def with(CharSequence cs) {
+
+        assertNoDirectory()
         AbstractFileSystem afs= file.fileSystem as AbstractFileSystem
 
         try {
@@ -38,6 +42,8 @@ class FileContentEditor {
 
     @CompileDynamic
     def with(Closure cl) {
+
+        assertNoDirectory()
         AbstractFileSystem afs= file.fileSystem as AbstractFileSystem
 
         try {
@@ -51,6 +57,8 @@ class FileContentEditor {
     }
 
     def with(InputStream strm) {
+
+        assertNoDirectory()
         AbstractFileSystem afs= file.fileSystem as AbstractFileSystem
 
         try {
@@ -61,5 +69,11 @@ class FileContentEditor {
             afs.closeCommunicationLink()
         }
 
+    }
+
+    private void assertNoDirectory() {
+        if(file.type == FileType.FOLDER) {
+            throw new FileActionException("Cannot write data to ${file.name.friendlyURI} as it is a directory")
+        }
     }
 }

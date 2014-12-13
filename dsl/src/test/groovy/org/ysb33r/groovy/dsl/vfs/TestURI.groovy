@@ -62,7 +62,7 @@ class TestURI {
 		def u = new URI('ftp://127.0.0.1/path')
 		
 		assertEquals 'ftp://127.0.0.1/path',u.toString()
-		assertEquals 0,u.properties().size()
+		assertEquals 0,u.properties.size()
 	}
 
 	@Test
@@ -71,7 +71,7 @@ class TestURI {
 	
 		assertEquals 'ftp://127.0.0.1/path',u.toString()
 		
-		def p= u.properties()
+		def p= u.properties
 
 		assertEquals 1,p.size()
 		assertEquals 1,p.ftp.size()
@@ -79,7 +79,7 @@ class TestURI {
 
 		u = new URI('ftp://127.0.0.1/path?vfs.ftp.passiveMode=true&vfs.ftp.soTimeout=10')
 		
-		p= u.properties()
+		p= u.properties
 		assertEquals 1,p.size()
 		assertEquals 2,p.ftp.size()
 		assertEquals 'true',p.ftp.passiveMode
@@ -87,7 +87,7 @@ class TestURI {
 
 		u = new URI('ftp://127.0.0.1/path?vfs.ftp.passiveMode=true&vfs.ftp.soTimeout=10&vfs.sftp.userDirIsRoot=false')
 		
-		p= u.properties()
+		p= u.properties
 		assertEquals 2,p.size()
 		assertEquals 2,p.ftp.size()
 		assertEquals 'true',p.ftp.passiveMode
@@ -104,7 +104,7 @@ class TestURI {
 		
 		assertEquals new URIBuilder(u.toString()).query,new URIBuilder('ftp://127.0.0.1/path?large=5&small=3').query
 		
-		def p= u.properties()
+		def p= u.properties
 		assertEquals 1,p.size()
 		assertEquals 1,p.ftp.size()
 		assertEquals 'true',p.ftp.passiveMode
@@ -115,7 +115,7 @@ class TestURI {
 		def u = new URI('ftp://ysb33r:Password@127.0.0.1/path')
 		
 		assertEquals 'ftp://ysb33r:Password@127.0.0.1/path',u.toString()
-		assertEquals 0,u.properties().size()
+		assertEquals 0,u.properties.size()
 	}
 
 	@Test
@@ -123,26 +123,26 @@ class TestURI {
 		def u = new URI('ftp://ysb33r:{D7B82198B272F5C93790FEB38A73C7B8}@127.0.0.1/path')
 		
 		assertEquals 'ftp://ysb33r:{D7B82198B272F5C93790FEB38A73C7B8}@127.0.0.1/path',u.toString()
-		assertEquals 0,u.properties().size()
+		assertEquals 0,u.properties.size()
 
 		u = new URI('ftp://ysb33r:{D7B82198B272F5C93790FEB38A73C7B8}@127.0.0.1/path?abc=dec&vfs.ftp.passive=true#fragment')
 		
 		assertEquals 'ftp://ysb33r:{D7B82198B272F5C93790FEB38A73C7B8}@127.0.0.1/path?abc=dec#fragment',u.toString()
-		assertEquals 1,u.properties().size()
+		assertEquals 1,u.properties.size()
 	}
 
 	@Test
 	public void basicMultiComponentURIShouldRemain() {
 		def u = new URI('tar:gz:http://anyhost/dir/mytar.tar.gz!/mytar.tar!/path/in/tar/README.txt')
 		assertEquals 'tar:gz:http://anyhost/dir/mytar.tar.gz!/mytar.tar!/path/in/tar/README.txt',u.toString()
-		assertEquals 0,u.properties().size()
+		assertEquals 0,u.properties.size()
 	}
 
 	@Test
 	public void usingGroovyFileObjectShouldYieldFileURI() {
 		def f= new File('.')
 		def u= new URI(f)
-		assertEquals 0,u.properties().size()
+		assertEquals 0,u.properties.size()
 		assertEquals f.toURI().normalize().toString().replaceFirst('file:','file://'),u.toString()
 	}
 
@@ -150,7 +150,7 @@ class TestURI {
 	public void usingGroovyFileObjectWithSpaceShouldPass() {
 		def f= new File('filename with spaces')
 		def u= new URI(f)
-		assertEquals 0,u.properties().size()
+		assertEquals 0,u.properties.size()
 		assertEquals f.toURI().normalize().toString().replaceFirst('file:','file://'),u.toString()
 	}
 

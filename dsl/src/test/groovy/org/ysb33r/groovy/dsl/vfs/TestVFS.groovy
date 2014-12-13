@@ -249,41 +249,7 @@ import org.junit.Ignore
 
      }
 
-	 @Test
-	 void EchoFromStringMustUpdateFile() {
-		 def vfs = new VFS()
+	 // DO NOT ADD ANY MORE TESTS IN THIS FILE
+	 // USE VFSSpec.groovy INSTEAD
 
-		 File dest = new File(testFsWriteRoot,'echo-file.txt')
-
-		 vfs {
-			 overwrite dest with 'test text'
-		 }
-
-		 assertEquals 'test text',dest.text
-
-		 vfs {
-			 append dest with ' more text'
-		 }
-
-		 assertEquals 'test text more text',dest.text
-	 }
-
-	 @Test
-	 void EchoFromClosureMustUpdateFile() {
-		 def vfs = new VFS()
-
-		 File dest = new File(testFsWriteRoot,'echo-file.txt')
-
-		 vfs {
-			 overwrite dest, { it << 'test text' }
-		 }
-
-		 assertEquals 'test text',dest.text
-
-		 vfs {
-			 append dest, { it << ' more text' }
-		 }
-
-		 assertEquals 'test text more text',dest.text
-	 }
  }
