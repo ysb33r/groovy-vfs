@@ -21,7 +21,7 @@ buildscript {
 
 allprojects {
     ext {
-        versionModifier = 'beta1'
+        versionModifier = 'beta2-SNAPSHOT'
         versionNumber   = '1.0'
     }
     version = versionNumber + (versionModifier.size() ? "-${versionModifier}": '')

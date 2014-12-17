@@ -1,5 +1,5 @@
 // ============================================================================
-// (C) Copyright Schalk W. Cronje 2012-2013
+// (C) Copyright Schalk W. Cronje 2012-2014
 //
 // This software is licensed under the Apache License 2.0
 // See http://www.apache.org/licenses/LICENSE-2.0 for license details
@@ -22,6 +22,7 @@ import org.apache.commons.vfs2.CacheStrategy
 import org.apache.commons.vfs2.FileSelectInfo
 import org.apache.commons.vfs2.FilesCache
 import org.apache.commons.vfs2.provider.FileReplicator
+import org.ysb33r.groovy.dsl.vfs.impl.FileContentEditor
 import org.ysb33r.groovy.dsl.vfs.impl.StandardFileSystemManager
 
 import java.util.regex.Pattern
@@ -187,7 +188,7 @@ class VFS {
 	 * Executes a sequence of operations on the same VFS
 	 */
     @CompileDynamic
-	def script ( Closure c ) {
+	def script ( @DelegatesTo(VFS) Closure c ) {
 		def newc=c.clone()
 		newc.delegate=this
 		newc.call()
@@ -198,7 +199,7 @@ class VFS {
      * @param c
      * @return
      */
-    def call (Closure c) {script(c)}
+    def call ( @DelegatesTo(VFS) Closure c) {script(c)}
     
 	/**
 	 * If used without a closure it will return an of VFS FileObject[]. 
@@ -316,6 +317,72 @@ class VFS {
         finally {
             afs.closeCommunicationLink()
         }
+	}
+
+	/** Write content to a local or remote file object
+	 *
+	 * @param uri
+	 *
+	 * @return Proxy object which will take a 'with' keyword
+	 *
+	 * @code
+	 * vfs.overwrite 'file:///etc/resolv.conf' with 'Some text'
+	 * @endcode
+	 */
+	FileContentEditor overwrite( uri  ) {
+		assert uri != null
+		new FileContentEditor( resolveURI(uri),false )
+	}
+
+	/** Write content to a local or remote file object
+	 *
+	 * @param uri
+	 * @param c - Closure that takes an OutputStream as argument
+	 *
+	 * @return Result of overwrite
+	 *
+	 * @code
+	 * vfs.overwrite 'file:///etc/resolv.conf', { strm ->
+	 *   strm << 'Some text'
+	 * }
+	 * @endcode
+	 */
+	def overwrite( uri,Closure c ) {
+		assert uri != null
+		new FileContentEditor( resolveURI(uri),false ).with(c)
+	}
+
+	/** Appends content to a local or remote file object
+	 *
+	 * @param uri
+	 *
+	 * @return Proxy object which will take a 'with' keyword
+	 *
+	 * @code
+	 * vfs.append 'file:///etc/resolv.conf' with 'Some text'
+	 * @endcode
+	 */
+	FileContentEditor append ( uri  ) {
+		assert uri != null
+		new FileContentEditor( resolveURI(uri), true )
+	}
+
+	/** Write content to a local or remote file object
+	 *
+	 * @param uri
+	 * @param c - Closure that takes an OutputStream as argument
+	 *
+	 * @return Result of overwrite
+	 *
+	 * @code
+	 * vfs.append 'file:///etc/resolv.conf', { strm ->
+	 *   strm << 'Some text'
+	 * }
+	 * @endcode
+	 */
+	def append( uri,Closure c ) {
+		assert uri != null
+		new FileContentEditor( resolveURI(uri),true ).with(c)
 	}
 
 	/** Creates a folder on any VFS that allows this functionality
@@ -528,7 +595,16 @@ class VFS {
 		return friendlyURI(resolveURI(uri))
 	}
 
-    /** Returns true if URI is a file.
+	/** Creates an unresolved {@code org.ysb33r.groovy.URI} object
+	 *
+	 * @param uriText
+	 * @return URI
+	 */
+	URI uri(CharSequence uriText) {
+		new URI(uriText.toString())
+	}
+
+	/** Returns true if URI is a file.
      *
      */
     boolean isFile(uri) {
@@ -572,7 +648,7 @@ class VFS {
 	}
 
     @CompileDynamic
-	private FileObject resolveURI (Map properties=[:],uri) {
+	FileObject resolveURI (Map properties=[:],uri) {
 		if (uri instanceof FileObject) {
 			properties.size() ?	Util.resolveURI(properties,fsMgr,uri.fileSystem.fileSystemOptions,uri.name.getURI()) : uri
 		} else {

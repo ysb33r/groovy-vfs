@@ -86,9 +86,14 @@ class URI {
 	String toString() {
 		return uri
 	}
-	
-	def properties = { props } 
-	
+
+	/** Returns all of the parsed properties
+	 *
+	 * @return
+	 */
+	@CompileStatic
+	Map getProperties() {props as Map}
+
 	private URIBuilder removeAndUpdateVFSProperties (URIBuilder tmpuri) {
 		def q= tmpuri.query
 		def p=[:]

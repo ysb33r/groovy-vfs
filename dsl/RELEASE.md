@@ -6,14 +6,17 @@
 + [Create complex URIs with a closure](https://github.com/ysb33r/groovy-vfs/issues/11)
 + [Delete functionality](https://github.com/ysb33r/groovy-vfs/issues/9)
 + [Allow cookies to be passed to http/https schemas](https://github.com/ysb33r/groovy-vfs/issues/10)
++ [Add append to DSL for multiple files](https://github.com/ysb33r/groovy-vfs/issues/37)
 
 ## 1.0 - Roadmap
 + [Add option to mkdir to not automatically create intermediate paths](https://github.com/ysb33r/groovy-vfs/issues/18)
++ [Send arbitrary content to a remote file](https://github.com/ysb33r/groovy-vfs/issues/39)
++ [uri keyword](https://github.com/ysb33r/groovy-vfs/issues/38)
 + Support for `mkdir`
 + `defaultProvider` will be ignored when constructing a `VFS` object. Use `provider` configuration closure instead.
 
 ## 0.5
-+ Removed standalone use of InputStream when applying ```cat``.
++ Removed standalone use of InputStream when applying `cat`.
 + [Fix use of mavenRepo](https://github.com/ysb33r/groovy-vfs/issues/12)
 + [Fix MissingMethodException when uri was a FileObject and extra properties were provided](https://github.com/ysb33r/groovy-vfs/issues/16)
 + [Fix issue with connection not closing when using cat method](https://github.com/ysb33r/groovy-vfs/issues/15)

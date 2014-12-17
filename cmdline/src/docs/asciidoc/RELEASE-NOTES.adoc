@@ -24,7 +24,6 @@ Expect this version to have some bugs. Please raise defects on GitHub - https://
 * `--verbose` accepted, but not implemented https://github.com/ysb33r/groovy-vfs/issues/28[#28]
 * `--suffix`, `-b`  and `--backup` accepted, but not implemented. * `--verbose` accepted, but not implemented https://github.com/ysb33r/groovy-vfs/issues/29[#29]
 
-* Non-GNU option `--intermediates` might be added in future to support creation of intermediares. https://github.com/ysb33r/groovy-vfs/issues/35[#35]
 
 == cp
 * wildcards are not supported. `--x-filter` will be provided in a future release. https://github.com/ysb33r/groovy-vfs/issues/34[#34]

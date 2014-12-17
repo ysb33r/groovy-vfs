@@ -248,4 +248,8 @@ import org.junit.Ignore
          assertEquals 0,vfs.mtime(file)
 
      }
-}
+
+	 // DO NOT ADD ANY MORE TESTS IN THIS FILE
+	 // USE VFSSpec.groovy INSTEAD
+
+ }

@@ -156,14 +156,14 @@ class MvSpec extends Specification {
 
     def "Can move a file if destination is specified as a file and destination does not exist" () {
         given:
-        File from= new File(SRCROOT,'file1.txt')
-        File to=   new File(DESTROOT,'file1.txt')
-        Mv cmd = new Mv(
-                sources : [ new vfsURI( from )  ],
-                destination : new vfsURI( to ),
-                overwrite : true,
-                targetIsFile : true
-        )
+            File from= new File(SRCROOT,'file1.txt')
+            File to=   new File(DESTROOT,'file1.txt')
+            Mv cmd = new Mv(
+                    sources : [ new vfsURI( from )  ],
+                    destination : new vfsURI( to ),
+                    overwrite : true,
+                    targetIsFile : true
+            )
 
         when:
             cmd.run(vfs)
@@ -172,4 +172,49 @@ class MvSpec extends Specification {
             !from.exists()
             to.exists()
     }
+
+    def "When file is moved, but intermediaries do not exist, throw an exception"() {
+        given:
+            File from= new File(SRCROOT,'test-subdir/file3.txt')
+            File to=   new File( DESTROOT,'test-subdir/file3.txt')
+            Mv cmd = new Mv(
+                    sources : [ new vfsURI( from )  ],
+                    destination : new vfsURI( DESTROOT ),
+                    overwrite : true,
+                    targetIsFile : true
+            )
+            assert from.exists()
+            assert !to.exists()
+
+        when:
+            cmd.run(vfs)
+
+        then:
+            thrown(FileActionException)
+            from.exists()
+    }
+
+    def "When file is moved and intermediates is true, but intermediaries do not exist, create intermediaries"() {
+        given:
+            File from= new File(SRCROOT,'test-subdir/file3.txt')
+            File to=   new File( DESTROOT,'test-subdir/file3.txt')
+            Mv cmd = new Mv(
+                    sources : [ new vfsURI( from )  ],
+                    destination : new vfsURI( to ),
+                    overwrite : true,
+                    targetIsFile : true,
+                    intermediates : true
+            )
+            assert from.exists()
+            assert !to.exists()
+
+        when:
+            cmd.run(vfs)
+
+        then:
+            !from.exists()
+            to.exists()
+
+    }
+
 }
