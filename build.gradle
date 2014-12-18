@@ -21,7 +21,7 @@ buildscript {
 
 allprojects {
     ext {
-        versionModifier = 'beta2-SNAPSHOT'
+        versionModifier = 'beta2'
         versionNumber   = '1.0'
     }
     version = versionNumber + (versionModifier.size() ? "-${versionModifier}": '')
@@ -43,7 +43,7 @@ subprojects {
 
     ext {
         vfsVersion       = '2.0'
-        groovyVer        = '[2.1,2.3.99]'
+        groovyVer        = '[2.1,2.3.8]'
         bintrayRepo      = 'grysb33r'
         bintrayUser      = 'ysb33r'
         bintrayLicense   = 'Apache-2.0'
