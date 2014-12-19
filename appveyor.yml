@@ -10,4 +10,7 @@ branches:
   only:
     - master
     - development
-  
+
+artifacts:
+  - path: groovy-vfs\cloud-provider-core\build\reports\tests  
+  - name: Cloud-provider-core
