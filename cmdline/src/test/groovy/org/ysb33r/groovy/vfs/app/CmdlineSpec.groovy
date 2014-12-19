@@ -33,8 +33,10 @@ class CmdlineSpec extends Specification {
     }
 
     def "A non-scheme URI should convert to a file: URI"() {
+        given:
+            def root = new org.ysb33r.groovy.dsl.vfs.URI( new File('/'))
         expect:
-            cmdline.buildURIs( ['/a/file'] )[0].toString() == 'file:///a/file'
+            cmdline.buildURIs( ['/a/file'] )[0].toString() == root.toString() + 'a/file'
     }
 
     def "No command-line parameters should display error msg and exit"() {
