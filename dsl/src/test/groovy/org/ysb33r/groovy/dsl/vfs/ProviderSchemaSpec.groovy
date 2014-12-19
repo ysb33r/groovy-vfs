@@ -32,7 +32,7 @@ class ProviderSchemaSpec extends Specification  {
         then:
             !vfs.fsMgr.hasProvider('file')
             !vfs.fsMgr.hasProvider('zip')
-            vfs.fsMgr.resolveFile('ftp://build.gradle')
+            vfs.fsMgr.resolveFile('ftp://build/gradle')
 
     }
 
