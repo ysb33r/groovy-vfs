@@ -43,7 +43,7 @@ subprojects {
 
     ext {
         vfsVersion       = '2.0'
-        groovyVer        = '[2.1,2.3.8]'
+        groovyVer        = '[2.1,2.3.9]'
         bintrayRepo      = 'grysb33r'
         bintrayUser      = 'ysb33r'
         bintrayLicense   = 'Apache-2.0'
