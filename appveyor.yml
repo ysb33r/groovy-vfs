@@ -4,13 +4,13 @@ build:
   verbosity: detailed
 
 build_script:
-  - gradlew.bat build
+  - gradlew.bat build --info
 
 branches:
   only:
     - master
     - development
 
-artifacts:
-  - path: groovy-vfs\cloud-provider-core\build\reports\tests  
-    name: Cloud-provider-core
+after_build:
+  - ps: $wc = New-Object 'System.Net.WebClient'
+  - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/xunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\groovy-vfs\cloud-provider-core\build\test-results\TEST-org.ysb33r.groovy.vfsplugin.cloud.s3.S3Spec.xml))
