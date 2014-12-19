@@ -11,6 +11,6 @@ branches:
     - master
     - development
 
-after_build:
+on_finish:
   - ps: $wc = New-Object 'System.Net.WebClient'
   - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/xunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\groovy-vfs\cloud-provider-core\build\test-results\TEST-org.ysb33r.groovy.vfsplugin.cloud.s3.S3Spec.xml))
