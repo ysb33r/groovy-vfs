@@ -29,21 +29,29 @@ test {
     systemProperties 'SMBPORT' : 1139
     systemProperties 'TESTFSWRITEROOT' : new File(projectDir,'build/tmp').absolutePath
     systemProperties 'ROOT' : projectDir.absolutePath
+
+
+    doFirst {
+        copy {
+            from (new File(projectDir,'src/test/resources')) {
+                include 'jlanserver.xml'
+                filter(ReplaceTokens,tokens:[PROJECTDIR:projectDir.absolutePath])
+            }
+            into new File(buildDir,'tmp')
+        }
+    }
+}
+
+// If operating system is Windows add jni path
+if(org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+    test.environment 'PATH', test.getEnvironment()['PATH'] + ';' + new File(buildDir,'alfresco/jni').absolutePath
 }
 
 compileTestGroovy {
     dependsOn ':jlan:jar'
 }
 
-test.doFirst {
-    copy {
-        from (new File(projectDir,'src/test/resources')) {
-            include 'jlanserver.xml'
-            filter(ReplaceTokens,tokens:[PROJECTDIR:projectDir.absolutePath])
-        }
-        into new File(buildDir,'tmp')
-    }
-}
+
 
 apply from : '../gradle/publish.gradle'
 
