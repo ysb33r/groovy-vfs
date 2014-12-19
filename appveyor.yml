@@ -13,4 +13,4 @@ branches:
 
 artifacts:
   - path: groovy-vfs\cloud-provider-core\build\reports\tests  
-  - name: Cloud-provider-core
+    name: Cloud-provider-core
