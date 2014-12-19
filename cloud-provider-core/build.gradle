@@ -44,8 +44,8 @@ test {
 
     systemProperties 'TESTFSREADROOT'  : new File(projectDir,'src/test/resources/test-files').absolutePath
     systemProperties 'TESTFSWRITEROOT' : new File(buildDir,'tmp').absolutePath
-    systemProperties 'S3ID'            : project.properties.AWSAccessKeyId
-    systemProperties 'S3KEY'           : project.properties.AWSSecretKey
+    systemProperties 'S3ID'            : project.properties.AWSAccessKeyId ?: 'FOO'
+    systemProperties 'S3KEY'           : project.properties.AWSSecretKey ?: 'BAR'
     systemProperties 'S3BUCKET'        : 'groovy-vfs-test-bucket'
 
 //    if(gradle.startParameter.isOffline()) {
