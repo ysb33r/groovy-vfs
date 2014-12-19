@@ -29,8 +29,6 @@ test {
     systemProperties 'SMBPORT' : 1139
     systemProperties 'TESTFSWRITEROOT' : new File(projectDir,'build/tmp').absolutePath
     systemProperties 'ROOT' : projectDir.absolutePath
-
-
     doFirst {
         copy {
             from (new File(projectDir,'src/test/resources')) {
@@ -40,11 +38,11 @@ test {
             into new File(buildDir,'tmp')
         }
     }
-}
 
-// If operating system is Windows add jni path
-if(org.gradle.internal.os.OperatingSystem.current().isWindows()) {
-    test.environment 'PATH', test.getEnvironment()['PATH'] + ';' + new File(buildDir,'alfresco/jni').absolutePath
+    // If operating system is Windows add jni path - apprantly this is a knwon issue with JLAN under Windows
+    if(org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+        systemProperties 'java.library.path' : "{System.getProperty('java.library.path')};${new File(buildDir,'alfresco/jni').absolutePath}"
+    }
 }
 
 compileTestGroovy {
