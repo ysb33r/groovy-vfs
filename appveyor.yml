@@ -5,3 +5,9 @@ build:
 
 build_script:
   - gradlew.bat build
+
+branches:
+  only:
+    - master
+    - development
+  
