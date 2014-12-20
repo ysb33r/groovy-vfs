@@ -1,18 +1,16 @@
 version: "{branch} {build}"
 
-
-
 build:
   verbosity: detailed
 
 build_script:
-  - gradlew.bat build --info
+  - gradlew.bat assemble --info
+
+test_script:
+  - gradlew.bat check --info
 
 branches:
   only:
     - master
     - development
 
-artifacts:
-  - path: '**\build\reports\tests'
-    name: 'JUnit'
