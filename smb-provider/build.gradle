@@ -41,7 +41,7 @@ test {
 
     // If operating system is Windows add jni path - apprantly this is a knwon issue with JLAN under Windows
     if(org.gradle.internal.os.OperatingSystem.current().isWindows()) {
-        systemProperties 'java.library.path' : "{System.getProperty('java.library.path')};${new File(buildDir,'alfresco/jni').absolutePath}"
+        systemProperties 'java.library.path' : "${System.getProperty('java.library.path')};${new File(project(':jlan').buildDir,'alfresco/jni').absolutePath}"
     }
 }
 
@@ -52,4 +52,3 @@ compileTestGroovy {
 
 
 apply from : '../gradle/publish.gradle'
-
