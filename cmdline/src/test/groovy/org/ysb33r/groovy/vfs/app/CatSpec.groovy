@@ -30,8 +30,11 @@ class CatSpec extends Specification {
         capture.close()
     }
 
+    static String filtered(final str) {
+        str.replaceAll(/\r\n/,"\n")
+    }
     static String filtered(OutputStream strm) {
-        strm.toString().replaceAll(/\r\n/,"\n")
+        filtered(strm.toString())
     }
 
     def "Cat a local file without options" () {
@@ -45,7 +48,7 @@ class CatSpec extends Specification {
             cmd.run(vfs)
 
         then:
-            filtered(capture) == testfile.text
+            filtered(capture) == filtered(testfile.text)
     }
 
     def "Cat a local file and number all lines" () {
@@ -59,7 +62,7 @@ class CatSpec extends Specification {
             cmd.run(vfs)
 
         then:
-            filtered(capture) == new File(EXPECTEDROOT,'file1-numbered.txt').text
+            filtered(capture) == filtered(new File(EXPECTEDROOT,'file1-numbered.txt').text)
     }
 
     def "Cat two local files and number all lines, restarting with every file" () {
@@ -73,7 +76,7 @@ class CatSpec extends Specification {
             cmd.run(vfs)
 
         then:
-            filtered(capture) == new File(EXPECTEDROOT,'file1-file2-numbered.txt').text
+            filtered(capture) == filtered(new File(EXPECTEDROOT,'file1-file2-numbered.txt').text)
     }
 
     def "Cat a local file and number non-blank lines (with last line not blank)" () {
@@ -87,7 +90,7 @@ class CatSpec extends Specification {
             cmd.run(vfs)
 
         then:
-            filtered(capture) == new File(EXPECTEDROOT,'file2-numbered-notblanks.txt').text
+            filtered(capture) == filtered(new File(EXPECTEDROOT,'file2-numbered-notblanks.txt').text)
     }
 
     def "Cat a local file and number non-blank lines (with last line blank)" () {
@@ -101,7 +104,7 @@ class CatSpec extends Specification {
             cmd.run(vfs)
 
         then:
-            filtered(capture) == new File(EXPECTEDROOT,'file4-numbered-notblanks.txt').text
+            filtered(capture) == filtered(new File(EXPECTEDROOT,'file4-numbered-notblanks.txt').text)
     }
 
 
@@ -116,7 +119,7 @@ class CatSpec extends Specification {
             cmd.run(vfs)
 
         then:
-            filtered(capture) == new File(EXPECTEDROOT,'file3-suppressed-repeating-blanks.txt').text
+            filtered(capture) == filtered(new File(EXPECTEDROOT,'file3-suppressed-repeating-blanks.txt').text)
     }
 
     def "Mark EOL in a local file" () {
@@ -130,7 +133,7 @@ class CatSpec extends Specification {
             cmd.run(vfs)
 
         then:
-            filtered(capture) == new File(EXPECTEDROOT,'file1-with-eol-markers.txt').text
+            filtered(capture) == filtered(new File(EXPECTEDROOT,'file1-with-eol-markers.txt').text)
     }
 
     def "Show tabs in a local file" () {
@@ -144,7 +147,7 @@ class CatSpec extends Specification {
             cmd.run(vfs)
 
         then:
-            filtered(capture) == new File(EXPECTEDROOT,'file5-show-tabs.txt').text
+            filtered(capture) == filtered(new File(EXPECTEDROOT,'file5-show-tabs.txt').text)
     }
 
     def "Show non-printing characters (excluding LF and TAB) in a local file" () {
@@ -158,6 +161,6 @@ class CatSpec extends Specification {
             cmd.run(vfs)
 
         then:
-            filtered(capture) == new File(EXPECTEDROOT,'file6-show-non-printing.txt').text
+            filtered(capture) == filtered(new File(EXPECTEDROOT,'file6-show-non-printing.txt').text)
     }
 }
