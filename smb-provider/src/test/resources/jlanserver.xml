@@ -20,27 +20,27 @@
       <bindto>127.0.0.1</bindto>
       <Win32NetBIOS/>
       <Win32Announce interval="5"/>
-      
+
       <!-- Requires running the server using the root account -->
 <!--      <netBIOSSMB platforms="linux,macosx,solaris"/>
       <tcpipSMB platforms="linux,macosx,solaris"/>
 -->
       <!-- To run the server using a non-root account on linux, Mac OS X, Solaris -->
-      <netBIOSSMB sessionPort="1139" namePort="1137" datagramPort="1138" platforms="linux,macosx,solaris"/>
-      <tcpipSMB port="1445" platforms="linux,macosx,solaris"/>
+      <netBIOSSMB sessionPort="1139" namePort="1137" datagramPort="1138" platforms="linux,macosx,solaris,windows"/>
+      <tcpipSMB port="1445" platforms="linux,macosx,solaris,windows"/>
 
       <hostAnnounce interval="5"/>
     </host>
     <sessionDebug flags="Negotiate,Socket,Tree"/>
 <!--    <netbiosDebug/> -->
 <!--    <announceDebug/> -->
-    
+
 		<authenticator type="enterprise">
 			<mode>USER</mode>
 			<NOallowGuest/>
       <Debug/>
 		</authenticator>
-    
+
   </SMB>
 
   <FTP>
@@ -48,7 +48,7 @@
     <allowAnonymous/>
     <debug flags="File,Search,Error,DataPort,Directory"/>
   </FTP>
-	
+
   <NFS>
     <enablePortMapper/>
     <debug flags="File,FileIO"/>
