@@ -5,6 +5,7 @@ A DSL for Groovy to wrap around the Apache VFS libraries.
 If you like it, then tweet about it using ```#groovyvfs``` as the hashtag.
 
 image:http://img.shields.io/travis/ysb33r/groovy-vfs/master.svg["Build Status", link="https://travis-ci.org/asciidoctor/groovy-vfs"]
+image:https://ci.appveyor.com/api/projects/status/github/ysb33r/groovy-vfs?svg=true["Windows Build Status", link="https://ci.appveyor.com/project/ysb33r/groovy-vfs"]
 
 == Groovy Library
 
