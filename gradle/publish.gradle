@@ -6,8 +6,7 @@ buildscript {
     }
     dependencies {
         classpath 'org.ysb33r.gradle:bintray:1.6'
-        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.3'
-//            classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
     }
 }
 
@@ -40,7 +39,7 @@ if(bintrayRepo != 'grysb33r' ) {
 
 } else {
     apply plugin : 'maven'
-    apply plugin: 'artifactory' // 'com.jfrog.artifactory'
+    apply plugin: 'com.jfrog.artifactory'
 
     install {
         repositories.mavenInstaller {
