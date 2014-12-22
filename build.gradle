@@ -36,8 +36,7 @@ subprojects {
         }
         dependencies {
             classpath 'org.ysb33r.gradle:bintray:1.6'
-            classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.3'
-//            classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
+            classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
         }
     }
 
