@@ -4,10 +4,10 @@ build:
   verbosity: detailed
 
 build_script:
-  - gradlew.bat assemble --info
+  - gradlew.bat assemble --info --no-daemon
 
 test_script:
-  - gradlew.bat check --info
+  - gradlew.bat check --info --no-daemon
 
 branches:
   only:
@@ -16,4 +16,5 @@ branches:
 
 cache:
   - C:\Users\appveyor\.gradle
+  - .gradle
 
