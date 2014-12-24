@@ -92,6 +92,20 @@ configure(subprojects.findAll {it.name != 'jlan'}) {
         from javadoc
     }
 
+    task installApiDocs( type : Copy ) {
+        group 'documentation'
+        description 'Copy groovydocs to an install directory'
+        dependsOn 'groovydoc'
+
+        from ({new File(buildDir,'docs/groovydoc')}) {
+            include '**'
+        }
+
+        into { "${project.properties.groovyVfsApiInstallDir}/${version}/${project.name}" }
+
+        onlyIf {project.name != 'cmdline' && project.hasProperty('groovyVfsApiInstallDir')}
+    }
+
     artifacts {
         archives sourcesJar, javadocJar
     }
