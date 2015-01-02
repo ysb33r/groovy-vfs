@@ -55,7 +55,7 @@ subprojects {
 
 }
 
-configure(subprojects.findAll {it.name != 'jlan'}) {
+configure(subprojects.findAll {it.name != 'jlan' && it.name != 'test-servers'}) {
 
     apply plugin: 'groovy'
     apply plugin: 'maven'

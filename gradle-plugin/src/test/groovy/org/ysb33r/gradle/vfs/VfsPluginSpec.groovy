@@ -21,7 +21,7 @@ import org.apache.commons.vfs2.provider.ftp.FtpFileSystemConfigBuilder
 import org.apache.commons.vfs2.FileSystemOptions
 import org.ysb33r.groovy.dsl.vfs.URI
 
-class VfsSpec extends spock.lang.Specification {
+class VfsPluginSpec extends spock.lang.Specification {
     File testFsReadOnlyRoot = new File("${System.getProperty('TESTFSREADROOT')}/src/test/resources/test-files")
     String testFsURI = new URI(testFsReadOnlyRoot).toString()
     File testFsWriteRoot= new File( "${System.getProperty('TESTFSWRITEROOT') ?: 'build/tmp/test-files'}/file")
