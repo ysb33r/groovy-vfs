@@ -14,6 +14,10 @@ import groovy.transform.CompileStatic
 import org.apache.commons.vfs2.FileName
 import org.apache.commons.vfs2.FileObject
 
+/** Holds a URI that has not been located on the virtual file system
+ *
+ * @author Schalk W. Cronjé
+ */
 @EqualsAndHashCode
 class URI {
 	
@@ -80,19 +84,41 @@ class URI {
 	 */
 	URI ( FileName f ) {
 		uri= f.getURI()
-	} 
-	
-	@TypeChecked
+	}
+
+	@CompileStatic
 	String toString() {
 		return uri
 	}
 
 	/** Returns all of the parsed properties
 	 *
-	 * @return
+	 * @return a map in
 	 */
 	@CompileStatic
-	Map getProperties() {props as Map}
+	Map<String,Map<String,Object>> getProperties() {props as Map}
+
+	/** Add extra VFS properties. Any non-matching properties will be ignored.
+	 *
+	 * @param properties
+	 * @since 1.0
+	 */
+	URI addProperties(Map<String,Object> properties) {
+		properties.each { String k,Object v ->
+			if(k ==~ /^(?i:vfs\..+\..+)/) {
+				String schemeAndName = k[4..-1]
+				int splitPos = schemeAndName.indexOf('.')
+				String scheme = schemeAndName[0..(splitPos - 1)].toLowerCase()
+				String name = schemeAndName[(splitPos + 1)..-1]
+				if (!props."${scheme}") {
+					props[scheme] = [:]
+				}
+
+				props."${scheme}"."${name}" = v
+			}
+		}
+		this
+	}
 
 	private URIBuilder removeAndUpdateVFSProperties (URIBuilder tmpuri) {
 		def q= tmpuri.query
@@ -107,18 +133,7 @@ class URI {
 			tmpuri.setQuery (q - p)
 			
 			if(p) {
-				p.each { k,v ->
-					def schemeAndName= k[4..-1]
-					def splitPos=schemeAndName.indexOf('.')
-					def scheme=schemeAndName[0..(splitPos-1)].toLowerCase()
-					def name=schemeAndName[(splitPos+1)..-1]
-					if (!props."${scheme}") {
-						props[scheme] = [:]
-					}
-					 
-					props."${scheme}"."${name}" = v
-					
-				}				
+				addProperties(p)
 			}
 		}
 	
@@ -132,7 +147,7 @@ class URI {
 		}
 	}
 	
-	private def props = [:]
+	private Map<String,Map<String,Object>> props = [:]
 	private String uri
 	  
 	//public getFriendlyURI()

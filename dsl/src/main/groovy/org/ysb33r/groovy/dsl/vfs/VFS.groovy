@@ -19,6 +19,7 @@ package org.ysb33r.groovy.dsl.vfs
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.apache.commons.vfs2.CacheStrategy
+import org.apache.commons.vfs2.FileName
 import org.apache.commons.vfs2.FileSelectInfo
 import org.apache.commons.vfs2.FilesCache
 import org.apache.commons.vfs2.provider.FileReplicator
@@ -604,28 +605,48 @@ class VFS {
 		new URI(uriText.toString())
 	}
 
-	/** Returns true if URI is a file.
+	/** Checks if URI is a file.
+	 * This will resolve the URI on the virtual file system.
+	 *
+	 * @param uri
+	 * @return {@code True} is URI is a folder
      *
      */
     boolean isFile(uri) {
         resolveURI(uri).type == FileType.FILE
     }
 
-    /** Returns true if URI is a folder.
-     *
+    /** Checks if URI is a folder.
+	 * This will resolve the URI on the virtual file system.
+	 *
+	 * @param uri
+	 * @return {@code True} is URI is a folder
      */
     boolean isFolder(uri) {
         resolveURI(uri).type == FileType.FOLDER
     }
 
-    /** Checks to see  if URI exists
-     *
+    /** Checks to see if URI exists.
+     * This will resolve the URI on the virtual file system.
+	 *
+	 * @param uri
+	 * @return {@code True} is URI exists
      */
     boolean exists(uri) {
         resolveURI(uri).exists()
     }
 
-    /** Returns the last modified time of a URI
+	/** Checks to see if URI if local
+	 * I
+	 * @return {@code True} if URI is a local file URI.
+	 * @since 1.0
+	 */
+	@CompileDynamic
+	boolean local(uri) {
+		Util.localURI(uri,fsMgr)
+	}
+
+	/** Returns the last modified time of a URI
      *
      * @param uri
      * @return Number of seconds since epoch
@@ -647,6 +668,13 @@ class VFS {
 		fsMgr.loggerInstance()
 	}
 
+	/** Resolves a URI..
+	 * This involves locating it on the virtual file system and potential network traffic.
+	 *
+	 * @param properties
+	 * @param uri
+	 * @return An implementation dependent object
+	 */
     @CompileDynamic
 	FileObject resolveURI (Map properties=[:],uri) {
 		if (uri instanceof FileObject) {
@@ -656,7 +684,22 @@ class VFS {
 		} 
 	}
 
-    /** Returns the type of URI - file_uri, folder_uri or non_existent_uri
+	/** Stages a URI to see if it can be resolved, but does not locate it on the virtual file system.
+	 * Does not invoke network traffic.
+	 *
+	 * @param properties
+	 * @param uri
+	 * @return An implementation dependent object
+	 * @since 1.0
+	 */
+	@CompileDynamic
+	URI stageURI (Map properties=[:],def uri) {
+		URI u = new URI(uri)
+		Util.validURI(u,fsMgr)
+		u.addProperties(properties)
+	}
+
+	/** Returns the type of URI - file_uri, folder_uri or non_existent_uri
      *
      * @param uri
      * @return

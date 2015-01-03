@@ -15,9 +15,11 @@ package org.ysb33r.groovy.dsl.vfs.impl
 
 import groovy.transform.CompileDynamic
 import org.apache.commons.logging.Log
+import org.apache.commons.vfs2.FileName
 import org.apache.commons.vfs2.FileSystemOptions
 import org.apache.commons.vfs2.FileObject
 import org.apache.commons.vfs2.FileSystemManager
+import org.ysb33r.groovy.dsl.vfs.FileSystemException
 import org.ysb33r.groovy.dsl.vfs.OptionException
 import org.ysb33r.groovy.dsl.vfs.URI;
 import groovy.transform.CompileStatic
@@ -32,6 +34,7 @@ class Util {
 	 * @param fsMgr Apache VFS FileSystemManager instance
 	 * @param defaultFSOptions Default filesystem options that is used as a baseline
 	 * @param uri URI instance or something that can be converted to a URI
+     * @return Returns an implementation-dependent VFS-located object (currently {@code org.apache.commons.vfs2.FileObject}).
 	 */
     @CompileDynamic
 	static FileObject resolveURI (Map properties=[:],FileSystemManager fsMgr,FileSystemOptions defaultFSOptions,def uri) {
@@ -48,6 +51,7 @@ class Util {
 	 * @param options 
 	 * @param fsMgr File system manager
 	 * @param baseFSOpt If supplied this is used as the initial file system options
+     * @return An implementation-dependent object of options (current @{code org.apache.commons.vfs2.FileSystemOptions}).
 	 */
     @CompileDynamic
 	static def buildOptions (Map options,FileSystemManager fsMgr, FileSystemOptions baseFSOpt=null) {
@@ -67,6 +71,7 @@ class Util {
      * @param uri URI object
      * @param fsMgr File system manager
      * @param baseFSOpt If supplied this is used as the initial file system options
+     * @return An implementation-dependent object of options (current @{code org.apache.commons.vfs2.FileSystemOptions}).
      */
     @CompileDynamic
     static def buildOptions ( URI uri, FileSystemManager fsMgr, FileSystemOptions baseFSOpt=null ) {
@@ -78,13 +83,95 @@ class Util {
         }
         return fsOpt
     }
-    
+
+    /** Checks whether the URI is valid within the context of the given file system manager.
+     *
+     * @param uri URI instance to be checked
+     * @param fsMgr File system manager
+     * @return An implementation-dependent type if the URI if valid
+     * @throw FileSystemException if not valid
+     */
+    static FileName validURI(URI uri,FileSystemManager fsMgr) {
+        fsMgr.resolveURI(uri.toString())
+    }
+
+    /** Checks whether the scheme is considered to be a local file system
+     *
+     * @param scheme Schemt o be checked
+     * @return {@code True} if local filesystem scheme
+     * @since 1.0
+     */
+    static boolean localScheme(final String scheme) {
+        scheme == 'file'
+    }
+
+
+    /** Checks whether the URI is local within the context of the given file system manager.
+     *
+     * @param uri URI instance to be checked
+     * @param fsMgr File system manager
+     * @return An implementation-dependent type if the URI if valid
+     * @since 1.0
+     */
+    static boolean localURI(FileObject uri,FileSystemManager fsMgr) {
+        localScheme(uri.name.scheme)
+    }
+
+    /** Checks whether the URI is local within the context of the given file system manager.
+     *
+     * @param uri URI instance to be checked
+     * @param fsMgr File system manager
+     * @return An implementation-dependent type if the URI if valid
+     * @since 1.0
+     */
+    static boolean localURI(FileName uri,FileSystemManager fsMgr) {
+        localScheme(uri.scheme)
+    }
+
+    /** Checks whether the URI is local within the context of the given file system manager.
+     *
+     * @param uri URI instance to be checked
+     * @param fsMgr File system manager
+     * @return An implementation-dependent type if the URI if valid
+     * @throw FileSystemException if not valid
+     * @since 1.0
+     */
+    static boolean localURI(URI uri,FileSystemManager fsMgr) {
+        localURI(validURI(uri,fsMgr),fsMgr)
+    }
+
+    /** Checks whether the URI is local within the context of the given file system manager.
+     *
+     * @param uri URI instance to be checked
+     * @param fsMgr File system manager
+     * @return An implementation-dependent type if the URI if valid
+     * @throw FileSystemException if not valid
+     * @since 1.0
+     */
+    static boolean localURI(File uri,FileSystemManager fsMgr) {
+        localURI(validURI(new URI(uri),fsMgr),fsMgr)
+    }
+
+    /** Checks whether the URI is local within the context of the given file system manager.
+     *
+     * @param uri URI instance to be checked
+     * @param fsMgr File system manager
+     * @return An implementation-dependent type if the URI if valid
+     * @throw FileSystemException if not valid
+     * @since 1.0
+     */
+    static boolean localURI(CharSequence uri,FileSystemManager fsMgr) {
+        localURI(validURI(new URI(uri.toString()),fsMgr),fsMgr)
+    }
+
+
     /** Sets a single option on a FileSystemOptions instance
      * @param scheme The ip scheme to set the option on i.e. 'ftp'
      * @param opt The specific option to set i.e. 'passiveMode'
      * @param fsMgr The current virtual file system instance that is in use
      * @param fsOpt The file system options instance associated with the VFS that needs updating
      * @param v The object value that the option needs to be updated to
+     * @return An implementation-dependent object of options (current @{code org.apache.commons.vfs2.FileSystemOptions}).
      */
     @CompileDynamic
     static def setOption ( String scheme, String opt, FileSystemManager fsMgr, FileSystemOptions fsOpt,  v ) {
