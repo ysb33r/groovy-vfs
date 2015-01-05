@@ -88,4 +88,5 @@ class VFSSpec extends Specification {
         then:
             thrown(FileActionException)
     }
+
 }

@@ -1,6 +1,7 @@
 package org.ysb33r.gradle.vfs.internal
 
 import groovy.transform.CompileStatic
+import org.ysb33r.gradle.vfs.VfsCopySource
 import org.ysb33r.gradle.vfs.VfsURI
 import org.ysb33r.gradle.vfs.VfsURICollection
 import org.ysb33r.groovy.dsl.vfs.VFS
@@ -31,13 +32,31 @@ class UriUtils {
      * @param opts Vfs and praxis options
      * @param vfs The VFS to stage against.
      * @param uri List of URIs to stage
-     * @return List of resolved URIs
+     * @return List of staged URIs
      */
     static VfsURICollection uriWithOptions( Map<String,Object> opts, VFS vfs, List<Object> uris) {
         VfsURICollection collection = emptyURICollection()
 
         uris.each {
             collection.add(uriWithOptions(opts,vfs,it))
+        }
+
+        collection
+    }
+
+    /** Takes a list of {@link VfsCopySource}  and stages them in the context of a VFS.
+     * All supplied options will applied as far as
+     * possible. Non-VFS options will be added as praxis options.
+     *
+     * @param vfs The VFS to stage against.
+     * @param copySources List of {@link VfsCopySource} instances to convert.
+     * @return List of staged URIs
+     */
+    static VfsURICollection uriWithOptions( VFS vfs, List<VfsCopySource> copySources) {
+        VfsURICollection collection = emptyURICollection()
+
+        copySources.each { VfsCopySource it ->
+            collection.add(uriWithOptions(it.options.optionMap,vfs,it.source))
         }
 
         collection

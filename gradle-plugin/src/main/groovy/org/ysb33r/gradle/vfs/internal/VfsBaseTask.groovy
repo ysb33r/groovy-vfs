@@ -4,6 +4,9 @@ import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
 import org.gradle.api.Incubating
 import org.gradle.api.tasks.Input
+import org.ysb33r.gradle.vfs.VfsCopySpec
+import org.ysb33r.gradle.vfs.VfsOptions
+import org.ysb33r.gradle.vfs.VfsProxy
 import org.ysb33r.gradle.vfs.VfsURI
 import org.ysb33r.gradle.vfs.VfsURICollection
 import org.ysb33r.groovy.dsl.vfs.VFS
@@ -23,7 +26,7 @@ abstract class VfsBaseTask extends DefaultTask {
             task.isUpToDate()
         }
 
-        this.vfs = VfsFactory.create(super.project)
+        this.vfs = VfsProxy.request(super.project)
     }
 
     /** Checks the state of remote objects and decides whether the object can be up to date
@@ -77,7 +80,6 @@ abstract class VfsBaseTask extends DefaultTask {
         this.praxis = opts
     }
 
-
     VFS getVfs() {
         this.vfs
     }
@@ -88,6 +90,11 @@ abstract class VfsBaseTask extends DefaultTask {
 
     protected VfsURICollection stage(List<Object> uris)  {
         UriUtils.uriWithOptions(getOptions(),vfs,uris)
+    }
+
+    protected VfsURICollection stage(DefaultVfsCopySpec spec)  {
+        Map<String,Object> opts = getOptions() + getPraxis()
+        spec.apply( [getOptionMap : { -> opts } ] as VfsOptions ).uriCollection
     }
 
     private VFS vfs

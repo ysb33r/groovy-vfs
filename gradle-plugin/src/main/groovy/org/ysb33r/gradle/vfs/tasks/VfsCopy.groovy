@@ -2,94 +2,141 @@ package org.ysb33r.gradle.vfs.tasks
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import groovy.transform.PackageScope
 import org.gradle.api.Incubating
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
+import org.ysb33r.gradle.vfs.VfsURI
+import org.ysb33r.gradle.vfs.internal.CopyUtils
+import org.ysb33r.gradle.vfs.internal.DefaultVfsCopySpec
+import org.ysb33r.gradle.vfs.VfsURICollection
 import org.ysb33r.gradle.vfs.internal.VfsBaseTask
 
-/**
- * Created by schalkc on 01/01/15.
+/** Provides a copy task for remote files and directories.
+ *
+ * Unless collections have been forced to resolve earlier, it will otherwise only happen at the point
+ * of task execution. This allows for lazy-evaluation of URIs to occur as late as possible in the build lifecycle.
  *
  * @since 1.0
+ * @author Schalk W. Cronjé
  */
 @Incubating
 @CompileStatic
-class VfsCopy extends VfsBaseTask {
+class VfsCopy extends VfsBaseTask  {
 
-    VfsCopy() {
-        super()
-
-        outputs.upToDateWhen { task ->
-
-        }
+    /** Checks the state of remote objects and decides whether the object can be up to date
+     *
+     * @return {@code true} if the object can be considered up to date
+     */
+    @Override
+    boolean isUpToDate() {
+        return false
     }
 
-    def from(Object uri) {
-
+    /** Returns a default set of VFS action options (praxis) in case no task-wide set if defined for all URIs
+     * within this task.
+     *
+     * @return Map of options
+     */
+    @Override
+    Map<String, Object> defaultPraxis() {
+        [ overwrite : true, recursive : true, smash : false ]
     }
 
-    def into(Object uri) {
-
+    VfsCopy from(Object... uris) {
+        copySpec.from(uris)
+        this
     }
 
-    // ---------------------------------
-    // Method 1
-    // ---------------------------------
-    @InputFiles
-    def getLocalSources() {
+    VfsCopy from(Object uri,Closure cfg) {
+        copySpec.from(uri,cfg)
+        this
+    }
 
+    VfsCopy into(Object uri) {
+        destination = uri
+        this
+    }
+
+//    // ---------------------------------
+//    // This will be needed, might maybe only in a 2nd update
+//    // ---------------------------------
+    // VfsCopySpec with(VfsCopySpec childSpecs)
+
+//    // ---------------------------------
+//    // Not sure yet, whether these four will be needed
+//    // ---------------------------------
+//    @InputFiles
+//    ResolvedURICollection getLocalSources() {
+//        UriUtils.localURIs(stage(sources))
+//    }
+//
+//    @Input
+//    ResolvedURICollection getRemoteSources() {
+//
+//    }
+//
+//    @org.gradle.api.tasks.Optional
+//    @OutputDirectory
+//    ResolvedURI getLocalDestination() {
+//
+//    }
+//
+//
+//    @org.gradle.api.tasks.Optional
+//    @Input
+//    ResolvedURI getRemoteDestination() {
+//
+//    }
+//
+//    // ---------------------------------
+
+    /** Get a list of all source URIs
+     *
+     * @return A live list of source URIs
+     */
+    VfsURICollection getSources() {
+        stage(copySpec)
+    }
+
+    VfsURICollection getDestinations() {
+        stage([destination])
+    }
+
+    /** Get a list of all source URIs
+     *
+     * @return A live list of source URIs
+     */
+    @Input
+    @SkipWhenEmpty
+    VfsURICollection getAllSources() {
+        getSources()
+        // TODO: Needs to traverse all children
     }
 
     @Input
-    def getRemoteSources() {
-
+    VfsURICollection getAllDestinations() {
+        stage([destination])
     }
 
-    @OutputDirectory
-    def getLocalDestination() {
-
-    }
-
-    def getRemoteDestination() {
-
-    }
-
-    // ---------------------------------
-
-    List getSources() {
-
-    }
-
-    def getDestination() {
-
-    }
-
+    /** Copies all sources to the destination location.
+     *
+     */
     @CompileDynamic
     @TaskAction
-    def copy() {
+    def exec() {
 
-        def vfs = super.getVfs()
+        def vfs = super.vfs
 
-        def dest = getDestination()
-        createDestination(dest)
-        def opts = [:]
+        // Process the top-level spec
+        def dest = stage(this.destination).resolve()
+        CopyUtils.copy(logger,super.vfs,getSources().uris,dest)
 
-        vfs {
-            sources.each {
-                cp it, dest, opts
-                logger.info "Copied ${vfs.friendlyURI(it)}"
-            }
-        }
+//        copySpec.children().each {
+//            it.relativePath
+//        }
     }
 
-    @PackageScope
-    void createDestination(def dest) {
-
-    }
-
-    List<Object> sources
+    DefaultVfsCopySpec copySpec = DefaultVfsCopySpec.create(vfs,{})
     Object destination
 }

@@ -48,7 +48,7 @@ abstract class AbstractCompositeVfsURICollection implements VfsURICollection {
     }
 
     abstract VfsURICollection filter(Spec<VfsURI> filterSpec)
-    
+
     /** Creates a new live collection out of two collections
      *
      * @param collection

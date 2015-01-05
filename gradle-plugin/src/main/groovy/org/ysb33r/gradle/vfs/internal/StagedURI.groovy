@@ -1,5 +1,8 @@
 package org.ysb33r.gradle.vfs.internal
 
+import org.apache.commons.vfs2.FileName
+import org.apache.commons.vfs2.FileObject
+import org.gradle.util.CollectionUtils
 import org.ysb33r.gradle.vfs.VfsURI
 import org.ysb33r.groovy.dsl.vfs.URI
 import org.ysb33r.groovy.dsl.vfs.VFS
@@ -11,11 +14,30 @@ import org.ysb33r.groovy.dsl.vfs.VFS
 class StagedURI implements VfsURI {
 
     static StagedURI create(Map<String,Object> opts, VFS vfs, Object uri) {
+
+        Object resolved
+
+        switch(uri) {
+            case String:
+            case File:
+            case FileName:
+            case URI:
+                resolved = uri
+                break
+
+            case Closure:
+                resolved = (uri as Closure).call()
+                break
+
+            default:
+                resolved= CollectionUtils.stringize([uri])[0]
+        }
+
         Closure resolver = { Map m, URI u -> ResolvedURI.create(m,vfs,u) }
         Map<String,Object> praxis = opts.findAll { String k,Object v ->
             !k.toLowerCase().startsWith('vfs.')
         }
-        URI staged = vfs.stageURI(opts,uri)
+        URI staged = vfs.stageURI(opts,resolved)
         new StagedURI(praxis,resolver,staged,vfs.local(staged))
     }
 
