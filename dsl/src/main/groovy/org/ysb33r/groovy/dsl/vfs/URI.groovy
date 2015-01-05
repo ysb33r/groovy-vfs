@@ -40,30 +40,32 @@ class URI {
 			throw new URIException("(blank)","Whitespace-only URI is not valid")
 		}
 		
-		try {
-			tmpuri =new URIBuilder(s)
-		} catch (java.net.URISyntaxException e) {
-		 	// If this contains a VFS-encrypted password, remove it,
-			// then process the rest
-		 	def m= s =~ /^(\p{Alpha}[\p{Alnum}+-.:]*:\/\/)?(.+:\{\p{XDigit}+\}\@)(.+)/
+//		try {
+//			tmpuri =new URIBuilder(s)
+//		} catch (java.net.URISyntaxException e) {
+//		 	// If this contains a VFS-encrypted password, remove it,
+//			// then process the rest
+//		 	def m= s =~ /^(\p{Alpha}[\p{Alnum}+-.:]*:\/\/)?(.+:\{\p{XDigit}+\}\@)(.+)/
+//
+//			if (!m || !m.size() || m[0].size()!=4) {
+//				throw e
+//			}
+//		    tmpuri=new URIBuilder("${m[0][1]}${m[0][3]}")
+//			userInfo=m[0][2]
+//		}
+		def parsed = parseString(s)
+		tmpuri = parsed.uriBuilder
 
-			if (!m || !m.size() || m[0].size()!=4) {
-				throw e
-			}	 
-		    tmpuri=new URIBuilder("${m[0][1]}${m[0][3]}")
-			userInfo=m[0][2]
-		}
-		
 		checkScheme(tmpuri)
 		tmpuri=removeAndUpdateVFSProperties(tmpuri)
 		
-		if(userInfo) {
+		if(parsed.userInfo) {
 			// Add userinfo back
 			def jnURI = tmpuri.toURI()
 			def fragment= jnURI.rawFragment
 			def query = jnURI.rawQuery
 			def port = jnURI.port.toString()
-			uri="${jnURI.scheme}://${userInfo}${jnURI.host}${port!='-1'?':'+port:''}${jnURI.rawPath}${query?'?'+query:''}${fragment?'#'+fragment:''}"
+			uri="${jnURI.scheme}://${parsed.userInfo}${jnURI.host}${port!='-1'?':'+port:''}${jnURI.rawPath}${query?'?'+query:''}${fragment?'#'+fragment:''}"
 		} else {
 			uri=tmpuri.toString()
 		}
@@ -120,6 +122,21 @@ class URI {
 		this
 	}
 
+	/** Allows a child path to be appended to an existing URI.
+	 * Additional query parameters or fragments are not allowed and will result in an exception.
+	 *
+	 * @param childPath Relative path to be appended.
+	 *
+	 * @return A new path with the child path appended. All non-VFS query string parameters will remain intact and
+	 * all existing properties will be inherited.
+	 * @throw {@link URIException} if additional query parameters or fragments are found.
+	 * @since 1.0
+	 */
+	URI div(CharSequence childPath) {
+		Map<String,Object> m = parseString(uri)
+		new URI(props,m.uriBuilder,m.userInfo,childPath.toString())
+	}
+
 	private URIBuilder removeAndUpdateVFSProperties (URIBuilder tmpuri) {
 		def q= tmpuri.query
 		def p=[:]
@@ -141,15 +158,66 @@ class URI {
 	}
 
 	@TypeChecked
-	private def checkScheme (URIBuilder tmpuri) { 
-		if(!tmpuri.scheme || !tmpuri.scheme.size()) {
-			throw new URIException("${tmpuri}","URI must be created with a scheme")
+	private def checkScheme (URIBuilder tmpuri) {
+		if (!tmpuri.scheme || !tmpuri.scheme.size()) {
+			throw new URIException("${tmpuri}", "URI must be created with a scheme")
 		}
 	}
-	
+
+	/** Returns a URIBuilder and some userinfo if need be
+	 *
+	 * @param s String to parse
+	 * @return Object with uriBuilder, userInfo as properties
+	 */
+	private Map<String,Object> parseString( final String s ) {
+		def ret = [:]
+		try {
+			ret['uriBuilder']= new URIBuilder(s)
+		} catch (java.net.URISyntaxException e) {
+			// If this contains a VFS-encrypted password, remove it,
+			// then process the rest
+			def m= s =~ /^(\p{Alpha}[\p{Alnum}+-.:]*:\/\/)?(.+:\{\p{XDigit}+\}\@)(.+)/
+
+			if (!m || !m.size() || m[0].size()!=4) {
+				throw e
+			}
+			ret['uriBuilder']=new URIBuilder("${m[0][1]}${m[0][3]}")
+			ret['userInfo']=m[0][2]
+		}
+		ret
+	}
+
 	private Map<String,Map<String,Object>> props = [:]
 	private String uri
 	  
 	//public getFriendlyURI()
-	
+
+	/** A private constructor used when appending child paths
+	 *
+	 * @param props Properties to inherit
+	 * @param tmpuri A URIBuilder object to work with
+	 * @param child A child path to append
+	 * @throw {@link URIException} if additional query parameters or fragments are found.
+	 * @since 1.0
+	 */
+	private URI( Map<String,Map<String,Object>> props, URIBuilder tmpuri, final String userInfo, final String child ) {
+
+		// Construct a basic URI to
+		java.net.URI jnURI = tmpuri.toURI()
+		java.net.URI testuri
+		try {
+			testuri =new URIBuilder("${jnURI.scheme}://${jnURI.host}${jnURI.rawPath}/${child}").toURI()
+		} catch (java.net.URISyntaxException e) {
+			throw new URIException( child,"If not a valid path to append")
+		}
+		if(testuri.rawFragment || testuri.rawQuery ) {
+			throw new URIException( child,"Fragment or query found in child path")
+		}
+		def fragment= jnURI.rawFragment
+		def query = jnURI.rawQuery
+		def port = jnURI.port.toString()
+
+		uri="${jnURI.scheme}://${userInfo?:''}${jnURI.host}${port!='-1'?':'+port:''}${jnURI.rawPath}/${child}${query?'?'+query:''}${fragment?'#'+fragment:''}"
+		this.props=props
+	}
 }
