@@ -55,4 +55,29 @@ class URISpec extends Specification {
             thrown(URIException)
     }
 
+    def "Authority parts should not be stripped"() {
+        given:
+            URI parent = new URI( 'http://user:pass@some.server/parent/path?vfs.ftp.passiveMode=1&nonVfs=2')
+
+        when:
+            URI child = parent / 'child'
+
+        then:
+            child.toString() == 'http://user:pass@some.server/parent/path/child?nonVfs=2'
+            child.properties.ftp.passiveMode == '1'
+
+    }
+
+    def "Authority parts with encoded passwords should not be stripped"() {
+        given:
+        URI parent = new URI( 'http://user:{D7B82198B272F5C93790FEB38A73C7B8}@some.server/parent/path?vfs.ftp.passiveMode=1&nonVfs=2')
+
+        when:
+        URI child = parent / 'child'
+
+        then:
+        child.toString() == 'http://user:{D7B82198B272F5C93790FEB38A73C7B8}@some.server/parent/path/child?nonVfs=2'
+        child.properties.ftp.passiveMode == '1'
+
+    }
 }

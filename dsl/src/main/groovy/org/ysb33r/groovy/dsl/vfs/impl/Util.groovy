@@ -25,6 +25,7 @@ import org.ysb33r.groovy.dsl.vfs.URI;
 import groovy.transform.CompileStatic
 import org.apache.commons.vfs2.provider.TemporaryFileStore
 import org.apache.commons.vfs2.impl.DefaultFileReplicator
+import org.ysb33r.groovy.dsl.vfs.URIException
 
 @CompileStatic
 class Util {
@@ -82,6 +83,44 @@ class Util {
             }
         }
         return fsOpt
+    }
+
+    /** Allows a child path to be appended to an existing URI.
+     * Additional query parameters or fragments are not allowed and will result in an exception.
+     *
+     * @param uri Parent URI
+     * @param cs Relative path to be appended
+     * @return A new path with the child path appended. All non-VFS query string parameters will remain intact and
+     * all existing properties will be inherited.
+     * @throw {@link org.ysb33r.groovy.dsl.vfs.URIException} if additional query parameters or fragments are found.
+     * @since 1.0
+     */
+    static FileObject addRelativePath(FileObject fo,CharSequence cs) {
+        String path= cs.toString()
+        java.net.URI jnURI
+        try {
+            jnURI =  path.toURI()
+        } catch(URISyntaxException e) {
+            throw new URIException(path,'This path is suitable as a relative path')
+        }
+        if(jnURI.rawFragment || jnURI.rawQuery || jnURI.absolute) {
+            throw new URIException(path,'Absolute paths, queries or fragments are not allowed when adding relative paths')
+        }
+        fo.resolveFile(path)
+    }
+
+    /** Allows a child path to be appended to an existing URI.
+     * Additional query parameters or fragments are not allowed and will result in an exception.
+     *
+     * @param uri Parent URI
+     * @param cs Relative path to be appended
+     * @return A new path with the child path appended. All non-VFS query string parameters will remain intact and
+     * all existing properties will be inherited.
+     * @throw {@link org.ysb33r.groovy.dsl.vfs.URIException} if additional query parameters or fragments are found.
+     * @since 1.0
+     */
+    static URI addRelativePath(URI uri,CharSequence cs) {
+        uri / cs
     }
 
     /** Checks whether the URI is valid within the context of the given file system manager.
