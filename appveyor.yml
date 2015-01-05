@@ -14,8 +14,6 @@ branches:
     - master
     - development
 
-cache:
-  - C:\Users\appveyor\.gradle
 
 environment:
   matrix:
