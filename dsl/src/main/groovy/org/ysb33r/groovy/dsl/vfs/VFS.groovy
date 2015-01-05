@@ -600,9 +600,10 @@ class VFS {
 	 *
 	 * @param uriText
 	 * @return URI
+	 * @since 1.0
 	 */
 	URI uri(CharSequence uriText) {
-		new URI(uriText.toString())
+		stageURI(uriText.toString())
 	}
 
 	/** Checks if URI is a file.
@@ -668,7 +669,7 @@ class VFS {
 		fsMgr.loggerInstance()
 	}
 
-	/** Resolves a URI..
+	/** Resolves a URI.
 	 * This involves locating it on the virtual file system and potential network traffic.
 	 *
 	 * @param properties

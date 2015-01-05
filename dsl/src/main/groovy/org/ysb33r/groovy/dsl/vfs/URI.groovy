@@ -172,7 +172,11 @@ class URI {
 	private Map<String,Object> parseString( final String s ) {
 		def ret = [:]
 		try {
-			ret['uriBuilder']= new URIBuilder(s)
+			URIBuilder builder = new URIBuilder(s)
+			ret['uriBuilder']= builder
+			if(builder.userInfo?.size()) {
+				ret['userInfo'] = builder.userInfo + '@'
+			}
 		} catch (java.net.URISyntaxException e) {
 			// If this contains a VFS-encrypted password, remove it,
 			// then process the rest
