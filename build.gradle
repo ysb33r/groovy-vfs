@@ -117,10 +117,10 @@ configure(subprojects.findAll {it.name != 'jlan' && it.name != 'test-servers'}) 
         strictCheck = true
         ignoreFailures = false
         mapping {
-            groovy ='DOUBLESLASH_STYLE'
+            groovy ='SLASHSTAR_STYLE'
         }
         ext.year = '2013-2015'
-        excludes(['**/*.ad', '**/*.asciidoc', '**/*.adoc', '**/*.md','**/*.properties', '**/*.txt'])
+        excludes(['**/*.ad', '**/*.asciidoc', '**/*.adoc', '**/*.md','**/*.properties', '**/*.txt', '**/*.bz2'])
     }
 }
 
