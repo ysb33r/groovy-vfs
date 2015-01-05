@@ -10,8 +10,8 @@
 // See the License for the specific language governing permissions and limitations under the License.
 //
 // ============================================================================
-//
 package org.ysb33r.groovy.dsl.vfs.impl
+
 import groovy.transform.Canonical
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic

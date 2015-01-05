@@ -11,14 +11,19 @@
 //
 // ============================================================================
 //
+
 package org.ysb33r.groovy.dsl.vfs
-import groovyx.net.http.URIBuilder
+
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.TypeChecked
+import groovyx.net.http.URIBuilder
+
 import java.net.URISyntaxException
 import groovy.transform.CompileStatic
 import org.apache.commons.vfs2.FileName
 import org.apache.commons.vfs2.FileObject
+
+
 
 /** Holds a URI that has not been located on the virtual file system
  *
