@@ -49,6 +49,7 @@ compileTestGroovy {
     dependsOn ':jlan:jar'
 }
 
+license.header = rootProject.file('config/lgpl2-header')
 
 
 apply from : '../gradle/publish.gradle'
