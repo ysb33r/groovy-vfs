@@ -33,6 +33,21 @@ import org.ysb33r.groovy.dsl.vfs.VFS
 @CompileStatic
 class DefaultVfsCopySpec implements VfsCopySpec {
 
+    /** Creates an instance of a DefaultVfsCopySpec
+     *
+     * @param vfs VFS that this copy spec will be associated with
+     * @param configurator Initial configurating closure
+     * @return The configured DefaultVfsCopySpec instance
+     */
+    @CompileDynamic
+    static DefaultVfsCopySpec create(VFS vfs, Closure configurator) {
+        def cs = new DefaultVfsCopySpec(vfs)
+        def c = configurator.clone()
+        c.delegate = cs
+        c.call()
+        cs
+    }
+
     /** Applies an additional set of options to each source within the Spec
      * Existing options will NOT be replaced.
      *
@@ -53,21 +68,6 @@ class DefaultVfsCopySpec implements VfsCopySpec {
         this
     }
 
-    /** Creates an instance of a DefaultVfsCopySpec
-     *
-     * @param vfs VFS that this copy spec will be associated with
-     * @param configurator Initial configurating closure
-     * @return The configured DefaultVfsCopySpec instance
-     */
-    @CompileDynamic
-    static DefaultVfsCopySpec create(VFS vfs, Closure configurator) {
-        def cs = new DefaultVfsCopySpec(vfs)
-        def c = configurator.clone()
-        c.delegate = cs
-        c.call()
-        cs
-    }
-
     /**
      * Specifies source URIs (files or directories) for a copy. The given paths are evaluated as per
      * {@code VFS.stageURI}.
@@ -77,10 +77,7 @@ class DefaultVfsCopySpec implements VfsCopySpec {
     @Override
     DefaultVfsCopySpec from(Object... sourcePaths) {
         sourcePaths.each { Object path ->
-            this.sources.add ([
-                getSource : { -> path },
-                getOptionsMap : { -> [ getOptions : { -> [:] } ] as VfsOptions }
-            ] as VfsCopySource)
+            this.sources.add (new BasicVfsCopySource(path))
         }
         this
     }
@@ -136,7 +133,7 @@ class DefaultVfsCopySpec implements VfsCopySpec {
         collection
     }
 
-/** Returns the relative resolved from the initial object in a way that is suitable for appending to a URI
+    /** Returns the relative resolved from the initial object in a way that is suitable for appending to a URI
      * @return Relative path (can be null)
      */
     @Override

@@ -34,7 +34,7 @@ class Configurator implements VfsOptions {
         [:]
     }
 
-    def methodMissing(String name,Object... args) {
-
-    }
+//    def methodMissing(String name,Object... args) {
+//
+//    }
 }

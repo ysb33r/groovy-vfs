@@ -147,8 +147,9 @@ class VfsCopy extends VfsBaseTask  {
     @CompileDynamic
     @TaskAction
     def exec() {
+        Map<String,Object> opts = getOptions() + getPraxis()
         copySpec.apply( [getOptionMap : { -> opts } ] as VfsOptions )
-        CopyUtils.recursiveCopy(loggger,super.vfs,copySpec,getDestination())
+        CopyUtils.recursiveCopy(logger,super.vfs,copySpec,getDestination())
     }
 
     DefaultVfsCopySpec copySpec = DefaultVfsCopySpec.create(vfs,{})

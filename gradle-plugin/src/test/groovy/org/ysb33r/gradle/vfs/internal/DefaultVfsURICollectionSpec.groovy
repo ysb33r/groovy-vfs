@@ -3,6 +3,7 @@ package org.ysb33r.gradle.vfs.internal
 import org.gradle.api.Project
 import org.gradle.api.tasks.StopExecutionException
 import org.gradle.testfixtures.ProjectBuilder
+import org.ysb33r.gradle.vfs.VfsOptions
 import org.ysb33r.gradle.vfs.VfsURI
 import org.ysb33r.gradle.vfs.VfsURICollection
 import org.ysb33r.groovy.dsl.vfs.VFS
@@ -134,4 +135,5 @@ class DefaultVfsURICollectionSpec extends Specification {
             (uris.collect { it }) .size() == 2
             null != uris.find { it instanceof StagedURI }
     }
+
 }

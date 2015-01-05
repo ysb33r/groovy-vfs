@@ -42,15 +42,13 @@ class CopyUtils {
      */
     static void copy( Logger logger, VFS vfs, Set<VfsURI> sources, VfsURI root ) {
 
-        vfs {
-            if(!exists(root)) {
-                mkdir root, intermediates:true
-            }
+        if(!vfs.exists(root.uri)) {
+            vfs.mkdir root.uri, intermediates:true
+        }
 
-            sources.each { VfsURI src ->
-                cp src.praxis, src.uri, root
-                logger.info "Copied ${friendlyURI(vfs,src)} -> ${friendlyURI(vfs,root)}"
-            }
+        sources.each { VfsURI src ->
+            vfs.cp src.praxis, src.uri, root.uri
+            logger.info "Copied ${friendlyURI(vfs,src)} -> ${friendlyURI(vfs,root)}"
         }
     }
 
@@ -98,7 +96,7 @@ class CopyUtils {
     }
 
     @CompileDynamic
-    private String friendlyURI(vfs,VfsURI uri) {
+    private static String friendlyURI(vfs,VfsURI uri) {
         vfs.friendlyURI( uri.uri )
     }
 }
