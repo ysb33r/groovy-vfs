@@ -2,9 +2,13 @@ package org.ysb33r.gradle.vfs.internal
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import org.apache.commons.vfs2.FileObject
 import org.gradle.api.logging.Logger
+import org.ysb33r.gradle.vfs.VfsCopySpec
 import org.ysb33r.gradle.vfs.VfsURI
+import org.ysb33r.gradle.vfs.VfsURICollection
 import org.ysb33r.groovy.dsl.vfs.VFS
+import org.ysb33r.groovy.dsl.vfs.impl.Util
 
 /** Utilities for VFS copy operations.
  *
@@ -20,7 +24,7 @@ class CopyUtils {
      * @param vfs Virtual file system to use
      * @param sources Source URIs
      * @param root Destination root URI. If it does not exit it will be created prior to starting the copy
-     *
+     * @since 1.0
      */
     static void copy( Logger logger, VFS vfs, Set<VfsURI> sources, VfsURI root ) {
 
@@ -31,9 +35,52 @@ class CopyUtils {
 
             sources.each { VfsURI src ->
                 cp src.praxis, src.uri, root
-                logger.info "Copied ${friendlyURI(vfs,src)}"
+                logger.info "Copied ${friendlyURI(vfs,src)} -> ${friendlyURI(vfs,root)}"
             }
         }
+    }
+
+    /** Performs a deep (recursive) copy of all sources in a spec including all children specS.
+     *
+     * @param logger Logger to report progress
+     * @param vfs Virtual file system to use
+     * @param rootSpec Root copy specification
+     * @param root Destination root URI. If it does not exit it will be created prior to starting the copy
+     * @since 1.0
+     */
+    static void recursiveCopy( Logger logger, VFS vfs, VfsCopySpec rootSpec, VfsURI root) {
+        VfsURI dest = root.resolve()
+        CopyUtils.copy(logger,vfs,rootSpec.uriCollection.uris,dest)
+
+        rootSpec.children().each {
+            VfsCopySpec child = it as VfsCopySpec
+            VfsURI childDest = ResolvedURI.create([:],vfs,Util.addRelativePath(dest.uri as FileObject,child.relativePath))
+            recursiveCopy(logger,vfs,child,childDest)
+        }
+    }
+
+    /** Returns a set of all of the full resolved destination URIs in a copy specification
+     *
+     * @param vfs Virtual file system to use
+     * @param rootSpec Root copy specification
+     * @param root Destination root URI. If it does not exit it will be created prior to starting the copy
+     * @return Destination collection. Never null
+     */
+    static VfsURICollection recursiveDestinationList( VFS vfs,VfsCopySpec rootSpec, VfsURI root) {
+        VfsURICollection ret = new DefaultVfsURICollection()
+
+        VfsURI dest = root.resolve()
+        ret.add(dest)
+        rootSpec.children().each { 
+            VfsCopySpec child = it as VfsCopySpec
+            VfsURI childDest = ResolvedURI.create([:], vfs, Util.addRelativePath(dest.uri as FileObject, child.relativePath))
+            ret.add(childDest)
+            VfsURICollection childCollection = recursiveDestinationList(vfs,child,childDest)
+            if(!ret.empty) {
+                ret = ret + childCollection
+            }
+        }
+        ret
     }
 
     @CompileDynamic

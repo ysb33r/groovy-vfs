@@ -110,7 +110,19 @@ class DefaultVfsCopySpec implements VfsCopySpec {
         UriUtils.uriWithOptions(vfs,sources)
     }
 
-    /** Returns the relative resolved from the initial object in a way that is suitable for appending to a URI
+    /** Returns a collection of staged or resolved URIs of this spec plus all children specs
+     * @return {@link VfsURICollection}. Never null.
+     */
+    @Override
+    VfsURICollection getAllUriCollection() {
+        VfsURICollection collection = uriCollection
+        this.children.each { VfsCopySpec vcs ->
+            collection+= vcs.allUriCollection
+        }
+        collection
+    }
+
+/** Returns the relative resolved from the initial object in a way that is suitable for appending to a URI
      * @return Relative path (can be null)
      */
     @Override

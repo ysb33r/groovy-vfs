@@ -6,11 +6,14 @@ import org.gradle.api.Incubating
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
+import org.ysb33r.gradle.vfs.VfsOptions
 import org.ysb33r.gradle.vfs.VfsURI
 import org.ysb33r.gradle.vfs.internal.CopyUtils
 import org.ysb33r.gradle.vfs.internal.DefaultVfsCopySpec
 import org.ysb33r.gradle.vfs.VfsURICollection
+import org.ysb33r.gradle.vfs.internal.ResolvedURI
 import org.ysb33r.gradle.vfs.internal.VfsBaseTask
+import org.ysb33r.groovy.dsl.vfs.impl.Util
 
 /** Provides a copy task for remote files and directories.
  *
@@ -99,8 +102,8 @@ class VfsCopy extends VfsBaseTask  {
         stage(copySpec)
     }
 
-    VfsURICollection getDestinations() {
-        stage([destination])
+    VfsURI getDestination() {
+        stage(destination)
     }
 
     /** Get a list of all source URIs
@@ -110,13 +113,18 @@ class VfsCopy extends VfsBaseTask  {
     @Input
     @SkipWhenEmpty
     VfsURICollection getAllSources() {
-        getSources()
-        // TODO: Needs to traverse all children
+        Map<String,Object> opts = getOptions() + getPraxis()
+        copySpec.apply( [getOptionMap : { -> opts } ] as VfsOptions )
+        copySpec.allUriCollection
     }
 
+    /** Returns a list of all destination URIs
+     * Calling this will cause all URIs to be resolved.
+     * @return Fully resolved URIs.
+     */
     @Input
     VfsURICollection getAllDestinations() {
-        stage([destination])
+        CopyUtils.recursiveDestinationList(super.vfs,copySpec,getDestination())
     }
 
     /** Copies all sources to the destination location.
@@ -125,16 +133,8 @@ class VfsCopy extends VfsBaseTask  {
     @CompileDynamic
     @TaskAction
     def exec() {
-
-        def vfs = super.vfs
-
-        // Process the top-level spec
-        def dest = stage(this.destination).resolve()
-        CopyUtils.copy(logger,super.vfs,getSources().uris,dest)
-
-//        copySpec.children().each {
-//            it.relativePath
-//        }
+        copySpec.apply( [getOptionMap : { -> opts } ] as VfsOptions )
+        CopyUtils.recursiveCopy(loggger,super.vfs,copySpec,getDestination())
     }
 
     DefaultVfsCopySpec copySpec = DefaultVfsCopySpec.create(vfs,{})

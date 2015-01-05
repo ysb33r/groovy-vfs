@@ -30,6 +30,11 @@ interface VfsCopySpec extends CopySourceSpec, Cloneable {
      */
     VfsURICollection getUriCollection()
 
+    /** Returns a collection of staged or resolved URIs of this spec plus all children specs
+     * @return {@link VfsURICollection}. Never null.
+     */
+    VfsURICollection getAllUriCollection()
+
     /** Returns the relative resolved from the initial object in a way that is suitable for appending to a URI
      *
      * @return A string representation. Can be null, if no relative path exists.
