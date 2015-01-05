@@ -1,6 +1,6 @@
-// ============================================================================
-// Copyright (C) Schalk W. Cronje 2012 - 2014
 //
+// ============================================================================
+// (C) Copyright Schalk W. Cronje 2013-2015
 //
 // This software is licensed under the Apache License 2.0
 // See http://www.apache.org/licenses/LICENSE-2.0 for license details
@@ -10,6 +10,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 //
 // ============================================================================
+//
 
 package org.ysb33r.groovy.dsl.vfs.impl
 
