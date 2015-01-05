@@ -71,7 +71,7 @@ class CopyUtils {
 
         VfsURI dest = root.resolve()
         ret.add(dest)
-        rootSpec.children().each { 
+        rootSpec.children().each {
             VfsCopySpec child = it as VfsCopySpec
             VfsURI childDest = ResolvedURI.create([:], vfs, Util.addRelativePath(dest.uri as FileObject, child.relativePath))
             ret.add(childDest)
