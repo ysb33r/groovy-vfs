@@ -29,7 +29,10 @@ class DefaultVfsCopySpec implements VfsCopySpec {
     VfsCopySpec apply(VfsOptions options) {
         this.sources.each { VfsCopySource it ->
             options.optionMap.each { String k,Object v ->
-                it.options.optionMap.putIfAbsent(k,v)
+                Map<String,Object> map = it.options.optionMap
+                if(!map.hasProperty(k)) {
+                    map[k] = v
+                }
             }
         }
         this.children.each { it.apply(options) }
