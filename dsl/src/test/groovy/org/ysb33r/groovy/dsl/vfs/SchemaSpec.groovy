@@ -100,8 +100,20 @@ abstract class SchemaSpec extends Specification {
          'file2.txt'             | _
          'test-subdir/file3.txt' | _  
          'test-subdir/file4.txt' | _   
-   } 
-   
+   }
+
+    def "Can we copy a directory recursively"() {
+
+        when:
+            vfs.cp server.READROOT, "${server.WRITEROOT}", overwrite:true, recursive:true
+
+        then:
+            new File(server.TESTFSWRITEROOT,'file1.txt').exists()
+            new File(server.TESTFSWRITEROOT,'file2.txt').exists()
+            new File(server.TESTFSWRITEROOT,'test-subdir/file3.txt').exists()
+            new File(server.TESTFSWRITEROOT,'test-subdir/file4.txt').exists()
+    }
+
    /*  
    def "Copy from remote site, using apache commons" () {
        setup: "This test was put in place to verify that a bug existed in groovy-vfs, but not in Apache VFS"

@@ -69,4 +69,5 @@ class FtpSpec extends SchemaSpec  {
             child instanceof URI
 
    }
+
 }
