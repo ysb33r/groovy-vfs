@@ -38,6 +38,7 @@ import org.apache.commons.vfs2.FileName
 import org.apache.commons.vfs2.FileSelectInfo
 import org.apache.commons.vfs2.FilesCache
 import org.apache.commons.vfs2.provider.FileReplicator
+import org.ysb33r.groovy.dsl.vfs.impl.AntPatternSelector
 import org.ysb33r.groovy.dsl.vfs.impl.FileContentEditor
 import org.ysb33r.groovy.dsl.vfs.impl.StandardFileSystemManager
 
@@ -592,6 +593,37 @@ class VFS {
     def extend( Closure providerDSL ) {
         new ProviderDelegator( fsManager : fsMgr ) .bind (providerDSL)
     }
+
+	/** Creates an ANT-style pattern filter.
+	 *
+	 * @param cfg
+	 * @return
+     *
+	 * @code
+	 * def vfs = new VFS()
+	 *
+	 *
+	 *
+	 * vfs {
+	 *   cp 'ftp://server1/path1/path2', 'sftp://server2/path3',
+	 *     overwrite: true, recursive: true,
+	 *     filter : antPattern {
+	 *         include '**'
+	 *         exclude 'foo.txt'
+	 *     }
+	 * }
+	 *
+	 * @endcode
+	 */
+    @CompileDynamic
+	AntPatternSelector antPattern(Closure cfg) {
+		AntPatternSelector aps = new AntPatternSelector()
+		def c1 = cfg.clone()
+        c1.delegate = aps
+        c1.resolveStrategy = c1.DELEGATE_FIRST
+        c1.call()
+		aps
+	}
 
     /** Returns a printable URI in which the password is masked
      *
