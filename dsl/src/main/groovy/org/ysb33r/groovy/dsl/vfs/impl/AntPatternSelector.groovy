@@ -15,6 +15,8 @@
  */
 package org.ysb33r.groovy.dsl.vfs.impl
 
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import org.apache.commons.vfs2.FileSelectInfo
 import org.apache.commons.vfs2.FileSelector
@@ -35,6 +37,7 @@ import org.ysb33r.groovy.dsl.vfs.impl.ant.SelectorUtils
  *  </p>
  * @author Schalk W. Cronjé
  */
+@CompileStatic
 class AntPatternSelector implements FileSelector, Cloneable {
 
     boolean caseSensitive = true
@@ -138,7 +141,7 @@ class AntPatternSelector implements FileSelector, Cloneable {
     }
 
     @PackageScope
-    boolean allowed(FileSelectInfo fsi) {
+    boolean allowed(FileSelectInfo fileInfo) {
         // Strip fileInfo.baseFolder from fileInfo.file, meaning get a relative path,
         // which can be used for pattern matching.
         allowed(fileInfo.file.name.friendlyURI - fileInfo.baseFolder.name.friendlyURI)
@@ -167,7 +170,7 @@ class AntPatternSelector implements FileSelector, Cloneable {
 
     @PackageScope
     boolean matched(final String[] parts,Map<String,String[] > patternSet) {
-        patternSet.values().find { v ->
+        patternSet.values().find { String[] v ->
             SelectorUtils.matchPath(v,parts,caseSensitive)
         }
     }
@@ -177,6 +180,7 @@ class AntPatternSelector implements FileSelector, Cloneable {
         SelectorUtils.tokenizePathAsArray(subject)
     }
 
+    @CompileDynamic
     private AntPatternSelector addToPatternSet(Map<String,String[] > patternSet,def iterableList) {
         iterableList.collect {
             patternSet[it.toString()]= SelectorUtils.tokenizePathAsArray(it)

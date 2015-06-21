@@ -102,4 +102,24 @@ class VFSSpec extends Specification {
             thrown(FileActionException)
     }
 
+    def "Copying with an ANT-style filter"() {
+        when:
+        vfs {
+            cp testFsReadOnlyRoot,testFsWriteRoot,
+                overwrite:true, recursive:true,
+                filter : antPattern {
+                    include '**'
+                    exclude 'file2.txt'
+                    exclude '**/file4.txt'
+                }
+
+        }
+        then:
+        new File(testFsWriteRoot,'test-files/file1.txt').exists()
+        new File(testFsWriteRoot,'test-files/test-subdir/file3.txt').exists()
+        !new File(testFsWriteRoot,'test-files/file2.txt').exists()
+        !new File(testFsWriteRoot,'test-files/test-subdir/file4.txt').exists()
+
+    }
+
 }

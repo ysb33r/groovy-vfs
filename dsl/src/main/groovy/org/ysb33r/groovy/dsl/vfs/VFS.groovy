@@ -620,7 +620,7 @@ class VFS {
 		AntPatternSelector aps = new AntPatternSelector()
 		def c1 = cfg.clone()
         c1.delegate = aps
-        c1.resolveStrategy = c1.DELEGATE_FIRST
+        c1.resolveStrategy = Closure.DELEGATE_FIRST
         c1.call()
 		aps
 	}

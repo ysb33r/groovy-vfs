@@ -314,14 +314,6 @@ import java.util.Vector;
 
     private static boolean allStars(Character[] chars, int start, int end) {
         !chars[start..end].any { it != '*' }
-//        for (int i = start; i <= end; i = ++i) {
-//            if (chars[i] != '*') {
-//                return false;
-//            }
-//
-//        }
-//
-//        return true;
     }
 
     private static boolean different(boolean caseSensitive, char ch, char other) {
