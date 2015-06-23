@@ -13,7 +13,6 @@
  */
 package org.ysb33r.groovy.dsl.vfs
 
-import spock.lang.IgnoreRest
 import spock.lang.Specification
 
 
