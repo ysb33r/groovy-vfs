@@ -9,8 +9,6 @@
  * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  *
- * This code has been shamelessly poached from the Ant code source base and
- * adapted to fit within a VFS context
  * ============================================================================
  */
 package org.ysb33r.groovy.dsl.vfs.impl
@@ -40,6 +38,14 @@ import org.ysb33r.groovy.dsl.vfs.impl.ant.SelectorUtils
 @CompileStatic
 class AntPatternSelector implements FileSelector, Cloneable {
 
+    /** Should the base folder name be excluded? {@code true} by default.
+     *
+     */
+    boolean excludeSelf = true
+
+    /** Whether case sentive matching should be used. {@code true} by default
+     *
+     */
     boolean caseSensitive = true
 
     /**
@@ -53,6 +59,9 @@ class AntPatternSelector implements FileSelector, Cloneable {
      */
     @Override
     boolean includeFile(FileSelectInfo fileInfo)  {
+        if(fileInfo.depth == 0 && excludeSelf ) {
+            return false
+        }
         allowed(fileInfo)
     }
 
@@ -149,6 +158,11 @@ class AntPatternSelector implements FileSelector, Cloneable {
 
     @PackageScope
     boolean allowed(final String subject) {
+
+        if(subject.empty) {
+            return true
+        }
+
         // Split into parts
         def parts = splitRelativeURI(subject)
 

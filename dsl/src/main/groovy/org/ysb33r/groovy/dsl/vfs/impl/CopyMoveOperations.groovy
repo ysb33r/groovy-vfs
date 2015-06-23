@@ -59,7 +59,6 @@ class CopyMoveOperations {
 		}
 
 		FileSelector selector=_createSelector(filter)
-
 		switch(fromType) {
 			case FILE:
 				_copyFromSourceFile(from,to,smash,_overwritePolicy(overwrite),selector)
@@ -251,7 +250,7 @@ class CopyMoveOperations {
     ) {
 		def toType= to.type
 		FileObject target
-		
+
 		switch(toType) {
 			case FILE:
 				if(!smash) {
@@ -272,10 +271,11 @@ class CopyMoveOperations {
 					}
 					return 
 				} else if (recursive) {
-
 					target=to.resolveFile(from.name.baseName)
-					if(target.exists()) {
-                        _recursiveDirCopyNoSmash(from, target, selector, overwrite)
+                    if (selector instanceof AntPatternSelector && selector.excludeSelf) {
+                        to.copyFrom(from, _currySelectorWithOverwrite(from, to, selector, overwrite))
+                    } else if(target.exists()) {
+						_recursiveDirCopyNoSmash(from, target, selector, overwrite)
                     } else if (selector==Selectors.EXCLUDE_SELF) {
                         _recursiveDirCopyNoSmash(from, to, Selectors.SELECT_ALL, overwrite)
 					} else {
@@ -309,28 +309,8 @@ class CopyMoveOperations {
 	 * @return
 	 */
 	private static def _recursiveDirCopyNoSmash(FileObject from,FileObject to,FileSelector selector,Closure overwrite) {
-		FileSelector combinedSelector=[ 
-			includeFile : {
-				if (!selector.includeFile(it)) {
-					return false
-				}
-				def src= from.name.getRelativeName(it.file.name)
-				def target=to.resolveFile(src)
-				
-				if(target.exists()) {
-					if(!overwrite(it.file,target)) {
-						throw new FileActionException("Overwriting existing target '${friendlyURI(to)}' is not allowed")
-                    } else if(target.type == FOLDER && it.file.type == FOLDER) {
-                      return true
-					} else if(target.type == FOLDER) {
-						throw new FileActionException("Replacing existing target folder '${friendlyURI(to)}' with a file is not allowed")
-					}
-				}
-				return true
-			},
-			traverseDescendents : {selector.traverseDescendents(it)}
-		] as FileSelector
-	
+
+        FileSelector combinedSelector = _currySelectorWithOverwrite(from,to,selector,overwrite)
 		from.children.each {
 			def nextTarget=to.resolveFile(it.name.baseName)
 			try {
@@ -340,7 +320,32 @@ class CopyMoveOperations {
 			}
 		}
 	}
-	
+
+    private static FileSelector _currySelectorWithOverwrite(FileObject from,FileObject to, FileSelector selector,Closure overwrite) {
+        [
+            includeFile : {
+                if (!selector.includeFile(it)) {
+                    return false
+                }
+                def src= from.name.getRelativeName(it.file.name)
+                def target=to.resolveFile(src)
+
+                if(target.exists()) {
+                    if(!overwrite(it.file,target)) {
+                        throw new FileActionException("Overwriting existing target '${friendlyURI(to)}' is not allowed")
+                    } else if(target.type == FOLDER && it.file.type == FOLDER) {
+                        return true
+                    } else if(target.type == FOLDER) {
+                        throw new FileActionException("Replacing existing target folder '${friendlyURI(to)}' with a file is not allowed")
+                    }
+                }
+                return true
+            },
+            traverseDescendents : {selector.traverseDescendents(it)}
+        ] as FileSelector
+
+    }
+
 	/** Returns a closure which can be prompted on a file-by-file basis about overwriting
 	 * 
 	 * @param overwrite

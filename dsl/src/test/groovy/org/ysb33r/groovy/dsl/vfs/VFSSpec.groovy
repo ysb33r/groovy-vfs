@@ -13,6 +13,7 @@
  */
 package org.ysb33r.groovy.dsl.vfs
 
+import spock.lang.IgnoreRest
 import spock.lang.Specification
 
 
@@ -102,7 +103,7 @@ class VFSSpec extends Specification {
             thrown(FileActionException)
     }
 
-    def "Copying with an ANT-style filter"() {
+    def "Copying with an ANT-style filter (excludeSelf==true)"() {
         when:
         vfs {
             cp testFsReadOnlyRoot,testFsWriteRoot,
@@ -111,6 +112,50 @@ class VFSSpec extends Specification {
                     include '**'
                     exclude 'file2.txt'
                     exclude '**/file4.txt'
+                }
+
+        }
+        then:
+        new File(testFsWriteRoot,'file1.txt').exists()
+        new File(testFsWriteRoot,'test-subdir/file3.txt').exists()
+        !new File(testFsWriteRoot,'file2.txt').exists()
+        !new File(testFsWriteRoot,'test-subdir/file4.txt').exists()
+
+    }
+
+    def "Copying with an ANT-style filter (excludeSelf==true) and non-existing target"() {
+        given:
+        File target = new File(testFsWriteRoot,'destination')
+
+        when:
+        vfs {
+            cp testFsReadOnlyRoot,target,
+                overwrite:true, recursive:true,
+                filter : antPattern {
+                    include '**'
+                    exclude 'file2.txt'
+                    exclude '**/file4.txt'
+                }
+
+        }
+        then:
+        new File(target,'file1.txt').exists()
+        new File(target,'test-subdir/file3.txt').exists()
+        !new File(target,'file2.txt').exists()
+        !new File(target,'test-subdir/file4.txt').exists()
+
+    }
+
+    def "Copying with an ANT-style filter (excludeSelf==false)"() {
+        when:
+        vfs {
+            cp testFsReadOnlyRoot,testFsWriteRoot,
+                overwrite:true, recursive:true,
+                filter : antPattern {
+                    include '**'
+                    exclude 'file2.txt'
+                    exclude '**/file4.txt'
+                    excludeSelf = false
                 }
 
         }
