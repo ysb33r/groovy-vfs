@@ -54,6 +54,14 @@ class VfsCopyTestSpec extends Specification {
         copyTask = project.tasks.create( 'fooTask', VfsCopy )
     }
 
+    boolean exists(final String name) {
+        new File(TESTFSWRITEROOT,name).exists()
+    }
+
+    boolean not_copied(final String name) {
+        !exists(name)
+    }
+
     def "Check praxis for unconfigured task"() {
         expect:
             copyTask.praxis == [ overwrite : true, smash : false, recursive : true ]
@@ -100,7 +108,9 @@ class VfsCopyTestSpec extends Specification {
     def "Must be able to copy one file across to a remote directory"() {
         given:
             copyTask.configure {
-                from "${server.READROOT}/file1.txt"
+                from "${server.READROOT}", {
+                    include 'file1.txt'
+                }
                 into "${server.WRITEROOT}/foo"
             }
 
@@ -111,19 +121,81 @@ class VfsCopyTestSpec extends Specification {
             new File(TESTFSWRITEROOT,'foo/file1.txt').exists()
     }
 
-//    def "Must be able to copy one file across to a remote directory"() {
-//        given:
-//        copyTask.configure {
-//                from "${server.READROOT}", {
-//                    filter
-//                }
-//                into "${server.WRITEROOT}/foo"
-//        }
-//
-//        when:
-//            copyTask.exec()
-//
-//        then:
-//            new File(TESTFSWRITEROOT,'foo/file1.txt').exists()
-//    }
+    def "Must not be able to copy one file across to a remote directory if the lone file is specified in 'from'"() {
+        given:
+        copyTask.configure {
+            from "${server.READROOT}/file1.txt"
+            into "${server.WRITEROOT}/foo"
+        }
+
+        when:
+        copyTask.exec()
+
+        then:
+        not_copied 'foo/file1.txt'
+    }
+
+    def "Must be able to copy a directory across to a remote directory"() {
+        given:
+            copyTask.configure {
+                from "${server.READROOT}/"
+                into "${server.WRITEROOT}/foo"
+            }
+
+        when:
+            copyTask.exec()
+
+        then:
+            new File(TESTFSWRITEROOT,'foo/file1.txt').exists()
+            new File(TESTFSWRITEROOT,'foo/file2.txt').exists()
+            new File(TESTFSWRITEROOT,'foo/test-subdir/file3.txt').exists()
+            new File(TESTFSWRITEROOT,'foo/test-subdir/file4.txt').exists()
+    }
+
+    def "Must be able to copy multiple files using a filter across to a remote directory"() {
+        given:
+        copyTask.configure {
+                from "${server.READROOT}", {
+                    options filter : ~/file[1]\.txt/
+                }
+                into "${server.WRITEROOT}/foo"
+        }
+
+        when:
+            copyTask.exec()
+
+        then:
+            exists 'foo/file1.txt'
+            not_copied 'foo/file2.txt'
+    }
+
+    def "Must be able to copy multiple files using child copy specs"() {
+        given:
+        def childSpec = project.vfsCopySpec {
+            from "${server.READROOT}/test-subdir", {
+                exclude 'file4.txt'
+            }
+            into 'bar'
+
+        }
+        copyTask.configure {
+            from "${server.READROOT}", {
+                include 'file1.txt'
+            }
+            into "${server.WRITEROOT}/foo"
+
+            with(childSpec)
+        }
+
+        when:
+        copyTask.exec()
+
+        then:
+        exists 'foo/file1.txt'
+        not_copied 'foo/file2.txt'
+        not_copied 'foo/test-subdir'
+        exists 'foo/bar/file3.txt'
+        not_copied 'foo/bar/file4.txt'
+
+    }
 }

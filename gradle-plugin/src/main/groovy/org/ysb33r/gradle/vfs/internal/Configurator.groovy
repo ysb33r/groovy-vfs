@@ -27,11 +27,16 @@
 
 package org.ysb33r.gradle.vfs.internal
 
+import groovy.util.logging.Slf4j
+import org.apache.commons.lang.NotImplementedException
+import org.gradle.api.GradleException
 import org.ysb33r.gradle.vfs.VfsOptions
+import org.ysb33r.groovy.dsl.vfs.impl.AntPatternSelector
 
 /**
  * @author Schalk W. Cronjé
  */
+@Slf4j
 class Configurator implements VfsOptions {
 
     static Configurator execute( Closure cfg ) {
@@ -42,12 +47,40 @@ class Configurator implements VfsOptions {
         config
     }
 
+    @Override
     Map<String,Object> getOptionMap() {
-        // TODO: IMPLEMENT
-        [:]
+        if(selector) {
+            optionMap + [ filter : selector ]
+        } else {
+            optionMap
+        }
     }
 
-//    def methodMissing(String name,Object... args) {
+    void options(Map opts) {
+        if(selector && opts.containsKey('filter')) {
+            log.warn "Cannot supply a custom filter if ANT-style patterns are being used"
+            optionMap+= opts.remove('filter')
+        } else {
+            optionMap+= opts
+        }
+    }
+
+//    void options(Closure opts) {
 //
 //    }
+
+    def methodMissing(String name, args) {
+        if(name ==~ /include|exclude|[sg]etIncludes|[sg]etExcludes|[sg]etCaseSensitive/) {
+            if(selector == null) {
+                selector = new AntPatternSelector()
+            }
+            selector.invokeMethod(name,args)
+        } else {
+            throw new MissingMethodException(name, delegate, args)
+        }
+    }
+
+    private Map<String,Object> optionMap = [:]
+    private AntPatternSelector selector
+
 }

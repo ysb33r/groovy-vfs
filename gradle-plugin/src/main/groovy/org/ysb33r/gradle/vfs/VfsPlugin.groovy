@@ -46,10 +46,6 @@ class VfsPlugin implements Plugin<Project> {
             if(!project.ext.hasProperty(VfsProxy.PROJECT_PROPERTY_NAME)) {
                 project.ext."${VfsProxy.PROJECT_PROPERTY_NAME}" = VfsProxy.request(project)
             }
-//            project.ext.__vfs = new VFS (
-//                logger : LogFactory.getLog('vfs'),
-//                temporaryFileStore : "${project.gradle.gradleUserHomeDir}/vfs".toString()
-//            )
             project.ext.vfs = { Closure c -> project."${VfsProxy.PROJECT_PROPERTY_NAME}".script(c) }
             project.logger.debug 'Added project.vfs'
         }

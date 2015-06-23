@@ -37,9 +37,14 @@ import org.ysb33r.gradle.vfs.VfsOptions
 class BasicVfsCopySource implements VfsCopySource {
 
     private final Object source
-//    private final Map<String,Object> options = [:]
+    private final Map<String,Object> optionMap = [:]
 
     BasicVfsCopySource( Object src ) { source =src }
+
+    BasicVfsCopySource( Object src, Closure configureClosure ) {
+        source =src
+        optionMap= Configurator.execute(configureClosure).optionMap
+    }
 
     /** Source object in non-evaluated object form.
      *
@@ -55,9 +60,10 @@ class BasicVfsCopySource implements VfsCopySource {
      */
     @Override
     VfsOptions getOptions() {
+        def ret = this.optionMap
         new VfsOptions() {
             @Override
-            Map<String, Object> getOptionMap() { [:] }
+            Map<String, Object> getOptionMap() { ret }
         }
     }
 }

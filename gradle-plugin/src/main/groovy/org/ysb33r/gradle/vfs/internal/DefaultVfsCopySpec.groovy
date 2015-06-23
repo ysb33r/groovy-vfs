@@ -102,14 +102,9 @@ class DefaultVfsCopySpec implements VfsCopySpec {
      * @param sourcePath Path to source for the copy
      * @param configureClosure closure for configuring the child CopySourceSpec
      */
-    @CompileDynamic
     @Override
     DefaultVfsCopySpec from(Object sourcePath, Closure configureClosure) {
-        def config= Configurator.execute(configureClosure)
-        sources.add ([
-            getSource : { -> sourcePath },
-            getOptionsMap : { -> config }
-        ] as VfsCopySource)
+        sources.add(new BasicVfsCopySource(sourcePath,configureClosure))
         this
     }
 
@@ -151,11 +146,7 @@ class DefaultVfsCopySpec implements VfsCopySpec {
      */
     @Override
     String getRelativePath() {
-        if( null == this.relativePath ) {
-            null
-        } else {
-            CollectionUtils.stringize([this.relativePath])[0]
-        }
+        this.relativePath ? CollectionUtils.stringize([this.relativePath])[0] : null
     }
 
     /** Adds the given specs as children of this spec

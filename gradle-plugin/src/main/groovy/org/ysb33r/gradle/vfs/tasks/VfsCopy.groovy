@@ -11,19 +11,6 @@
  *
  * ============================================================================
  */
-//
-// ============================================================================
-// (C) Copyright Schalk W. Cronje 2013-2015
-//
-// This software is licensed under the Apache License 2.0
-// See http://www.apache.org/licenses/LICENSE-2.0 for license details
-//
-// Unless required by applicable law or agreed to in writing, software distributed under the License is
-// distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and limitations under the License.
-//
-// ============================================================================
-//
 
 package org.ysb33r.gradle.vfs.tasks
 
@@ -33,6 +20,7 @@ import org.gradle.api.Incubating
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
+import org.ysb33r.gradle.vfs.VfsCopySpec
 import org.ysb33r.gradle.vfs.VfsOptions
 import org.ysb33r.gradle.vfs.VfsURI
 import org.ysb33r.gradle.vfs.internal.CopyUtils
@@ -88,10 +76,10 @@ class VfsCopy extends VfsBaseTask  {
         this
     }
 
-//    // ---------------------------------
-//    // This will be needed, might maybe only in a 2nd update
-//    // ---------------------------------
-    // VfsCopySpec with(VfsCopySpec childSpecs)
+    VfsCopy with(VfsCopySpec... copySpecs) {
+        copySpec.with(copySpecs)
+        this
+    }
 
 //    // ---------------------------------
 //    // Not sure yet, whether these four will be needed
