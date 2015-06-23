@@ -219,7 +219,7 @@ class CmdlineSpec extends Specification {
 
     }
 
-    def "mv options -i, -f, -n is last option wins"() {
+    def "For mv options -i, -f, -n the last option wins"() {
         given:
             Closure parser = cmdline.findParser(['mv'] as String[])
 
