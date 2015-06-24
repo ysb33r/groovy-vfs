@@ -49,16 +49,19 @@ import org.ysb33r.gradle.vfs.tasks.VfsCopy
 
 task download ( type : VfsCopy ) {
 
-    from 'http://somewhere.example/file' <1>
+    from 'http://somewhere.example/folder' // <1>
 
-    from URL_2
+    from 'http://somewhere.example/another_folder', {
+      include '**/*.jpg' // <2>
+    }
 
-    // Set the destination root URI. Files will be copied into that folder
-    into URL_ROOT
+    from 'ftp://somewhere..else.example/folder', {
+      options filter ~/\.jpg$/  // <3>
+    }
 
-    // Set options for all of the copy operations.
-    // These override global options, but are only applicable for source and destination URLs within this task
-    options {
+    into new File(buildDir,'downloadedFolder') // <4>
+
+    options { // <5>
       ftp {
         passiveMode true
       }
@@ -67,14 +70,21 @@ task download ( type : VfsCopy ) {
 
 
 ----
-<1> Copy the file at this URI
-<2>
+<1> Copy everything below this folder
+<2> Ant-style patterns are also supported
+<3> Standard Groovy-VFS filter behaviour is achived via `options`
+<4> Set the destination root URI. Files will be copied into that folder
+<5> Set options for all of the copy operations. These override global options, but are only applicable for source and
+  destination URLs within this task
 
+////
 Any local source URIs will get reflected as an input file in the `TaskInputs`, otherwise it is just an input
 If the destination URI is local, it will get reflected as `TaskOutputs` as a file
+////
+
+INFO: In beta-3 input-output caching is not working as yet. https://github.com/ysb33r/groovy-vfs/issues/49[#49]
 
 == Adding extra plugins
-
 
 From v1.0 onwards additional plugins can be loaded via a new `extend` block. For more details see this gist:
 https://gist.github.com/ysb33r/9916940

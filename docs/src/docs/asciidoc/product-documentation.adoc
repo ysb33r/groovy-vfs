@@ -2,6 +2,7 @@
 :author: Schalk W. Cronjé
 :doctype: book
 :toc: right
+:icons: font
 
 = Groovy VFS DSL
 
