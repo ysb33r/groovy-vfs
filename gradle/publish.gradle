@@ -39,7 +39,7 @@ if(bintrayRepo != 'grysb33r' ) {
 
 } else {
     apply plugin : 'maven'
-    apply plugin: 'com.jfrog.artifactory'
+//    apply plugin: 'com.jfrog.artifactory'
 
     install {
         repositories.mavenInstaller {
@@ -72,20 +72,20 @@ if(bintrayRepo != 'grysb33r' ) {
         }
     }
 
-    artifactory {
-        publish {
-            contextUrl = 'http://oss.jfrog.org'
-            repository {
-                repoKey = 'oss-snapshot-local'
-                username = project.properties.bintrayUserName
-                password = project.properties.bintrayApiKey
-            }
-        }
-    }
-
-    artifactoryPublish {
-        onlyIf { version.endsWith("SNAPSHOT") }
-    }
+//    artifactory {
+//        publish {
+//            contextUrl = 'http://oss.jfrog.org'
+//            repository {
+//                repoKey = 'oss-snapshot-local'
+//                username = project.properties.bintrayUserName
+//                password = project.properties.bintrayApiKey
+//            }
+//        }
+//    }
+//
+//    artifactoryPublish {
+//        onlyIf { version.endsWith("SNAPSHOT") }
+//    }
 
 }
 
