@@ -1,0 +1,47 @@
+= Groovy VFS
+:author: Schalk W. Cronjé
+:doctype: book
+:toc: right
+:icons: font
+
+= Groovy VFS DSL
+
+== Introduction
+
+include::How-groovy-vfs-differs-from-apache-vfs.adoc[]
+
+include::Instantiating-a-vfs.adoc[]
+
+== Copying Files
+
+include::VFS-Copy-Behaviour.adoc[]
+
+== Moving Files
+
+include::VFS-Move-Behaviour.adoc[]
+
+include::Protocol-Options.adoc[]
+
+= Providers
+
+== Adding Providers
+
+include::Add-Providers.adoc[]
+
+////
+include::cloud.adoc[]
+
+include::smb.adoc[]
+
+include::nfs.adoc[]
+////
+
+= Gradle Plugin
+
+include::gradle-plugin.adoc[]
+
+////
+= Commandline VFS
+
+////
+

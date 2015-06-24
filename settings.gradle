@@ -12,10 +12,14 @@
 
 rootProject.name = 'groovy-vfs'
 
+include 'test-servers'
 include 'dsl'
 include 'gradle-plugin'
 include 'jlan'
 include 'smb-provider'
 include 'cmdline'
 include 'cloud-provider-core'
+
+
+include 'docs'
 

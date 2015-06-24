@@ -1,6 +1,19 @@
-// ============================================================================
-// Copyright (C) Schalk W. Cronje 2012 - 2013
+/*
+ * ============================================================================
+ * (C) Copyright Schalk W. Cronje 2013-2015
+ *
+ * This software is licensed under the Apache License 2.0
+ * See http://www.apache.org/licenses/LICENSE-2.0 for license details
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is
+ * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ *
+ * ============================================================================
+ */
 //
+// ============================================================================
+// (C) Copyright Schalk W. Cronje 2013-2015
 //
 // This software is licensed under the Apache License 2.0
 // See http://www.apache.org/licenses/LICENSE-2.0 for license details
@@ -10,19 +23,23 @@
 // See the License for the specific language governing permissions and limitations under the License.
 //
 // ============================================================================
+//
 
 package org.ysb33r.groovy.dsl.vfs.impl
 
 import groovy.transform.CompileDynamic
 import org.apache.commons.logging.Log
+import org.apache.commons.vfs2.FileName
 import org.apache.commons.vfs2.FileSystemOptions
 import org.apache.commons.vfs2.FileObject
 import org.apache.commons.vfs2.FileSystemManager
+import org.ysb33r.groovy.dsl.vfs.FileSystemException
 import org.ysb33r.groovy.dsl.vfs.OptionException
 import org.ysb33r.groovy.dsl.vfs.URI;
 import groovy.transform.CompileStatic
 import org.apache.commons.vfs2.provider.TemporaryFileStore
 import org.apache.commons.vfs2.impl.DefaultFileReplicator
+import org.ysb33r.groovy.dsl.vfs.URIException
 
 @CompileStatic
 class Util {
@@ -32,6 +49,7 @@ class Util {
 	 * @param fsMgr Apache VFS FileSystemManager instance
 	 * @param defaultFSOptions Default filesystem options that is used as a baseline
 	 * @param uri URI instance or something that can be converted to a URI
+     * @return Returns an implementation-dependent VFS-located object (currently {@code org.apache.commons.vfs2.FileObject}).
 	 */
     @CompileDynamic
 	static FileObject resolveURI (Map properties=[:],FileSystemManager fsMgr,FileSystemOptions defaultFSOptions,def uri) {
@@ -48,6 +66,7 @@ class Util {
 	 * @param options 
 	 * @param fsMgr File system manager
 	 * @param baseFSOpt If supplied this is used as the initial file system options
+     * @return An implementation-dependent object of options (current @{code org.apache.commons.vfs2.FileSystemOptions}).
 	 */
     @CompileDynamic
 	static def buildOptions (Map options,FileSystemManager fsMgr, FileSystemOptions baseFSOpt=null) {
@@ -67,6 +86,7 @@ class Util {
      * @param uri URI object
      * @param fsMgr File system manager
      * @param baseFSOpt If supplied this is used as the initial file system options
+     * @return An implementation-dependent object of options (current @{code org.apache.commons.vfs2.FileSystemOptions}).
      */
     @CompileDynamic
     static def buildOptions ( URI uri, FileSystemManager fsMgr, FileSystemOptions baseFSOpt=null ) {
@@ -78,13 +98,133 @@ class Util {
         }
         return fsOpt
     }
-    
+
+    /** Allows a child path to be appended to an existing URI.
+     * Additional query parameters or fragments are not allowed and will result in an exception.
+     *
+     * @param uri Parent URI
+     * @param cs Relative path to be appended
+     * @return A new path with the child path appended. All non-VFS query string parameters will remain intact and
+     * all existing properties will be inherited.
+     * @throw {@link org.ysb33r.groovy.dsl.vfs.URIException} if additional query parameters or fragments are found.
+     * @since 1.0
+     */
+    static FileObject addRelativePath(FileObject fo,CharSequence cs) {
+        String path= cs.toString()
+        java.net.URI jnURI
+        try {
+            jnURI =  path.toURI()
+        } catch(URISyntaxException e) {
+            throw new URIException(path,'This path is suitable as a relative path')
+        }
+        if(jnURI.rawFragment || jnURI.rawQuery || jnURI.absolute) {
+            throw new URIException(path,'Absolute paths, queries or fragments are not allowed when adding relative paths')
+        }
+        fo.resolveFile(path)
+    }
+
+    /** Allows a child path to be appended to an existing URI.
+     * Additional query parameters or fragments are not allowed and will result in an exception.
+     *
+     * @param uri Parent URI
+     * @param cs Relative path to be appended
+     * @return A new path with the child path appended. All non-VFS query string parameters will remain intact and
+     * all existing properties will be inherited.
+     * @throw {@link org.ysb33r.groovy.dsl.vfs.URIException} if additional query parameters or fragments are found.
+     * @since 1.0
+     */
+    static URI addRelativePath(URI uri,CharSequence cs) {
+        uri / cs
+    }
+
+    /** Checks whether the URI is valid within the context of the given file system manager.
+     *
+     * @param uri URI instance to be checked
+     * @param fsMgr File system manager
+     * @return An implementation-dependent type if the URI if valid
+     * @throw FileSystemException if not valid
+     */
+    static FileName validURI(URI uri,FileSystemManager fsMgr) {
+        fsMgr.resolveURI(uri.toString())
+    }
+
+    /** Checks whether the scheme is considered to be a local file system
+     *
+     * @param scheme Schemt o be checked
+     * @return {@code True} if local filesystem scheme
+     * @since 1.0
+     */
+    static boolean localScheme(final String scheme) {
+        scheme == 'file'
+    }
+
+
+    /** Checks whether the URI is local within the context of the given file system manager.
+     *
+     * @param uri URI instance to be checked
+     * @param fsMgr File system manager
+     * @return An implementation-dependent type if the URI if valid
+     * @since 1.0
+     */
+    static boolean localURI(FileObject uri,FileSystemManager fsMgr) {
+        localScheme(uri.name.scheme)
+    }
+
+    /** Checks whether the URI is local within the context of the given file system manager.
+     *
+     * @param uri URI instance to be checked
+     * @param fsMgr File system manager
+     * @return An implementation-dependent type if the URI if valid
+     * @since 1.0
+     */
+    static boolean localURI(FileName uri,FileSystemManager fsMgr) {
+        localScheme(uri.scheme)
+    }
+
+    /** Checks whether the URI is local within the context of the given file system manager.
+     *
+     * @param uri URI instance to be checked
+     * @param fsMgr File system manager
+     * @return An implementation-dependent type if the URI if valid
+     * @throw FileSystemException if not valid
+     * @since 1.0
+     */
+    static boolean localURI(URI uri,FileSystemManager fsMgr) {
+        localURI(validURI(uri,fsMgr),fsMgr)
+    }
+
+    /** Checks whether the URI is local within the context of the given file system manager.
+     *
+     * @param uri URI instance to be checked
+     * @param fsMgr File system manager
+     * @return An implementation-dependent type if the URI if valid
+     * @throw FileSystemException if not valid
+     * @since 1.0
+     */
+    static boolean localURI(File uri,FileSystemManager fsMgr) {
+        localURI(validURI(new URI(uri),fsMgr),fsMgr)
+    }
+
+    /** Checks whether the URI is local within the context of the given file system manager.
+     *
+     * @param uri URI instance to be checked
+     * @param fsMgr File system manager
+     * @return An implementation-dependent type if the URI if valid
+     * @throw FileSystemException if not valid
+     * @since 1.0
+     */
+    static boolean localURI(CharSequence uri,FileSystemManager fsMgr) {
+        localURI(validURI(new URI(uri.toString()),fsMgr),fsMgr)
+    }
+
+
     /** Sets a single option on a FileSystemOptions instance
      * @param scheme The ip scheme to set the option on i.e. 'ftp'
      * @param opt The specific option to set i.e. 'passiveMode'
      * @param fsMgr The current virtual file system instance that is in use
      * @param fsOpt The file system options instance associated with the VFS that needs updating
      * @param v The object value that the option needs to be updated to
+     * @return An implementation-dependent object of options (current @{code org.apache.commons.vfs2.FileSystemOptions}).
      */
     @CompileDynamic
     static def setOption ( String scheme, String opt, FileSystemManager fsMgr, FileSystemOptions fsOpt,  v ) {

@@ -1,3 +1,16 @@
+/*
+ * ============================================================================
+ * (C) Copyright Schalk W. Cronje 2013-2015
+ *
+ * This software is licensed under the Apache License 2.0
+ * See http://www.apache.org/licenses/LICENSE-2.0 for license details
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is
+ * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ *
+ * ============================================================================
+ */
 // ============================================================================
 // (C) Copyright Schalk W. Cronje 2014
 //
@@ -30,8 +43,11 @@ class CatSpec extends Specification {
         capture.close()
     }
 
+    static String filtered(final str) {
+        str.replaceAll(/\r\n/,"\n")
+    }
     static String filtered(OutputStream strm) {
-        strm.toString().replaceAll(/\r\n/,"\n")
+        filtered(strm.toString())
     }
 
     def "Cat a local file without options" () {
@@ -45,7 +61,7 @@ class CatSpec extends Specification {
             cmd.run(vfs)
 
         then:
-            filtered(capture) == testfile.text
+            filtered(capture) == filtered(testfile.text)
     }
 
     def "Cat a local file and number all lines" () {
@@ -59,7 +75,7 @@ class CatSpec extends Specification {
             cmd.run(vfs)
 
         then:
-            filtered(capture) == new File(EXPECTEDROOT,'file1-numbered.txt').text
+            filtered(capture) == filtered(new File(EXPECTEDROOT,'file1-numbered.txt').text)
     }
 
     def "Cat two local files and number all lines, restarting with every file" () {
@@ -73,7 +89,7 @@ class CatSpec extends Specification {
             cmd.run(vfs)
 
         then:
-            filtered(capture) == new File(EXPECTEDROOT,'file1-file2-numbered.txt').text
+            filtered(capture) == filtered(new File(EXPECTEDROOT,'file1-file2-numbered.txt').text)
     }
 
     def "Cat a local file and number non-blank lines (with last line not blank)" () {
@@ -87,7 +103,7 @@ class CatSpec extends Specification {
             cmd.run(vfs)
 
         then:
-            filtered(capture) == new File(EXPECTEDROOT,'file2-numbered-notblanks.txt').text
+            filtered(capture) == filtered(new File(EXPECTEDROOT,'file2-numbered-notblanks.txt').text)
     }
 
     def "Cat a local file and number non-blank lines (with last line blank)" () {
@@ -101,7 +117,7 @@ class CatSpec extends Specification {
             cmd.run(vfs)
 
         then:
-            filtered(capture) == new File(EXPECTEDROOT,'file4-numbered-notblanks.txt').text
+            filtered(capture) == filtered(new File(EXPECTEDROOT,'file4-numbered-notblanks.txt').text)
     }
 
 
@@ -116,7 +132,7 @@ class CatSpec extends Specification {
             cmd.run(vfs)
 
         then:
-            filtered(capture) == new File(EXPECTEDROOT,'file3-suppressed-repeating-blanks.txt').text
+            filtered(capture) == filtered(new File(EXPECTEDROOT,'file3-suppressed-repeating-blanks.txt').text)
     }
 
     def "Mark EOL in a local file" () {
@@ -130,7 +146,7 @@ class CatSpec extends Specification {
             cmd.run(vfs)
 
         then:
-            filtered(capture) == new File(EXPECTEDROOT,'file1-with-eol-markers.txt').text
+            filtered(capture) == filtered(new File(EXPECTEDROOT,'file1-with-eol-markers.txt').text)
     }
 
     def "Show tabs in a local file" () {
@@ -144,7 +160,7 @@ class CatSpec extends Specification {
             cmd.run(vfs)
 
         then:
-            filtered(capture) == new File(EXPECTEDROOT,'file5-show-tabs.txt').text
+            filtered(capture) == filtered(new File(EXPECTEDROOT,'file5-show-tabs.txt').text)
     }
 
     def "Show non-printing characters (excluding LF and TAB) in a local file" () {
@@ -158,6 +174,6 @@ class CatSpec extends Specification {
             cmd.run(vfs)
 
         then:
-            filtered(capture) == new File(EXPECTEDROOT,'file6-show-non-printing.txt').text
+            filtered(capture) == filtered(new File(EXPECTEDROOT,'file6-show-non-printing.txt').text)
     }
 }

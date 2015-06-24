@@ -1,5 +1,19 @@
+/*
+ * ============================================================================
+ * (C) Copyright Schalk W. Cronje 2013-2015
+ *
+ * This software is licensed under the Apache License 2.0
+ * See http://www.apache.org/licenses/LICENSE-2.0 for license details
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is
+ * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ *
+ * ============================================================================
+ */
+//
 // ============================================================================
-// (C) Copyright Schalk W. Cronje 2012-2014
+// (C) Copyright Schalk W. Cronje 2013-2015
 //
 // This software is licensed under the Apache License 2.0
 // See http://www.apache.org/licenses/LICENSE-2.0 for license details
@@ -9,6 +23,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 //
 // ============================================================================
+//
 
 
 /**
@@ -19,9 +34,11 @@ package org.ysb33r.groovy.dsl.vfs
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.apache.commons.vfs2.CacheStrategy
+import org.apache.commons.vfs2.FileName
 import org.apache.commons.vfs2.FileSelectInfo
 import org.apache.commons.vfs2.FilesCache
 import org.apache.commons.vfs2.provider.FileReplicator
+import org.ysb33r.groovy.dsl.vfs.impl.AntPatternSelector
 import org.ysb33r.groovy.dsl.vfs.impl.FileContentEditor
 import org.ysb33r.groovy.dsl.vfs.impl.StandardFileSystemManager
 
@@ -577,6 +594,37 @@ class VFS {
         new ProviderDelegator( fsManager : fsMgr ) .bind (providerDSL)
     }
 
+	/** Creates an ANT-style pattern filter.
+	 *
+	 * @param cfg
+	 * @return
+     *
+	 * @code
+	 * def vfs = new VFS()
+	 *
+	 *
+	 *
+	 * vfs {
+	 *   cp 'ftp://server1/path1/path2', 'sftp://server2/path3',
+	 *     overwrite: true, recursive: true,
+	 *     filter : antPattern {
+	 *         include '**'
+	 *         exclude 'foo.txt'
+	 *     }
+	 * }
+	 *
+	 * @endcode
+	 */
+    @CompileDynamic
+	AntPatternSelector antPattern(Closure cfg) {
+		AntPatternSelector aps = new AntPatternSelector()
+		def c1 = cfg.clone()
+        c1.delegate = aps
+        c1.resolveStrategy = Closure.DELEGATE_FIRST
+        c1.call()
+		aps
+	}
+
     /** Returns a printable URI in which the password is masked
      *
      * @param uri
@@ -599,33 +647,54 @@ class VFS {
 	 *
 	 * @param uriText
 	 * @return URI
+	 * @since 1.0
 	 */
 	URI uri(CharSequence uriText) {
-		new URI(uriText.toString())
+		stageURI(uriText.toString())
 	}
 
-	/** Returns true if URI is a file.
+	/** Checks if URI is a file.
+	 * This will resolve the URI on the virtual file system.
+	 *
+	 * @param uri
+	 * @return {@code True} is URI is a folder
      *
      */
     boolean isFile(uri) {
         resolveURI(uri).type == FileType.FILE
     }
 
-    /** Returns true if URI is a folder.
-     *
+    /** Checks if URI is a folder.
+	 * This will resolve the URI on the virtual file system.
+	 *
+	 * @param uri
+	 * @return {@code True} is URI is a folder
      */
     boolean isFolder(uri) {
         resolveURI(uri).type == FileType.FOLDER
     }
 
-    /** Checks to see  if URI exists
-     *
+    /** Checks to see if URI exists.
+     * This will resolve the URI on the virtual file system.
+	 *
+	 * @param uri
+	 * @return {@code True} is URI exists
      */
     boolean exists(uri) {
         resolveURI(uri).exists()
     }
 
-    /** Returns the last modified time of a URI
+	/** Checks to see if URI if local
+	 * I
+	 * @return {@code True} if URI is a local file URI.
+	 * @since 1.0
+	 */
+	@CompileDynamic
+	boolean local(uri) {
+		Util.localURI(uri,fsMgr)
+	}
+
+	/** Returns the last modified time of a URI
      *
      * @param uri
      * @return Number of seconds since epoch
@@ -647,6 +716,13 @@ class VFS {
 		fsMgr.loggerInstance()
 	}
 
+	/** Resolves a URI.
+	 * This involves locating it on the virtual file system and potential network traffic.
+	 *
+	 * @param properties
+	 * @param uri
+	 * @return An implementation dependent object
+	 */
     @CompileDynamic
 	FileObject resolveURI (Map properties=[:],uri) {
 		if (uri instanceof FileObject) {
@@ -656,7 +732,22 @@ class VFS {
 		} 
 	}
 
-    /** Returns the type of URI - file_uri, folder_uri or non_existent_uri
+	/** Stages a URI to see if it can be resolved, but does not locate it on the virtual file system.
+	 * Does not invoke network traffic.
+	 *
+	 * @param properties
+	 * @param uri
+	 * @return An implementation dependent object
+	 * @since 1.0
+	 */
+	@CompileDynamic
+	URI stageURI (Map properties=[:],def uri) {
+		URI u = new URI(uri)
+		Util.validURI(u,fsMgr)
+		u.addProperties(properties)
+	}
+
+	/** Returns the type of URI - file_uri, folder_uri or non_existent_uri
      *
      * @param uri
      * @return

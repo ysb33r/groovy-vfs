@@ -2,6 +2,7 @@ language: groovy
 script: ./gradlew clean build  -PbintrayUserName= -PbintrayApiKey --info
 jdk:
  - oraclejdk7
+ - oraclejdk8
  - openjdk7
 os:
  - linux

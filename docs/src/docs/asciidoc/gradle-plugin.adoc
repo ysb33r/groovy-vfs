@@ -1,0 +1,90 @@
+== Bootstrap Gradle Plugin
+
+From initiation a `VFS` object has been available as an extension to the project class.
+The interface is very experimental and may change without much warning in future
+releases of this plugin.
+
+[source,groovy]
+----
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+      }
+      dependencies {
+        classpath 'org.ysb33r.gradle:vfs-gradle-plugin:0.5.1'
+        classpath 'commons-net:commons-net:3.+'  // If you want to use ftp
+        classpath 'commons-httpclient:commons-httpclient:3.1' // If you want http/https
+        classpath 'com.jcraft:jsch:0.1.48'  // If you want sftp
+      }
+}
+apply plugin : 'org.ysb33r.vfs'
+
+// Create a VFS task
+task copyReadme << {
+  vfs {
+    cp 'https://raw.github.com/ysb33r/groovy-vfs/master/README.md', new File("${buildDir}/tmp/README.md")
+  }
+}
+
+// it is also possible to update global options for vfs
+vfs {
+  options {
+    http {
+      maxTotalConnections 4
+    }
+  }
+}
+----
+
+If you want to see what VFS is going run gradle with `--debug`
+
+== VfsCopy
+
+In 1.0 a copy task has been added.
+
+[source,groovy]
+----
+import org.ysb33r.gradle.vfs.tasks.VfsCopy
+
+task download ( type : VfsCopy ) {
+
+    from 'http://somewhere.example/folder' // <1>
+
+    from 'http://somewhere.example/another_folder', {
+      include '**/*.jpg' // <2>
+    }
+
+    from 'ftp://somewhere..else.example/folder', {
+      options filter ~/\.jpg$/  // <3>
+    }
+
+    into new File(buildDir,'downloadedFolder') // <4>
+
+    options { // <5>
+      ftp {
+        passiveMode true
+      }
+    }
+}
+
+
+----
+<1> Copy everything below this folder
+<2> Ant-style patterns are also supported
+<3> Standard Groovy-VFS filter behaviour is achived via `options`
+<4> Set the destination root URI. Files will be copied into that folder
+<5> Set options for all of the copy operations. These override global options, but are only applicable for source and
+  destination URLs within this task
+
+////
+Any local source URIs will get reflected as an input file in the `TaskInputs`, otherwise it is just an input
+If the destination URI is local, it will get reflected as `TaskOutputs` as a file
+////
+
+INFO: In beta-3 input-output caching is not working as yet. https://github.com/ysb33r/groovy-vfs/issues/49[#49]
+
+== Adding extra plugins
+
+From v1.0 onwards additional plugins can be loaded via a new `extend` block. For more details see this gist:
+https://gist.github.com/ysb33r/9916940

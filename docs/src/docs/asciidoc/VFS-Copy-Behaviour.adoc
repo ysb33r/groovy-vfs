@@ -1,0 +1,145 @@
+=== Options
+
+There are a number of options that affect how a copy behaves. There options are
+
+[source,groovy]
+----
+vfs {
+  cp url_src, url_dest,
+    overwrite : false,
+    recursive : false,
+    smash : false,
+}
+----
+
+[cols="5*"]
+|===
+
+h|From FileType
+h|To FileType
+h|Overwrite?
+h|Smash?
+h|Recursive?
+h|Action
+
+|FILE
+|IMAGINARY
+|N
+|N
+|N
+|Copy, creating file
+
+|FILE
+|FILE
+|N
+|x
+|x
+|Don't copy
+
+|FILE
+|FILE
+|Y
+|x
+|x
+|Overwrite file
+
+|FILE
+|FOLDER
+|N
+|N
+|x
+|If a same-named file does not exist in the folder, copy it, otherwise don't copy
+
+|FILE
+|FOLDER
+|Y
+|N
+|x
+|Create same-named file in the folder, even it exists. If same-named directory exists, fail
+
+|FILE
+|FOLDER
+|x
+|Y
+|x
+|Replace same-named folder with a filename
+
+|FOLDER
+|IMAGINARY
+|N
+|N
+|N
+|Don't copy
+
+|FOLDER
+|IMAGINARY
+|N
+|N
+|Y
+|Copy directory and descendants
+
+|FOLDER
+|FILE
+|N
+|N
+|N
+|Don't copy
+
+|FOLDER
+|FILE
+|Y
+|N
+|N
+|Don't copy
+
+|FOLDER
+|FILE
+|x
+|Y
+|x
+|Replace file with folder
+
+|FOLDER
+|FOLDER
+|N
+|Y
+|N
+|Don't copy
+
+|FOLDER
+|FOLDER
+|N
+|N
+|Y
+|Copy as a subfolder. Existing files will be skipped
+
+|FOLDER
+|FOLDER
+|Y
+|N
+|Y
+|Copy as subfolder, replacing any same-named files along the way.
+
+|FOLDER
+|FOLDER
+|x
+|Y
+|x
+|Replace existing folder and its contents with the content of the source folder
+|===
+
+When the source is a folder a filter can also be used to control which files are copied. Internally filters are
+converted to `FileSelector` objects. If no filter is supplied, then the behaviour is the same as if `Selectors.SELECT_ALL`
+has been supplied. Filters return two results
+
+* Whether the file should be included
+* If the source file is a actually a folder, whether its descendants should be traversed
+
+Filters can be one of the following:
+
+* Regex pattern - This can be a `Pattern` class or a `String`. This is matched against the basename of a source file.
+Traversal will always occur.
+* `FileSelector`
+* Ant-style pattern
+
+

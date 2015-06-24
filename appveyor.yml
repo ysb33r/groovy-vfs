@@ -1,18 +1,25 @@
 version: "{branch} {build}"
 
-
-
 build:
   verbosity: detailed
 
 build_script:
-  - gradlew.bat build --info
+  - gradlew.bat assemble --info --no-daemon
+
+test_script:
+  - gradlew.bat check --info --no-daemon
 
 branches:
   only:
     - master
     - development
 
-on_finish:
-  - ps: $wc = New-Object 'System.Net.WebClient'
-  - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/xunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\cloud-provider-core\build\test-results\TEST-org.ysb33r.groovy.vfsplugin.cloud.s3.S3Spec.xml))
+
+environment:
+  matrix:
+  - JAVA_HOME: C:\Program Files\Java\jdk1.7.0
+  - JAVA_HOME: C:\Program Files\Java\jdk1.8.0
+  - JAVA_HOME: C:\Program Files (x86)\Java\jdk1.7.0
+  - JAVA_HOME: C:\Program Files (x86)\Java\jdk1.8.0
+
+

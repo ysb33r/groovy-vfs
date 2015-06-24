@@ -1,3 +1,16 @@
+/*
+ * ============================================================================
+ * (C) Copyright Schalk W. Cronje 2013-2015
+ *
+ * This software is licensed under the Apache License 2.0
+ * See http://www.apache.org/licenses/LICENSE-2.0 for license details
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is
+ * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ *
+ * ============================================================================
+ */
 // ============================================================================
 // (C) Copyright Schalk W. Cronje 2013
 //
@@ -87,8 +100,20 @@ abstract class SchemaSpec extends Specification {
          'file2.txt'             | _
          'test-subdir/file3.txt' | _  
          'test-subdir/file4.txt' | _   
-   } 
-   
+   }
+
+    def "Can we copy a directory recursively"() {
+
+        when:
+            vfs.cp server.READROOT, "${server.WRITEROOT}", overwrite:true, recursive:true
+
+        then:
+            new File(server.TESTFSWRITEROOT,'file1.txt').exists()
+            new File(server.TESTFSWRITEROOT,'file2.txt').exists()
+            new File(server.TESTFSWRITEROOT,'test-subdir/file3.txt').exists()
+            new File(server.TESTFSWRITEROOT,'test-subdir/file4.txt').exists()
+    }
+
    /*  
    def "Copy from remote site, using apache commons" () {
        setup: "This test was put in place to verify that a bug existed in groovy-vfs, but not in Apache VFS"

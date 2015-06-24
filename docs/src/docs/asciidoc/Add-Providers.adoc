@@ -1,0 +1,105 @@
+[[AddProviders]]
+=== The Extension DSL
+
+
+As from v0.6 onwards it is possible to easily add providers once they have been written. It is no longer necessary to
+embed your own `META-INF/vfs-providers.xml` file in a jar.
+
+To accomplish this the DSL has been extended with the `extend` keyword.
+
+=== Scheme Providers
+
+Providers are the most common use-case. In the simplest use case we add a provider with a scheme.
+
+[source,groovy]
+----
+vfs {
+    extend {
+        provider className : 'org.apache.commons.vfs2.provider.gzip.GzipFileProvider',schemes : ['gz']
+    }
+}
+----
+
+There are two properties in this case:
+
++ `className` - The name of the provider class. The class must be on the classpath, otherwise the provider will not be loaded.
++ `schemes` - One of more schemes that can be use in a URI.
+
+Sometimes we would like to only load a provider if some supporting classes are available. For this we use the
+`dependsOnClasses` keyword, which is a list of one or more classes. If any of these classes are not found the
+provider will not be loaded.
+
+[source,groovy]
+----
+vfs {
+    extend {
+        provider className : 'org.apache.commons.vfs2.provider.tar.TarFileProvider',
+          schemes : ['tar'],
+          dependsOnClasses : ['org.apache.commons.vfs2.provider.tar.TarInputStream']
+    }
+}
+----
+
+We can also decide to only load a provider, if another provider is already present. For this we use the
+`dependsOnSchemes` keyword.
+
+[source,groovy]
+----
+vfs {
+    extend {
+        provider className : 'org.apache.commons.vfs2.provider.tar.TarFileProvider',
+          schemes : ['tgz'],
+          dependsOnSchemes : ['tar','gz']
+    }
+}
+----
+
+It is important to note that Groovy VFS does not throw exceptions when providers cannot be loaded, but simply sends a
+debug log message. This is a design decision that matched that of Apache VFS.
+
+=== Overriding the Default Provider
+
+As from v0.6 the `defaultProvider` can no longer be used to set a defaultProvider during construction of a VFS.
+There correct way to do it is via the `defaultProvider` keyword.
+
+[source,groovy]
+----
+vfs {
+  extend {
+    defaultProvider className : 'org.apache.commons.vfs2.provider.url.UrlFileProvider'
+  }
+}
+----
+
+=== Operation Providers
+
+Adding an operation provider is similar to the basic use case of adding providers, except that the
+`operationProvider` keyword is used.
+
+[source,groovy]
+----
+vfs {
+    extend {
+      operationProvider className : 'acl.AclOperationsProvider', schemes : ["s3","aws"]
+    }
+}
+----
+
+=== Adding MIME Type Maps and File Extension Maps
+
+Maps can be added for MIME types with keyword `mimeType` or for file extensions with keyword `ext`. In both
+cases the first parameter will refer to the MIME Type or file extension and the second parameter to the scheme that
+it is applicable to.
+
+[source,groovy]
+----
+vfs {
+    extend {
+
+      mimeType 'application/zip', 'zip'
+
+      ext 'gzip', 'gz'
+
+    }
+}
+----

@@ -16,13 +16,20 @@ buildscript {
       }
       dependencies {
         classpath 'net.saliman:gradle-cobertura-plugin:2.2.2'
+          classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
       }
 }
 
 allprojects {
     ext {
-        versionModifier = 'beta2'
+        versionModifier = 'beta3'
         versionNumber   = '1.0'
+        modulesWithGroovyDoc = [
+            'dsl',
+            'gradle-plugin',
+            'cloud-provider-core',
+            'smb-provider'
+        ]
     }
     version = versionNumber + (versionModifier.size() ? "-${versionModifier}": '')
 }
@@ -36,8 +43,7 @@ subprojects {
         }
         dependencies {
             classpath 'org.ysb33r.gradle:bintray:1.6'
-            classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.3'
-//            classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
+            classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
         }
     }
 
@@ -48,6 +54,7 @@ subprojects {
         bintrayUser      = 'ysb33r'
         bintrayLicense   = 'Apache-2.0'
         bintrayAttributes= [:]
+        websitePublishFolder = new File(rootProject.projectDir,'website')
     }
 
     repositories {
@@ -56,10 +63,11 @@ subprojects {
 
 }
 
-configure(subprojects.findAll {it.name != 'jlan'}) {
+configure(subprojects.findAll { ! ['jlan','test-servers','docs'].contains(it.name) } ) {
 
     apply plugin: 'groovy'
     apply plugin: 'maven'
+    apply plugin: 'com.github.hierynomus.license'
 
     sourceCompatibility = 1.7
     targetCompatibility = 1.7
@@ -76,7 +84,8 @@ configure(subprojects.findAll {it.name != 'jlan'}) {
         testRuntime 'commons-httpclient:commons-httpclient:3.1'
         testRuntime 'org.slf4j:slf4j-simple:1.7.5'
 
-        testCompile ('org.spockframework:spock-core:0.7-groovy-2.0') {
+
+        testCompile ('org.spockframework:spock-core:1.0-groovy-2.3') {
             exclude module : 'groovy-all'
         }
 
@@ -97,6 +106,28 @@ configure(subprojects.findAll {it.name != 'jlan'}) {
         archives sourcesJar, javadocJar
     }
 
+    license {
+        header = rootProject.file('config/apache-header')
+        strictCheck = true
+        ignoreFailures = false
+        mapping {
+            groovy ='SLASHSTAR_STYLE'
+        }
+        ext.year = '2013-2015'
+        excludes(['**/*.ad', '**/*.asciidoc', '**/*.adoc', '**/*.md','**/*.properties', '**/*.txt', '**/*.bz2'])
+    }
+}
+
+configure(subprojects.findAll { modulesWithGroovyDoc.contains(it.name) } ) {
+    task installDocs( type : Copy ) {
+        group 'documentation'
+        description 'Copy groovydocs to an install directory'
+        dependsOn 'groovydoc'
+
+        from groovydoc
+
+        into { "${websitePublishFolder}/${version}/api/${project.name}" }
+    }
 }
 
 task wrapper(type: Wrapper) {

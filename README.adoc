@@ -5,6 +5,7 @@ A DSL for Groovy to wrap around the Apache VFS libraries.
 If you like it, then tweet about it using ```#groovyvfs``` as the hashtag.
 
 image:http://img.shields.io/travis/ysb33r/groovy-vfs/master.svg["Build Status", link="https://travis-ci.org/asciidoctor/groovy-vfs"]
+image:https://ci.appveyor.com/api/projects/status/github/ysb33r/groovy-vfs?svg=true["Windows Build Status", link="https://ci.appveyor.com/project/ysb33r/groovy-vfs"]
 
 == Groovy Library
 
@@ -79,7 +80,7 @@ vfs {
 
 image:https://api.bintray.com/packages/ysb33r/grysb33r/vfs-gradle-plugin/images/download.png["Download', link="https://bintray.com/ysb33r/grysb33r/vfs-gradle-plugin/_latestVersion"]
 
-It is now possible to use this in Gradle as an extension to the project class.
+From initiation a `VFS` object has been available as an extension to the project class.
 The interface is very experimental and may change without much warning in future
 releases of this plugin.
 
@@ -117,6 +118,38 @@ vfs {
 ----
 
 If you want to see what VFS is going run gradle with `--debug`
+
+In 1.0 a copy task has been added.
+
+[source,groovy]
+----
+import org.ysb33r.gradle.vfs.tasks.VfsCopy
+
+task download ( type : VfsCopy ) {
+
+    from 'http://somewhere.example/file' <1>
+
+    from URL_2
+
+    // Set the destination root URI. Files will be copied into that folder
+    into URL_ROOT
+
+    // Set options for all of the copy operations.
+    // These override global options, but are only applicable for source and destination URLs within this task
+    options {
+      ftp {
+        passiveMode true
+      }
+    }
+}
+
+
+----
+<1> Copy the file at this URI
+<2>
+
+Any local source URIs will get reflected as an input file in the `TaskInputs`, otherwise it is just an input
+If the destination URI is local, it will get reflected as `TaskOutputs` as a file
 
 == Adding extra plugins
 
