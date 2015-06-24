@@ -3,11 +3,11 @@
 ## 1.1 - Roadmap
 + `cpioTree` project extension
 + `rpmTree` project extension
++ [VfsMkdir task type](https://github.com/ysb33r/groovy-vfs/issues/43)
 
 ## 1.0 - Roadmap
 + [Support for Gradle 2.0 API](https://github.com/ysb33r/groovy-vfs/issues/30)
 + Depends on groovy-vfs, rather than embedding own version
-+ [VfsMkdir task type](https://github.com/ysb33r/groovy-vfs/issues/43)
 + [VfsCopy task type](https://github.com/ysb33r/groovy-vfs/issues/43)
 + [VfsCopy needs to support Ant include/exclude patterns](https://github.com/ysb33r/groovy-vfs/issues/47)
 

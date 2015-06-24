@@ -14,6 +14,7 @@
 + [uri keyword](https://github.com/ysb33r/groovy-vfs/issues/38)
 + Support for `mkdir`
 + `defaultProvider` will be ignored when constructing a `VFS` object. Use `provider` configuration closure instead.
++ Pass `antPattern` to `filter` to use ANT-style patterns when copying files
 
 ## 0.5
 + Removed standalone use of InputStream when applying `cat`.
