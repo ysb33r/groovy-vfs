@@ -1,0 +1,4 @@
+[submodule "website"]
+	path = website
+	url = https://github.com/ysb33r/groovy-vfs.git
+	branch = gh-pages
