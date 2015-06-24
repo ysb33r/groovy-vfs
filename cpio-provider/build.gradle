@@ -1,0 +1,26 @@
+group = 'org.ysb33r.groovy'
+archivesBaseName = 'groovy-vfs-cpio-provider'
+
+ext {
+    moduleName = 'groovy-vfs-cpio-provider'
+    bintrayDescription = 'A CPIO provider for Groovy VFS'
+    bintrayTags = ['groovy', 'vfs', 'cpio', 'archivers']
+}
+
+dependencies {
+    compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: groovyVer
+    compile "org.apache.commons:commons-vfs2:${vfsVersion}"
+
+    testCompile project(':dsl')
+}
+
+manifest {
+    attributes 'Implementation-Title': 'Groovy VFS CPIO Provider', 'Implementation-Version': version
+}
+
+
+test {
+    systemProperties TESTFSREADROOT : "${buildDir}/resources/test/test-archives"
+    systemProperties TESTFSWRITEROOT : "${buildDir}/tmp"
+
+}
