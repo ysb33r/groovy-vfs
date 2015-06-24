@@ -22,8 +22,14 @@ buildscript {
 
 allprojects {
     ext {
-        versionModifier = 'beta3-SNAPSHOT'
+        versionModifier = 'beta3'
         versionNumber   = '1.0'
+        modulesWithGroovyDoc = [
+            'dsl',
+            'gradle-plugin',
+            'cloud-provider-core',
+            'smb-provider'
+        ]
     }
     version = versionNumber + (versionModifier.size() ? "-${versionModifier}": '')
 }
@@ -48,6 +54,7 @@ subprojects {
         bintrayUser      = 'ysb33r'
         bintrayLicense   = 'Apache-2.0'
         bintrayAttributes= [:]
+        websitePublishFolder = new File(rootProject.projectDir,'website')
     }
 
     repositories {
@@ -56,7 +63,7 @@ subprojects {
 
 }
 
-configure(subprojects.findAll {it.name != 'jlan' && it.name != 'test-servers'}) {
+configure(subprojects.findAll { ! ['jlan','test-servers','docs'].contains(it.name) } ) {
 
     apply plugin: 'groovy'
     apply plugin: 'maven'
@@ -95,20 +102,6 @@ configure(subprojects.findAll {it.name != 'jlan' && it.name != 'test-servers'}) 
         from javadoc
     }
 
-    task installApiDocs( type : Copy ) {
-        group 'documentation'
-        description 'Copy groovydocs to an install directory'
-        dependsOn 'groovydoc'
-
-        from ({new File(buildDir,'docs/groovydoc')}) {
-            include '**'
-        }
-
-        into { "${project.properties.groovyVfsApiInstallDir}/${version}/${project.name}" }
-
-        onlyIf {project.name != 'cmdline' && project.hasProperty('groovyVfsApiInstallDir')}
-    }
-
     artifacts {
         archives sourcesJar, javadocJar
     }
@@ -122,6 +115,18 @@ configure(subprojects.findAll {it.name != 'jlan' && it.name != 'test-servers'}) 
         }
         ext.year = '2013-2015'
         excludes(['**/*.ad', '**/*.asciidoc', '**/*.adoc', '**/*.md','**/*.properties', '**/*.txt', '**/*.bz2'])
+    }
+}
+
+configure(subprojects.findAll { modulesWithGroovyDoc.contains(it.name) } ) {
+    task installDocs( type : Copy ) {
+        group 'documentation'
+        description 'Copy groovydocs to an install directory'
+        dependsOn 'groovydoc'
+
+        from groovydoc
+
+        into { "${websitePublishFolder}/${version}/api/${project.name}" }
     }
 }
 

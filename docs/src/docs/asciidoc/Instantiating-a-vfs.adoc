@@ -1,0 +1,46 @@
+=== Default construction
+
+[source,groovy]
+----
+import org.ysb33r.groovy.dsl.vfs.VFS
+def vfs = new VFS()
+----
+
+=== Passing properties
+A VFS object can be constructed with options specific to the underlying 
+http://commons.apache.org/proper/commons-vfs/apidocs/index.html[Apache VFS FileSystemManager].
+
+[source,groovy]
+----
+def vfs = new VFS(
+  temporaryFileStore : '/tmp/my_cache'
+)
+----
+
+In addition, any default file system options can be passed, in the format `vfs.PROTOCOL.OPTION`.
+
+[source,groovy]
+----
+def vfs = new VFS(
+  temporaryFileStore : '/tmp/my_cache',
+  'vfs.ftp.passiveMode' : true,
+  'vfs.http.maxTotalConnection' : 4
+)
+----
+
+Valid system properties are:
+
++ `cacheStrategy` - Sets the cache strategy to use when dealing with file object data
++ `filesCache` - Sets the file cache implementation
++ `logger` - Sets the logger to use. Either a Apache Commons Logging or a SL4J instance is acceptable.
++ `replicator` - Sets the replicator
++ `temporaryFileStore` - Sets the temporary file store (File,String or VFS TemporaryFileStore object)
+
+From v0.6 onwards better control over loading of providers are possible:
+
++ `ignoreDefaultProviders` - Don't load any providers (overrides scanForVfsProviderXml, legacyPluginLoader)
++ `scanForVfsProviderXml` - Look for `META-INF/vfs-provider.xml` files
++ `legacyPluginLoader` - Load using `providers.xml` from Apache VFS jar.
+
+The v0.6 the `defaultProvider` property has been removed. People relying on this, should supply this via the
+<<AddProviders,extend DSL>>.

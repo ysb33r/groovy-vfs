@@ -1,0 +1,16 @@
+=== How Groovy VFS differs from Apache VFS
+
+Groovy VFS is built on top of ttp://commons.apache.org/proper/commons-vfs/index.html[Apache VFS2]. 
+Besides the obvious simpler and boilerplate-less code it introduces a bit of behavioural sanity. 
+There are a couple of behaviours in Apache VFS that catches out the unwary and newbies.
+
+* When copying a file onto a directory with the same name Apache VFS will simply delete the whole directory and its 
+  contents and replace it with the new file. Groovy VFS will not allow this. However, should you require this behaviour 
+  all you need to do is pass `smash : true` to the `cp` operation.
+* Groovy VFS does not try not to replicate every operation that is available in Apache VFS, instead it concentrates on 
+  the most common use cases.
+* Unless a logger object is passed to the VFS during construction, Groovy VFS will not log anything.
+* Apache VFS does not create non-existing intermediate subdirectories in the target path when moving files or folders. 
+  In Groovy VFS this is default behaviour. To turn this off pass `intermediates : false` to `mv`.
+* Groovy VFS extends the URL format to include protocol options in the query string i.e. 
+  `vfs.ftp.passiveMode=1&vfs.ftp.userDirIsRoot=0`

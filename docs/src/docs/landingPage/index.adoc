@@ -1,0 +1,25 @@
+= Groovy VFS
+:imagesdir: images
+
+A DSL for Groovy on top of Apache VFS2
+
+
+[cols="2*"]
+|===
+a| image:blacktocat.png[View on GitHub] https://github.com/ysb33r/groovy-vfs[View on GitHub]
+a| Hashtag it on Twitter `#groovyvfs`
+|===
+
+== Documentation
+[format="csv"]
+|===
+include::docs.csv[]
+|===
+
+== API Documentation
+[format="csv"]
+|===
+include::api.csv[]
+|===
+
+

@@ -1,0 +1,130 @@
+=== Options
+
+
+There are a number of options that affect how a move behaves. There options, with their defaults, are
+
+[source,groovy]
+----
+vfs {
+  mv url_src, url_dest,
+    overwrite : false,
+    smash : false,
+    intermediates : true
+}
+----
+
+[cols="4*"]
+|===
+h|From FileType
+h|To FileType
+h|Overwrite?
+h|Smash?
+h|Action
+
+|FILE
+|IMAGINARY
+|N
+|N
+|Create new file, delete old file
+
+|FILE
+|FILE
+|N
+|N
+|Don't move
+
+|FILE
+|FILE
+|Y
+|N
+|Overwrite existing file with source, delete old file
+
+|FILE
+|FOLDER
+|N
+|N
+|Move file into folder except if same-name target file exists
+
+|FILE
+|FOLDER
+|Y
+|N
+|Move file into folder, replacing any existing same-name target file<
+
+|FILE
+|FOLDER
+|x
+|Y
+|Replace same-named folder with the source fie
+
+|FOLDER
+|IMAGINARY
+|N
+|N
+|Create new folder with content. Delete old folder
+
+|FOLDER
+|FILE
+|N
+|N
+|Don't move
+
+|FOLDER
+|FILE
+|Y
+|N
+|Don't move
+
+|FOLDER
+|FILE
+|x
+|Y
+|Replace file with folder
+
+|FOLDER
+|FOLDER
+|N
+|N
+|Move folder as a sub-folder of destination even if the target folder has the same name as the source folder.
+Fails if same-name target exists within the target folder.
+
+|FOLDER
+|FOLDER
+|Y
+|N
+|Move folder as a sub-folder of destination. Fails of same-name target exists and not empty.
+
+|FOLDER
+|FOLDER
+|x
+|Y
+|Delete old folder. Move source folder in place.
+|===
+
+When `intermediates` ia set to `true` (the default behaviour), non-existing intermediate subdirectories in the target
+path will be created. If set to `false`, a `FileActionException` will be raised if the target intermediate subdirectories
+do not exist.
+
+The `overwrite` property can also be a closure of the following signature:
+
+[source,groovy]
+----
+def overwrite = { FileObject from, FileObject to ->
+  __groovy_truth__
+}
+----
+
+The closure is passed the source object and the target object. If the closure returns <code>true</code> then target file
+will be replaced by the source file.
+
+[source,groovy]
+----
+vfs {
+  mv url_src, url_dest,
+    overwrite : { f,t ->
+      f.name.baseName.startsWith('IMG')
+    }
+}
+----
+
+Move operations in groovy-vfs has been available since v0.3

@@ -1,0 +1,143 @@
+== Protocol Options
+
+**TO BE COMPLETED...**
+
+These are the options in VFS2 that are known at this point in time. They can be added to any url in groovy-vfs in the
+form `vfs.PROTOCOL.OPTION=VALUE`. When used in this form all values must be URL-encoded when appropriate.
+
+These options can also be used in an options block i.e.
+
+[source,groovy]
+----
+options {
+  sftp {
+    compression 'zlib'
+  }
+}
+----
+
+[cols="4*"]
+|===
+h|Protocol
+h|Option
+h|Supported
+h|Detail
+
+|ftp
+|controlEncoding
+|Y
+| See `FTP.setControlEncoding(java.lang.String)`
+// TODO: Add link
+
+|ftp
+|dataTimeout
+|Y
+|Set data timeout
+
+|ftp
+|defaultDateFormat
+|Y
+|Set default date format used by server
+
+|ftp
+|entryParser
+|Y
+|FQCN of `FileEntryParser`  used to parse directory listing,
+if the one from commons-net FTPFileEntryParserFactory is not used.
+// (TODO: add link)
+
+|ftp
+|entryParserFactory
+|N
+|Set parser factory
+
+|ftp
+|passiveMode
+|Y
+|Sets passive mode `true` or active mode `false`
+
+|ftp
+|recentDateFormat
+|Y
+|See FTPClientConfig (TODO: Need link)
+
+|ftp
+|serverLanguageCPde
+|Y
+|Language code used by server
+
+|ftp
+|serverTimeZoneId
+|Y
+|See FTPClientConfig (TODO: need link)
+
+|ftp
+|shortMonthNames
+|N
+|See FTPClientConfig (TODO: need link) - might be supported in a future release
+
+|ftp
+|soTimeout
+|Y
+|Socket timeout. Use 0 or null (config DSL only) to remove any socket timeout
+
+|ftp
+|userDirIsRoot
+|Y
+|Sets the user directory as the root, instead of the filesystem
+
+h|Protocol
+h|Option
+h|Supported
+h|Detail
+
+|sftp
+|compression
+|Y
+|'zlib' or 'none'
+
+|sftp
+|identities
+|N
+|List of files containing identity files
+
+|sftp
+|knownHosts
+|Y
+|File containing the known_hosts file
+
+|sftp
+|preferredAuthentication
+|Y
+|String containing the authentication order
+
+|sftp
+|proxyHost
+|Y
+|Proxy host for sftp connection
+
+|sftp
+|proxyHost
+|Y
+|Proxy port for sftp connection
+
+|sftp
+|strictHostKeyChecking
+|Y
+|Host key checking to use. Accept 'yes', 'no' & 'ask'
+
+|sftp
+|timeout
+|Y
+|Timeout value for a session
+
+|sftp
+|userDirIsRoot
+|Y
+|Sets the user directory as the root, instead of the filesystem
+
+|sftp
+|userInfo
+|N
+|Userinfo instance
+|===

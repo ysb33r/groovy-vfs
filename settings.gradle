@@ -21,3 +21,5 @@ include 'cmdline'
 include 'cloud-provider-core'
 
 
+include 'docs'
+
