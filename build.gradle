@@ -77,7 +77,7 @@ configure(subprojects.findAll { ! ['jlan','test-servers','docs'].contains(it.nam
         compile ("org.apache.commons:commons-vfs2:${vfsVersion}") {
             exclude group:'org.apache.maven.scm'
         }
-        compile 'org.apache.commons:commons-compress:1.6'
+        compile 'org.apache.commons:commons-compress:1.9'
         testCompile 'org.apache.ftpserver:ftpserver-core:1.0.6'
         testCompile 'commons-io:commons-io:2.4'
         testCompile 'commons-net:commons-net:3.+'
