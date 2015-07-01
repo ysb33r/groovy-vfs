@@ -1,6 +1,6 @@
 = Groovy VFS
 
-A DSL for Groovy to wrap around the Apache VFS libraries.
+A DSL for Groovy to wrap around the link:http://commons.apache.org/proper/commons-vfs/[Apache Commons VFS] libraries.
 
 If you like it, then tweet about it using ```#groovyvfs``` as the hashtag.
 
