@@ -31,7 +31,7 @@ package org.ysb33r.gradle.vfs
  *
  * @author Schalk W. Cronjé
  */
-interface VfsURI {
+interface VfsURI{
 
     /** URI that has been resolved
      */

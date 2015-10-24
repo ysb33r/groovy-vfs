@@ -46,6 +46,9 @@ asciidoctor {
 
 task landingPage( type : AsciidoctorTask ) {
 
+    inputs.files 'src/docs/landingPage/docs.csv'
+    inputs.files 'src/docs/landingPage/api.csv'
+
     sourceDir 'src/docs/landingPage'
     outputDir "${buildDir}/landingPage"
     separateOutputDirs = false
@@ -69,7 +72,7 @@ task installDocs( type : Copy ) {
         into "${version}/docs"
     }
 
-    from new File(landingPage.outputDir,'html5')
+    from landingPage.outputDir
 
     into websitePublishFolder
 

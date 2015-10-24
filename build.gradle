@@ -16,13 +16,14 @@ buildscript {
       }
       dependencies {
         classpath 'net.saliman:gradle-cobertura-plugin:2.2.2'
-          classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
+        classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
+        classpath "com.netflix.nebula:gradle-extra-configurations-plugin:2.2.2"
       }
 }
 
 allprojects {
     ext {
-        versionModifier = 'beta3'
+        versionModifier = 'beta4'
         versionNumber   = '1.0'
         modulesWithGroovyDoc = [
             'dsl',
@@ -72,12 +73,25 @@ configure(subprojects.findAll { ! ['jlan','test-servers','docs'].contains(it.nam
     sourceCompatibility = 1.7
     targetCompatibility = 1.7
 
+    plugins.withType(JavaPlugin) {
+
+        project.tasks.withType(JavaCompile) { task ->
+            task.sourceCompatibility = project.sourceCompatibility
+            task.targetCompatibility = project.targetCompatibility
+        }
+
+        project.tasks.withType(GroovyCompile) { task ->
+            task.sourceCompatibility = project.sourceCompatibility
+            task.targetCompatibility = project.targetCompatibility
+        }
+    }
+
     dependencies {
         compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7+'
         compile ("org.apache.commons:commons-vfs2:${vfsVersion}") {
             exclude group:'org.apache.maven.scm'
         }
-        compile 'org.apache.commons:commons-compress:1.6'
+        compile 'org.apache.commons:commons-compress:1.9'
         testCompile 'org.apache.ftpserver:ftpserver-core:1.0.6'
         testCompile 'commons-io:commons-io:2.4'
         testCompile 'commons-net:commons-net:3.+'

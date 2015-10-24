@@ -1,2 +1,6 @@
+,
 VFS DSL,link:1.0-beta3/api/dsl/index.html[1.0-beta3]
+Gradle Plugin,link:1.0-beta3/api/gradle-plugin/index.html[1.0-beta3]
+SMB Provider,link:1.0-beta3/api/smb-provider/index.html[1.0-beta3]
+S3 Provider,link:0.1-beta3/api/cloud-provider-core/index.html[0.1-beta3]
 ,

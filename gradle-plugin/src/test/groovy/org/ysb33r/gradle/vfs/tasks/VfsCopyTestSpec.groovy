@@ -132,8 +132,10 @@ class VfsCopyTestSpec extends Specification {
         copyTask.exec()
 
         then:
-        not_copied 'foo/file1.txt'
+        exists 'foo/file1.txt'
+//        not_copied 'foo/file1.txt'
     }
+
 
     def "Must be able to copy a directory across to a remote directory"() {
         given:
