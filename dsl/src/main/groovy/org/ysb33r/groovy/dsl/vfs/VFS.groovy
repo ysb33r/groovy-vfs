@@ -34,6 +34,7 @@ package org.ysb33r.groovy.dsl.vfs
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.apache.commons.vfs2.CacheStrategy
+import org.apache.commons.vfs2.Capability
 import org.apache.commons.vfs2.FileName
 import org.apache.commons.vfs2.FileSelectInfo
 import org.apache.commons.vfs2.FilesCache
@@ -745,6 +746,16 @@ class VFS {
 		URI u = new URI(uri)
 		Util.validURI(u,fsMgr)
 		u.addProperties(properties)
+	}
+
+	/** Enquires whether the URI is on a file system that is capable of listing the contents of folder content.
+	 *
+	 * @param uri
+	 * @return {@code true} is children of fodlers can be listed.
+	 * @since 1.0
+	 */
+	boolean fsCanListFolderContent (uri) {
+		resolveURI(uri).fileSystem.hasCapability(Capability.LIST_CHILDREN)
 	}
 
 	/** Returns the type of URI - file_uri, folder_uri or non_existent_uri

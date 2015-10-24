@@ -12,6 +12,8 @@
 group = 'org.ysb33r.groovy'
 archivesBaseName = 'groovy-vfs'
 
+apply plugin: 'nebula.provided-base'
+
 ext {
     moduleName = 'groovy-vfs'
     bintrayDescription = 'A DSL for Groovy that wraps Apache VFSL'
@@ -25,7 +27,7 @@ jar {
 }
 
 dependencies {
-    compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: groovyVer
+    provided group: 'org.codehaus.groovy',   name: 'groovy-all', version: groovyVer
     testCompile group: 'com.jcraft',            name: 'jsch', version:'0.1.48'
 	
  /*

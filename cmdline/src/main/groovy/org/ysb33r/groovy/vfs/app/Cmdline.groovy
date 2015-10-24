@@ -349,7 +349,7 @@ If you specify -T then only two URIs are allowed.'''
                 v : [ longOpt:'verbose',     text:'Explain what is being done' ],
                 T : [ longOpt:'no-target-directory', text:'Treat destination as file'],
                 S : [ longOpt:'suffix', args:1, argName:'SUFFIX', text:'Override the usual backup suffix' ],
-                t : [ longOpt:'target-directory', args:1, argName:'DIR', text:'Move all srcURIs to destination folder URI' ],
+                t : [ longOpt:'target-directory', args:1, argName:'DIR', text:'Copy all srcURIs to destination folder URI' ],
                 r : [ longOpt:'recursive',   text:'Copy directories recursively'],
                 b : [ text:'Like --backup=simple'],
                 R : [ text:'Copy directories recursively'],

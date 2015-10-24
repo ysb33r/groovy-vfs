@@ -47,6 +47,7 @@ repositories {
 }
 
 dependencies {
+    compile "org.codehaus.groovy:groovy-all:${groovyVer}"
     compile 'commons-cli:commons-cli:1.2'
     runtime 'commons-io:commons-io:2.4'
     runtime 'commons-net:commons-net:3.+'

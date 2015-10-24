@@ -125,21 +125,38 @@ class VfsCopy extends VfsBaseTask  {
      *
      * @return A live list of source URIs
      */
-    @Input
-    @SkipWhenEmpty
     VfsURICollection getAllSources() {
         Map<String,Object> opts = getOptions() + getPraxis()
         copySpec.apply( [getOptionMap : { -> opts } ] as VfsOptions )
         copySpec.allUriCollection
     }
 
+    /** Get a list of all source URIs comverted to String representations
+     *
+     * @return
+     */
+    @Input
+    Set<String> getAllSourceURIs() {
+        allSources.uris.collect {
+            it.uri.toString()
+        } as Set
+    }
+
     /** Returns a list of all destination URIs
      * Calling this will cause all URIs to be resolved.
      * @return Fully resolved URIs.
      */
-    @Input
     VfsURICollection getAllDestinations() {
         CopyUtils.recursiveDestinationList(super.vfs,copySpec,getDestination())
+    }
+
+    /** Returns a list of all destination URIs as strings
+     * Calling this will cause all URIs to be resolved.
+     * @return Fully resolved URIs.
+     */
+    @Input
+    Set<String> getAllDestinationURIs() {
+        allDestinations.uris.collect { it.uri.toString() } as Set
     }
 
     /** Copies all sources to the destination location.

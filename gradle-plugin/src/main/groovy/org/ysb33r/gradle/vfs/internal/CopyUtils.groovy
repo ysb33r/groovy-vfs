@@ -59,19 +59,21 @@ class CopyUtils {
         }
 
         sources.each { VfsURI src ->
-            if(vfs.isFolder(src.uri)) {
+            if( vfs.fsCanListFolderContent(src.uri) && vfs.isFolder(src.uri) ) {
                 copyChildren( vfs, src, destRoot )
                 logger.info "Copied ${friendlyURI(vfs,src)} -> ${friendlyURI(vfs,destRoot)}"
             } else {
-                logger.warn "Skipped ${friendlyURI(vfs,src)} as it is not a folder"
+                vfs.cp src.praxis, src.uri, destRoot.uri
+                logger.info "Copied ${friendlyURI(vfs,src)} -> ${friendlyURI(vfs,destRoot)}"
             }
         }
     }
 
-    /** Performs a deep (recursive) copy of all sources in a spec including all children specS.
-     * In order to keep the behaviour of normal {@code CopySpec}, the base foler of the source
-     * will be dropped from the destaintion path. Also if the source spec has a file instead of a
-     * folder it will not be copied.
+    /** On a filesystem/scheme that can list fodler contents it performs a deep (recursive) copy of all sources in a
+     * spec including all children specS.  In order to keep the behaviour of normal {@code CopySpec}, the base folder
+     * of the source  will be dropped from the destination path.
+     * If the contents cannot be listed, the source spec is treated as file instead resulting in any
+     * include/exclude filters being ignored.
      *
      * @param logger Logger to report progress
      * @param vfs Virtual file system to use
@@ -118,4 +120,5 @@ class CopyUtils {
     private static String friendlyURI(vfs,VfsURI uri) {
         vfs.friendlyURI( uri.uri )
     }
+
 }

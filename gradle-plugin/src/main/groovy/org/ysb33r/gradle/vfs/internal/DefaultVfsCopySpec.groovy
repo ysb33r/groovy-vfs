@@ -83,7 +83,10 @@ class DefaultVfsCopySpec implements VfsCopySpec {
 
     /**
      * Specifies source URIs (files or directories) for a copy. The given paths are evaluated as per
-     * {@code VFS.stageURI}.
+     * {@code VFS.stageURI}. Due to the nature of remote schemes, it is not always possible to determine
+     * whether a source is a folder or a file. If scheme does not have a {@code org.apache.commons.vfs2.Capability.LIST_CHILDREN}
+     * capability, sources will be assumed to be files.
+     * to be directories. I
      *
      * @param sourcePaths Paths to source files for the copy
      */
@@ -96,7 +99,7 @@ class DefaultVfsCopySpec implements VfsCopySpec {
     }
 
     /**
-     * Specifies the source files or directories for a copy along with a configurating closure. The given source
+     * Specifies the source directory for a copy along with a configurating closure. The given source
      * path is evaluated as per {@code VFS.stageURI}.
      *
      * @param sourcePath Path to source for the copy
