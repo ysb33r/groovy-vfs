@@ -15,8 +15,10 @@ package org.ysb33r.gradle.vfs.internal
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import org.apache.commons.vfs2.Capability
 import org.apache.commons.vfs2.FileName
 import org.apache.commons.vfs2.FileObject
+import org.apache.commons.vfs2.FileSystemException
 import org.gradle.api.logging.Logger
 import org.ysb33r.gradle.vfs.VfsCopySpec
 import org.ysb33r.gradle.vfs.VfsURI
@@ -45,16 +47,19 @@ class UpToDateCheck {
     static boolean forUriCollection( Logger logger, VFS vfs, VfsURICollection sources, def destRoot) {
 
         final FileObject destFileObject = vfs.resolveURI(destRoot)
+        final boolean destHasModifiedDate = destFileObject.fileSystem.hasCapability(Capability.GET_LAST_MODIFIED)
 
         // Using exceptions for flow control. I don;t really like it,
         // but currently it is the only way to go as vfs.ls does not implement an Iterator interface
         try {
             sources.each { vfsURI ->
                 def src = (vfsURI as VfsURI).resolve()
-                FileName srcRoot = vfs.resolveURI(src.uri).name
+                FileObject srcFileObject = vfs.resolveURI(src.uri)
+                FileName srcRoot = srcFileObject.name
                 def options = [:]
 
-                boolean checkModifiedDate = true // should only be true if both src and dest filesystems support it
+                boolean checkModifiedDate = destHasModifiedDate &&
+                    srcFileObject.fileSystem.hasCapability(Capability.GET_LAST_MODIFIED)
 
                 if(vfs.fsCanListFolderContent(src.uri)) {
                     if (src.praxis.filter) {
@@ -63,8 +68,7 @@ class UpToDateCheck {
 
                     vfs.ls options, src.uri, { FileObject fo ->
                         String relSrc = srcRoot.getRelativeName(fo.name)
-                        def dest = Util.addRelativePath(destFileObject, relSrc)
-                        throwIfOutOfDate vfs,src.uri,dest,checkModifiedDate
+                        throwIfOutOfDate vfs,src.uri,Util.addRelativePath(destFileObject, relSrc),checkModifiedDate
                     }
                 } else {
                     def dest = Util.addRelativePath destFileObject, srcRoot.baseName
@@ -110,19 +114,27 @@ class UpToDateCheck {
     }
 
     /** Helper to throw {@link OutOfDateException} if a destination target is out of date
+     * If either filesystem does not support modification dates, then the modification chek will be ignored.
      *
      * @paran vfs VFS object to use
      * @param src Source {@code FileObject}
      * @param dest Destination {@code FileObject}
      * @param checkModifiedDate Whether modification dates should be compared
+     *
+     * @throw OutOfDateException is destination is deemded out of date
+     *
      */
     private static void throwIfOutOfDate( VFS vfs, Object src, FileObject dest, boolean checkModifiedDate) {
         if (!vfs.exists(dest)) {
             throw new OutOfDateException("'${vfs.friendlyURI(dest)}' does not exist")
         }
 
-        if (checkModifiedDate && vfs.mtime(dest) < vfs.mtime(src)) {
-            throw new OutOfDateException("'${vfs.friendlyURI(dest)}' is out of date")
+        try {
+            if (checkModifiedDate && vfs.mtime(dest) < vfs.mtime(src)) {
+                throw new OutOfDateException("'${vfs.friendlyURI(dest)}' is out of date")
+            }
+        } catch(final FileSystemException e) {
+            vfs.logger.debug "'${vfs.friendlyURI(dest)}' error when checking modification date: ${e.message}"
         }
     }
 

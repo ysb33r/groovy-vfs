@@ -17,6 +17,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.testfixtures.ProjectBuilder
 import org.ysb33r.gradle.vfs.VfsPlugin
+import org.ysb33r.groovy.dsl.vfs.VFS
 import org.ysb33r.groovy.vfs.test.services.FtpServer
 import spock.lang.Shared
 import spock.lang.Specification
@@ -64,7 +65,7 @@ class VfsCopyTestSpec extends Specification {
 
     def "Check praxis for unconfigured task"() {
         expect:
-            copyTask.praxis == [ overwrite : true, smash : false, recursive : true ]
+            copyTask.praxis == [ overwrite : VFS.onlyNewer, smash : false, recursive : true ]
 
     }
 

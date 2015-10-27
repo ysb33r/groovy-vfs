@@ -27,6 +27,7 @@ import org.ysb33r.gradle.vfs.internal.DefaultVfsCopySpec
 import org.ysb33r.gradle.vfs.VfsURICollection
 import org.ysb33r.gradle.vfs.internal.UpToDateCheck
 import org.ysb33r.gradle.vfs.internal.VfsBaseTask
+import org.ysb33r.groovy.dsl.vfs.VFS
 
 /** Provides a copy task for remote files and directories.
  *
@@ -64,7 +65,7 @@ class VfsCopy extends VfsBaseTask  {
      */
     @Override
     Map<String, Object> defaultPraxis() {
-        [ overwrite : true, recursive : true, smash : false ] // , onlyNewer : true
+        [ overwrite : VFS.onlyNewer, recursive : true, smash : false ]
     }
 
     VfsCopy from(Object... uris) {

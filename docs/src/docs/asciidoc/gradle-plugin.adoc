@@ -49,7 +49,7 @@ import org.ysb33r.gradle.vfs.tasks.VfsCopy
 
 task download ( type : VfsCopy ) {
 
-    from 'http://somewhere.example/folder' // <1>
+    from 'http://somewhere.example/file' // <1>
 
     from 'http://somewhere.example/another_folder', {
       include '**/*.jpg' // <2>
@@ -70,19 +70,30 @@ task download ( type : VfsCopy ) {
 
 
 ----
-<1> Copy everything below this folder
+<1> Copy this files
 <2> Ant-style patterns are also supported
 <3> Standard Groovy-VFS filter behaviour is achived via `options`
 <4> Set the destination root URI. Files will be copied into that folder
 <5> Set options for all of the copy operations. These override global options, but are only applicable for source and
   destination URLs within this task
 
-////
-Any local source URIs will get reflected as an input file in the `TaskInputs`, otherwise it is just an input
-If the destination URI is local, it will get reflected as `TaskOutputs` as a file
-////
+=== Up to date checks
 
-INFO: In beta-3, beta-4 input-output caching is not working as yet. https://github.com/ysb33r/groovy-vfs/issues/49[#49]
+Performing an up to date check for a variety of remote filesystems can be tricky. Therefore the following logic is followed
+in order to determine whether the task is out of date
+
+* The destination root does not exist
+* Any file from source does not exist in the destination hierarchy
+* The source file is newer than the destination (folder timestamps are not checked)
+
+NOTE: In beta-3, beta-4 input-output caching is not working as yet. https://github.com/ysb33r/groovy-vfs/issues/49[#49]. This
+  was rectified in beta-5.
+
+=== Copy optimisations
+
+As long as both the source and the destination filesystems (schemes) support the ability to check modification time, only
+files that are newer will be copied. If the modification time cannot be checked the copy will only occur if the destination
+does not exist.
 
 == Adding extra plugins
 
