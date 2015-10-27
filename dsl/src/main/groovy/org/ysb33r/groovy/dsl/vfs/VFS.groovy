@@ -127,6 +127,11 @@ class VFS {
      */
     final static FileSelector self_and_direct_children = SELECT_SELF_AND_CHILDREN
 
+	/** An overwrite policy that will only overwrite if the source is newer than the target
+	 * @since 1.0
+	 */
+	final static Closure onlyNewer = CopyMoveOperations.ONLY_NEWER
+
     private StandardFileSystemManager fsMgr
 	private FileSystemOptions defaultFSOptions
 

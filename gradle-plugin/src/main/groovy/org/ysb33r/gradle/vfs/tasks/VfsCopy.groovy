@@ -18,7 +18,6 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.gradle.api.Incubating
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
 import org.ysb33r.gradle.vfs.VfsCopySpec
 import org.ysb33r.gradle.vfs.VfsOptions
@@ -26,9 +25,9 @@ import org.ysb33r.gradle.vfs.VfsURI
 import org.ysb33r.gradle.vfs.internal.CopyUtils
 import org.ysb33r.gradle.vfs.internal.DefaultVfsCopySpec
 import org.ysb33r.gradle.vfs.VfsURICollection
-import org.ysb33r.gradle.vfs.internal.ResolvedURI
+import org.ysb33r.gradle.vfs.internal.UpToDateCheck
 import org.ysb33r.gradle.vfs.internal.VfsBaseTask
-import org.ysb33r.groovy.dsl.vfs.impl.Util
+import org.ysb33r.groovy.dsl.vfs.VFS
 
 /** Provides a copy task for remote files and directories.
  *
@@ -42,13 +41,21 @@ import org.ysb33r.groovy.dsl.vfs.impl.Util
 @CompileStatic
 class VfsCopy extends VfsBaseTask  {
 
-    /** Checks the state of remote objects and decides whether the object can be up to date
+    /** Checks the state of remote objects and decides whether the object can be up to date.
+     * Up to date can be considered for the following considerations
+     * <ul>
+     *   <li>Source and destination filesystems all support {@code Capability>GET_MODIFIED_DATE} and all destination
+     *     files are of same or newer date than their source files
+     *   </li>No files on the source is missing from the destination
+     * </ul>
      *
      * @return {@code true} if the object can be considered up to date
      */
     @Override
     boolean isUpToDate() {
-        return false
+        Map<String,Object> opts = getOptions() + getPraxis()
+        copySpec.apply( [getOptionMap : { -> opts } ] as VfsOptions )
+        return UpToDateCheck.forCopySpec(logger,super.vfs,copySpec,getDestination())
     }
 
     /** Returns a default set of VFS action options (praxis) in case no task-wide set if defined for all URIs
@@ -58,7 +65,7 @@ class VfsCopy extends VfsBaseTask  {
      */
     @Override
     Map<String, Object> defaultPraxis() {
-        [ overwrite : true, recursive : true, smash : false ]
+        [ overwrite : VFS.onlyNewer, recursive : true, smash : false ]
     }
 
     VfsCopy from(Object... uris) {
@@ -131,7 +138,7 @@ class VfsCopy extends VfsBaseTask  {
         copySpec.allUriCollection
     }
 
-    /** Get a list of all source URIs comverted to String representations
+    /** Get a list of all source URIs converted to String representations
      *
      * @return
      */

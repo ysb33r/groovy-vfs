@@ -1,0 +1,29 @@
+= Hacking
+
+* Development does on `development` branch
+* Releases go from `master` branch.
+
+.To build everything
+[source,bash]
+----
+./gradlew build
+----
+
+.To push to local m2 for testing
+[source,bash]
+----
+./gradlew install
+----
+
+.To publish to the world
+[source,bash]
+----
+./gradlew uploadArchives publishPlugins
+----
+
+.To upload new documentation
+[source,bash]
+----
+./gradlew installDocs // <1>
+----
+<1> Follow instructions as output by the task

@@ -62,6 +62,7 @@ task landingPage( type : AsciidoctorTask ) {
         from 'images'
     }
 
+    mustRunAfter 'updateversionDoc'
 }
 
 

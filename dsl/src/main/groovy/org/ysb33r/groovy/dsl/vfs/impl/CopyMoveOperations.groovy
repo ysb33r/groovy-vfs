@@ -14,6 +14,7 @@
 
 package org.ysb33r.groovy.dsl.vfs.impl
 
+import org.apache.commons.vfs2.Capability
 
 import java.util.regex.Pattern;
 
@@ -32,6 +33,18 @@ import groovy.transform.CompileStatic
 
 
 class CopyMoveOperations {
+
+	/** An overwrite policy that will only overwrite when the source is newer than the destination.
+	 * If either scheme of of the source or the destination does not support {@code Capability.GET_LAST_MODIFIED}, then
+	 * overwrite will be sanctioned.
+	 */
+	static final Closure ONLY_NEWER = { FileObject from, FileObject to ->
+		if(from.fileSystem.hasCapability(Capability.GET_LAST_MODIFIED) && to.fileSystem.hasCapability(Capability.GET_LAST_MODIFIED)) {
+			return from.content.lastModifiedTime > to.content.lastModifiedTime
+		} else {
+			return true
+		}
+	}
 
 	@CompileStatic
 	static def friendlyURI( FileObject uri ) {
@@ -354,10 +367,10 @@ class CopyMoveOperations {
 	@CompileStatic
 	private static Closure _overwritePolicy(overwrite) {
 		switch(overwrite) {
-			case true:
-				return {f,t->true}
 			case Closure:
 				return overwrite as Closure
+			case true:
+				return {f,t->true}
 			case false:
 				return {f,t->false}
 			default:

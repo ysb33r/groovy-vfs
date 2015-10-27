@@ -69,7 +69,7 @@ class CopyUtils {
         }
     }
 
-    /** On a filesystem/scheme that can list fodler contents it performs a deep (recursive) copy of all sources in a
+    /** On a filesystem/scheme that can list folder contents it performs a deep (recursive) copy of all sources in a
      * spec including all children specS.  In order to keep the behaviour of normal {@code CopySpec}, the base folder
      * of the source  will be dropped from the destination path.
      * If the contents cannot be listed, the source spec is treated as file instead resulting in any
