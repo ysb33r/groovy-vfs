@@ -34,6 +34,8 @@ import org.ysb33r.gradle.vfs.VfsURICollection
 import org.ysb33r.groovy.dsl.vfs.VFS
 
 /** Collection of utilities to work with resolved URIs.
+ * Outputs of methods in here would typically be {@link VfsURI} or
+ * {@link VfsURICollection}.
  *
  * @since 1.0
  * @author Schalk W. Cronjé

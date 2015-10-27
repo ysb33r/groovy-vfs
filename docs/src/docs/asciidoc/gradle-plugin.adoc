@@ -82,7 +82,7 @@ Any local source URIs will get reflected as an input file in the `TaskInputs`, o
 If the destination URI is local, it will get reflected as `TaskOutputs` as a file
 ////
 
-INFO: In beta-3 input-output caching is not working as yet. https://github.com/ysb33r/groovy-vfs/issues/49[#49]
+INFO: In beta-3, beta-4 input-output caching is not working as yet. https://github.com/ysb33r/groovy-vfs/issues/49[#49]
 
 == Adding extra plugins
 

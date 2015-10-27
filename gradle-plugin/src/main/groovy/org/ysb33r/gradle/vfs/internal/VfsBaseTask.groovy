@@ -54,6 +54,8 @@ abstract class VfsBaseTask extends DefaultTask {
         }
 
         this.vfs = VfsProxy.request(super.project)
+
+        setEnabled !super.project.gradle.startParameter.isOffline()
     }
 
     /** Checks the state of remote objects and decides whether the object can be up to date
