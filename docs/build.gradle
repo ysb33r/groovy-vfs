@@ -98,7 +98,7 @@ task updateversionDoc {
 }
 
 updateversionDoc << {
-    editCSV outputs.files.singleFile,"link:${version}/docs/product-documentaion.html[${version}]"
+    editCSV outputs.files.singleFile,"link:${version}/docs/product-documentation.html[${version}]"
 }
 
 //task updateApiVersionDoc {
