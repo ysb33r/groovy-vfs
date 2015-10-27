@@ -18,10 +18,12 @@ buildscript {
     }
     dependencies {
         classpath "com.gradle.publish:plugin-publish-plugin:0.9.0"
+        classpath "org.ysb33r.gradle:gradletest:0.5.4"
     }
 }
 
 apply plugin : 'com.gradle.plugin-publish'
+apply plugin : 'org.ysb33r.gradletest'
 
 group = 'org.ysb33r.gradle'
 archivesBaseName = 'vfs-gradle-plugin'
@@ -44,6 +46,9 @@ dependencies {
     compile 'org.slf4j:jcl-over-slf4j:1.7.2'
 
     testCompile project(':test-servers')
+
+    gradleTest project( path:':dsl',configuration:'default')
+    gradleTest 'commons-httpclient:commons-httpclient:3.1'
 
 }
 
@@ -84,4 +89,10 @@ pluginBundle {
 
 publishPlugins {
     onlyIf { !version.endsWith("SNAPSHOT") }
+}
+
+gradleTest {
+    versions '2.0' ,'2.2', '2.3', '2.5', '2.8'
+
+    onlyIf { !gradle.startParameter.isOffline() }
 }
