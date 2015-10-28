@@ -78,7 +78,7 @@ vfs {
 
 == Gradle plugin
 
-image:https://api.bintray.com/packages/ysb33r/grysb33r/vfs-gradle-plugin/images/download.png["Download', link="https://bintray.com/ysb33r/grysb33r/vfs-gradle-plugin/_latestVersion"]
+image:https://api.bintray.com/packages/ysb33r/grysb33r/vfs-gradle-plugin/images/download.png["Download", link="https://bintray.com/ysb33r/grysb33r/vfs-gradle-plugin/_latestVersion"]
 
 From initiation a `VFS` object has been available as an extension to the project class.
 The interface is very experimental and may change without much warning in future
