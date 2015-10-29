@@ -106,4 +106,24 @@ class ProviderSchemaSpec extends Specification  {
         then:
         vfs.fsMgr.hasProvider('zip')
     }
+
+    @Issue('https://github.com/ysb33r/groovy-vfs/issues/60')
+    def "Enable Webdav via extension scheme"() {
+        when:
+        vfs {
+            extend {
+                provider className : 'org.apache.commons.vfs2.provider.webdav.WebdavFileProvider',
+                    schemes : ['webdav'],
+                    dependsOnClasses : [
+                        'org.apache.commons.httpclient.HttpClient',
+                        'org.apache.jackrabbit.webdav.client.methods.DavMethod'
+                    ]
+            }
+        }
+
+        then:
+        vfs.fsMgr.hasProvider('webdav')
+
+    }
 }
+

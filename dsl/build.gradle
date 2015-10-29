@@ -26,6 +26,14 @@ jar {
     }
 }
 
+repositories {
+    // For Milton.io WebDav server
+//    maven {
+//        name 'ettrema-repo'
+//        url 'http://milton.io/maven'
+//    }
+}
+
 dependencies {
     provided group: 'org.codehaus.groovy',   name: 'groovy-all', version: groovyVer
     testCompile group: 'com.jcraft',            name: 'jsch', version:'0.1.48'
@@ -39,11 +47,20 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
 //    testCompile 'io.ratpack:ratpack-groovy:0.9.0-SNAPSHOT'
 
+//    testRuntime 'org.apache.jackrabbit:jackrabbit-webdav:2.11.1'
+    testRuntime 'org.apache.jackrabbit:jackrabbit-webdav:1.6.5'
+    testCompile 'it.could:webdav:0.4'
+    testCompile 'org.eclipse.jetty:jetty-server:9.3.5.v20151012'
+    testCompile 'org.eclipse.jetty:jetty-servlet:9.3.5.v20151012'
 }
 
 test {
     systemProperties TESTFSREADROOT : "${projectDir}"   
-    systemProperties "ratpack.port" : 9999
+    systemProperties "ratpack.port" : 50080
+    systemProperties        FTPPORT : 50021
+    systemProperties     WEBDAVPORT : 50081
+    systemProperties       SFTPPORT : 50022
+
 }
 
 apply from : '../gradle/publish.gradle'
