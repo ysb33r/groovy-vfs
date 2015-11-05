@@ -11,8 +11,31 @@
 
 apply plugin : 'groovy'
 
+repositories {
+        //     For Milton.io WebDav server
+        maven {
+            name 'ettrema-repo'
+            url 'http://milton.io/maven'
+        }
+}
+
 dependencies {
     compile group: 'org.codehaus.groovy',   name: 'groovy-all', version: groovyVer
 
-    compile 'org.apache.ftpserver:ftpserver-core:1.0.6'
+    compile "org.apache.ftpserver:ftpserver-core:1.0.6"
+//    compile "org.apache.jackrabbit:jackrabbit-standalone:${jackrabbitVer}"
+     compile "io.milton:milton-api:2.4.1.2"
+     compile "io.milton:milton-server-ce:2.4.1.2"
+
+    compile "org.eclipse.jetty:jetty-server:${jettyVer}"
+    compile "org.eclipse.jetty:jetty-servlet:${jettyVer}"
+    compile "org.eclipse.jetty:jetty-servlets:${jettyVer}"
+    compile "org.eclipse.jetty:jetty-webapp:${jettyVer}"
+    runtime "org.slf4j:slf4j-log4j12:${slf4jVer}"
+    runtime "org.slf4j:jcl-over-slf4j:${slf4jVer}"
+
+    testCompile ('org.spockframework:spock-core:1.0-groovy-2.3') {
+        exclude module : 'groovy-all'
+    }
+
 }

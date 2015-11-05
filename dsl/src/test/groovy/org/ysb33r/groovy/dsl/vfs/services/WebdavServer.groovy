@@ -14,13 +14,15 @@
 package org.ysb33r.groovy.dsl.vfs.services
 
 import groovy.transform.CompileStatic
-import it.could.webdav.DAVServlet
+import io.milton.servlet.MiltonServlet
+//import it.could.webdav.DAVServlet
+//import org.apache.jackrabbit.servlet.jackrabbit.JackrabbitRepositoryServlet
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.servlet.ServletHolder
 
 
-
+//import org.ysb33r.groovy.vfs.test.services.WebdavServer as JackrabbitWebdavServer
 
 /**
  * @author Schalk W. Cronjé
@@ -32,22 +34,29 @@ class WebdavServer {
     static final String READROOT    = "webdav://guest:guest@localhost:${PORT}/read"
     static final String ARCHIVEROOT = "webdav://archive:archive@localhost:${PORT}/archives"
     static final String WRITEROOT   = "webdav://root:root@localhost:${PORT}/upload"
+    static final File SERVERROOT = new File("${System.getProperty('TESTFSWRITEROOT') ?: 'build/tmp/test-files'}/webdav")
     static final File TESTFSREADONLYROOT  = new File("${System.getProperty('TESTFSREADROOT')}/src/test/resources/test-files")
-    static final File TESTFSWRITEROOT     = new File("${System.getProperty('TESTFSWRITEROOT') ?: 'build/tmp/test-files'}/ftp/dest")
+    static final File TESTFSWRITEROOT     = new File(SERVERROOT,'write')
     static final File ARCHIVEREADONLYROOT = new File("${System.getProperty('TESTFSREADROOT')}/src/test/resources/test-archives")
 
     Server server
+//    JackrabbitWebdavServer server
 
     WebdavServer() {
 
+//        server = new JackrabbitWebdavServer()
+//        server.repository = SERVERROOT
         server = new Server(PORT)
         ServletContextHandler servletContentHandler = new ServletContextHandler()
         [    read : TESTFSREADONLYROOT,
             write : TESTFSWRITEROOT,
           archive : ARCHIVEREADONLYROOT
         ].each { path,root ->
-            ServletHolder servletRegistration = servletContentHandler.addServlet(DAVServlet,"/${path}")
-            servletRegistration.setInitParameter('rootPath',root.absolutePath)
+            ServletHolder servletRegistration = servletContentHandler.addServlet(MiltonServlet,"/${path}")
+            servletRegistration.setInitParameter('rootDir',root.absolutePath)
+//            ServletHolder servletRegistration = servletContentHandler.addServlet(JackrabbitRepositoryServlet,"/${path}")
+//            servletRegistration.setInitParameter('repository.home',root.absolutePath)
+//            servletRegistration.setInitParameter('rootPath',root.absolutePath)
         }
         server.handler = servletContentHandler
 
@@ -55,10 +64,12 @@ class WebdavServer {
 
     void start() {
         server.start()
+//        server.run()
     }
 
     void stop() {
         server.stop()
+//        server.shutdown()
     }
 
 }

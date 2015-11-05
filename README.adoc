@@ -234,3 +234,5 @@ offered great suggestions when I got stuck with the config DSL.
 design decision to auto-create intermediates during a move operation.
 * Maarten Boekhold for testing the SMB Provider plugin
 * Everyone from Greach 2014 that provided feedback
+* https://github.com/bradmac[Brad McEnvoy] from http://milton.io[Milton.io] for tips on setting up the Milton Webdav server. We use the community edition
+  for testing the webdav provider.

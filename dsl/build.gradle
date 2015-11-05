@@ -18,6 +18,11 @@ ext {
     moduleName = 'groovy-vfs'
     bintrayDescription = 'A DSL for Groovy that wraps Apache VFSL'
     bintrayTags = ['groovy','vfs','dsl']
+
+    ext {
+        webdavServer = 'milton'
+//        webdavServer = 'jackrabbit'
+    }
 }
 
 jar {
@@ -27,11 +32,13 @@ jar {
 }
 
 repositories {
-    // For Milton.io WebDav server
-//    maven {
-//        name 'ettrema-repo'
-//        url 'http://milton.io/maven'
-//    }
+    if(webdavServer == 'milton') {
+        //     For Milton.io WebDav server
+        maven {
+            name 'ettrema-repo'
+            url 'http://milton.io/maven'
+        }
+    }
 }
 
 dependencies {
@@ -47,11 +54,24 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
 //    testCompile 'io.ratpack:ratpack-groovy:0.9.0-SNAPSHOT'
 
-//    testRuntime 'org.apache.jackrabbit:jackrabbit-webdav:2.11.1'
-    testRuntime 'org.apache.jackrabbit:jackrabbit-webdav:1.6.5'
-    testCompile 'it.could:webdav:0.4'
-    testCompile 'org.eclipse.jetty:jetty-server:9.3.5.v20151012'
-    testCompile 'org.eclipse.jetty:jetty-servlet:9.3.5.v20151012'
+    testRuntime "org.apache.jackrabbit:jackrabbit-webdav:${jackrabbitVer}"
+//    testCompile 'it.could:webdav:0.4'
+//    testCompile "org.eclipse.jetty:jetty-server:${jettyVer}"
+//    testCompile "org.eclipse.jetty:jetty-servlet:${jettyVer}"
+
+    if(webdavServer == 'jackrabbit') {
+        // Needed to webdav server
+//        testCompile "org.apache.jackrabbit:jackrabbit-standalone:${jackrabbitVer}"
+        testCompile project(':test-servers')
+        testRuntime "org.slf4j:slf4j-log4j12:${slf4jVer}"
+        testRuntime "org.slf4j:jcl-over-slf4j:${slf4jVer}"
+    }
+
+    if(webdavServer == 'milton') {
+        testCompile "io.milton:milton-api:2.4.1.2"
+        testCompile "io.milton:milton-server-ce:2.4.1.2"
+        testRuntime "org.slf4j:slf4j-log4j12:${slf4jVer}"
+    }
 }
 
 test {
