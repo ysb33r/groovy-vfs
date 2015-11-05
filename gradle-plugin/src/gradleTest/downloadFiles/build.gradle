@@ -1,0 +1,34 @@
+import org.gradle.internal.os.OperatingSystem
+
+buildscript {
+    dependencies {
+        classpath 'org.ysb33r.gradle:vfs-gradle-plugin:%%VERSION%%'
+        classpath fileTree(dir : "../../repo", include : '*.jar')
+    }
+}
+
+apply plugin : 'org.ysb33r.vfs'
+
+ext {
+    gvfsGithubRoot = 'https://github.com/ysb33r/groovy-vfs/archive'
+}
+
+task copyCustom {
+    mkdir "${buildDir}/${name}"
+    vfs {
+        cp "${gvfsGithubRoot}/development.zip", file("${buildDir}/${name}"),
+            overwrite : true
+    }
+}
+
+import org.ysb33r.gradle.vfs.tasks.VfsCopy
+task copyTask( type : VfsCopy ) {
+    from "${gvfsGithubRoot}/master.zip"
+
+    into file("${buildDir}/${name}")
+}
+
+task runGradleTest {
+    dependsOn copyCustom, copyTask
+}
+

@@ -54,7 +54,8 @@ dependencies {
     runtime 'commons-httpclient:commons-httpclient:3.1'
     runtime 'org.slf4j:slf4j-simple:1.7.5'
     runtime 'com.jcraft:jsch:0.1.48'
-    compile project(':dsl')
+    compile project(':groovy-vfs')
+//    compile project(':dsl')
     runtime project(':smb-provider')
     runtime project(':cloud-provider-core')
 }

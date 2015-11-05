@@ -10,10 +10,9 @@
 //
 // ============================================================================
 
-rootProject.name = 'groovy-vfs'
+rootProject.name = 'groovy-vfs-project'
 
 include 'test-servers'
-include 'dsl'
 include 'gradle-plugin'
 include 'jlan'
 //include 'cpio-provider'
@@ -21,3 +20,11 @@ include 'smb-provider'
 include 'cmdline'
 include 'cloud-provider-core'
 include 'docs'
+
+//include 'dsl'
+//include 'groovy-vfs'
+//project(':groovy-vfs').projectDir = file('dsl')
+include 'dsl'
+project(':dsl').name = 'groovy-vfs'
+
+//rootProject.children.find { it.name = 'dsl' } .name = 'groovy-vfs'
