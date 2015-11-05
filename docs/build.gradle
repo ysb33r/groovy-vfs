@@ -36,7 +36,8 @@ asciidoctor {
     }
 
     attributes revnumber: "${version}",
-        dslSrcRoot    : "${project(':dsl').projectDir}/src",
+//        dslSrcRoot    : "${project(':dsl').projectDir}/src",
+        dslSrcRoot    : "${project(':groovy-vfs').projectDir}/src",
         gradleSrcRoot : "${project(':gradle-plugin').projectDir}/src",
         smbSrcRoot    : "${project(':smb-provider').projectDir}/src",
         cloudSrcRoot  : "${project(':cloud-provider-core').projectDir}/src",

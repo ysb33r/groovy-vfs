@@ -54,6 +54,9 @@ subprojects {
     ext {
         vfsVersion       = '2.0'
         groovyVer        = '[2.1,2.3.9]'
+        jackrabbitVer    = '1.6.5' // '2.11.1'
+        jettyVer         = '8.1.5.v20120716' //'9.3.5.v20151012'
+        slf4jVer         = '1.7.5'
         bintrayRepo      = 'grysb33r'
         bintrayUser      = 'ysb33r'
         bintrayLicense   = 'Apache-2.0'
@@ -99,7 +102,7 @@ configure(subprojects.findAll { ! ['jlan','test-servers','docs'].contains(it.nam
         testCompile 'commons-io:commons-io:2.4'
         testCompile 'commons-net:commons-net:3.+'
         testRuntime 'commons-httpclient:commons-httpclient:3.1'
-        testRuntime 'org.slf4j:slf4j-simple:1.7.5'
+        testRuntime "org.slf4j:slf4j-simple:${slf4jVer}"
 
 
         testCompile ('org.spockframework:spock-core:1.0-groovy-2.3') {
