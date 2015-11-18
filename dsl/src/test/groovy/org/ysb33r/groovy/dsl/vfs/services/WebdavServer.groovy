@@ -14,15 +14,7 @@
 package org.ysb33r.groovy.dsl.vfs.services
 
 import groovy.transform.CompileStatic
-import io.milton.servlet.MiltonServlet
-//import it.could.webdav.DAVServlet
-//import org.apache.jackrabbit.servlet.jackrabbit.JackrabbitRepositoryServlet
-import org.eclipse.jetty.server.Server
-import org.eclipse.jetty.servlet.ServletContextHandler
-import org.eclipse.jetty.servlet.ServletHolder
-
-
-//import org.ysb33r.groovy.vfs.test.services.WebdavServer as JackrabbitWebdavServer
+import org.apache.commons.io.FileUtils
 
 /**
  * @author Schalk W. Cronjé
@@ -35,41 +27,29 @@ class WebdavServer {
     static final String ARCHIVEROOT = "webdav://archive:archive@localhost:${PORT}/archives"
     static final String WRITEROOT   = "webdav://root:root@localhost:${PORT}/upload"
     static final File SERVERROOT = new File("${System.getProperty('TESTFSWRITEROOT') ?: 'build/tmp/test-files'}/webdav")
-    static final File TESTFSREADONLYROOT  = new File("${System.getProperty('TESTFSREADROOT')}/src/test/resources/test-files")
+    static final File TESTFSREADONLYROOT  = new File("${System.getProperty('TESTFSREADROOT') ?: '.'}/src/test/resources/test-files")
     static final File TESTFSWRITEROOT     = new File(SERVERROOT,'write')
-    static final File ARCHIVEREADONLYROOT = new File("${System.getProperty('TESTFSREADROOT')}/src/test/resources/test-archives")
+    static final File ARCHIVEREADONLYROOT = new File("${System.getProperty('TESTFSREADROOT') ?: '.'}/src/test/resources/test-archives")
 
-    Server server
-//    JackrabbitWebdavServer server
+    org.ysb33r.groovy.vfs.test.services.WebdavServer server
 
     WebdavServer() {
+        ['read','archives','write'].each { new File(SERVERROOT,it).mkdirs() }
+        FileUtils.copyDirectory(TESTFSREADONLYROOT,new File(SERVERROOT,'read'))
+        FileUtils.copyDirectory(ARCHIVEREADONLYROOT,new File(SERVERROOT,'archives'))
 
-//        server = new JackrabbitWebdavServer()
-//        server.repository = SERVERROOT
-        server = new Server(PORT)
-        ServletContextHandler servletContentHandler = new ServletContextHandler()
-        [    read : TESTFSREADONLYROOT,
-            write : TESTFSWRITEROOT,
-          archive : ARCHIVEREADONLYROOT
-        ].each { path,root ->
-            ServletHolder servletRegistration = servletContentHandler.addServlet(MiltonServlet,"/${path}")
-            servletRegistration.setInitParameter('rootDir',root.absolutePath)
-//            ServletHolder servletRegistration = servletContentHandler.addServlet(JackrabbitRepositoryServlet,"/${path}")
-//            servletRegistration.setInitParameter('repository.home',root.absolutePath)
-//            servletRegistration.setInitParameter('rootPath',root.absolutePath)
-        }
-        server.handler = servletContentHandler
-
+        server = new org.ysb33r.groovy.vfs.test.services.WebdavServer(
+            homeFolder :  SERVERROOT,
+            port : PORT
+        )
     }
 
     void start() {
         server.start()
-//        server.run()
     }
 
     void stop() {
         server.stop()
-//        server.shutdown()
     }
 
 }

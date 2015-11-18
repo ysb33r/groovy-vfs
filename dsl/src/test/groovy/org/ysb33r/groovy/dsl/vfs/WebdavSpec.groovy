@@ -25,21 +25,18 @@
 
 package org.ysb33r.groovy.dsl.vfs
 
-import org.ysb33r.groovy.dsl.vfs.services.FtpServer
 import org.ysb33r.groovy.dsl.vfs.services.WebdavServer
-import spock.lang.Ignore
-import spock.lang.IgnoreRest
-import spock.lang.Specification
 
 import static org.ysb33r.groovy.dsl.vfs.helpers.ListFolderTestHelper.getAssertListable
 
 class WebdavSpec extends SchemaSpec  {
 
+
     def setupSpec() {
         server = new WebdavServer()
         server.start()
     }
-    
+
     def cleanupSpec() {
         server?.stop()
     }

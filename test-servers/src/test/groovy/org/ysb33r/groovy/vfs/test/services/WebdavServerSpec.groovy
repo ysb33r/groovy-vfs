@@ -1,5 +1,6 @@
 package org.ysb33r.groovy.vfs.test.services
 
+import spock.lang.Shared
 import spock.lang.Specification
 
 
@@ -10,29 +11,28 @@ class WebdavServerSpec extends Specification {
 
     static final File SERVERROOT = new File('./build/tmp/webdav').absoluteFile
 
-    WebdavServer server
+    @Shared WebdavServer server
 
-    void setup() {
+    void setupSpec() {
         if(SERVERROOT.exists()) {
             SERVERROOT.deleteDir()
         }
         SERVERROOT.mkdirs()
+        server = new WebdavServer(
+            homeFolder : SERVERROOT
+        )
     }
 
     void cleanup() {
-        server?.shutdown()
+        server?.stop()
     }
 
     def "Start up the Webdav server and ensure it accepts requests"() {
-        given:
-            server = new WebdavServer()
-            server.repository = SERVERROOT
 
         when:
-            server.run()
+            server.start()
 
         then:
-
             true
     }
 

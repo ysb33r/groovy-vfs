@@ -118,7 +118,7 @@ class CmdlineSpec extends Specification {
             cmd?.intermediates == ints
             cmd?.mode == mode
 
-        where:
+        where: 
             opts                     || ints  | mode
             ['--parents',u1,u2]      || true  | null
             ['-p',u1,u2]             || true  | null
