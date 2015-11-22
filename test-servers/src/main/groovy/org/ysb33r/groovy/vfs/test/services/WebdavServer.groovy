@@ -46,31 +46,31 @@ class WebdavServer {
         }
 
         logFile = new File(logDir,'access/yyyy_mm_dd.request.log')
+\        FileSystemResourceFactory resourceFactory = new FileSystemResourceFactory(
+            homeFolder,
+            new NullSecurityManager(),
+            "/"
+        )
+
+        resourceFactory.setAllowDirectoryBrowsing(true)
+        HttpManagerBuilder b = new HttpManagerBuilder()
+        b.setEnableFormAuth(false)
+        b.setResourceFactory(resourceFactory)
+        HttpManager httpManager = b.buildHttpManager()
+        server = new SimpletonServer(httpManager, b.getOuterWebdavResponseHandler(), 100, 10)
+        server.httpPort = port
     }
 
     @CompileStatic
     void start() {
-
-        FileSystemResourceFactory resourceFactory = new FileSystemResourceFactory(
-            homeFolder,
-            new NullSecurityManager(),
-            "/"
-        );
-        resourceFactory.setAllowDirectoryBrowsing(true);
-        HttpManagerBuilder b = new HttpManagerBuilder();
-        b.setEnableFormAuth(false);
-        b.setResourceFactory(resourceFactory);
-        HttpManager httpManager = b.buildHttpManager();
-        server = new SimpletonServer(httpManager, b.getOuterWebdavResponseHandler(), 100, 10);
-        server.setHttpPort(port);
-        server.start();
+        server.start()
     }
 
     @CompileStatic
     void stop() {
         server.stop()
     }
-    
+
     private File logFile
     private SimpletonServer server
 }
