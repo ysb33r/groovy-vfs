@@ -218,9 +218,9 @@ A command-line utility mimicking a number of GNU shell utilities is available.
 
 == Documentation
 
-+ See https://github.com/ysb33r/groovy-vfs/wiki for more detailed documentation.
-+ Greach2014 presentation on v0.5 - http://www.slideshare.net/ysb33r/groovy-vfs-32889561
-+ GGX2014 presentation on v0.5 & v1.0 - https://skillsmatter.com/skillscasts/6049-groovy-vfs
+- See https://github.com/ysb33r/groovy-vfs/wiki for more detailed documentation.
+- Greach2014 presentation on v0.5 - http://www.slideshare.net/ysb33r/groovy-vfs-32889561
+- GGX2014 presentation on v0.5 & v1.0 - https://skillsmatter.com/skillscasts/6049-groovy-vfs
 
 == Credits
 
