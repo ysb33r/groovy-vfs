@@ -18,6 +18,7 @@ import groovy.transform.CompileStatic
 import org.apache.commons.vfs2.Capability
 import org.apache.commons.vfs2.FileName
 import org.apache.commons.vfs2.FileObject
+import org.apache.commons.vfs2.FileSystem
 import org.apache.commons.vfs2.FileSystemException
 import org.gradle.api.logging.Logger
 import org.ysb33r.gradle.vfs.VfsCopySpec
@@ -34,6 +35,7 @@ import org.ysb33r.groovy.dsl.vfs.impl.Util
 @CompileStatic
 class UpToDateCheck {
 
+
     /** Iterates over all of the file hierarchy within in {@link VfsURICollection} and checks whether the equivalent file
      * would exist on a target. If the source and remote schemes support GET_MODIFIED_DATE, then those dates would also be
      * used as part of the up-to-date decision
@@ -42,14 +44,21 @@ class UpToDateCheck {
      * @param vfs
      * @param sources
      * @param destRoot
+     * @param noSourceModifiedDateCheck Don't check the source modification dates
      * @return {@code false} as soon as the first remote target does not exist or is older than the source.
      */
-    static boolean forUriCollection( Logger logger, VFS vfs, VfsURICollection sources, def destRoot) {
+    static boolean forUriCollection(
+        Logger logger,
+        VFS vfs,
+        VfsURICollection sources,
+        def destRoot,
+        boolean noSourceModifiedDateCheck
+    ) {
 
         final FileObject destFileObject = vfs.resolveURI(destRoot)
-        final boolean destHasModifiedDate = destFileObject.fileSystem.hasCapability(Capability.GET_LAST_MODIFIED)
+        final boolean destHasModifiedDate = filesystemHasLastModifiedDate(destFileObject)
 
-        // Using exceptions for flow control. I don;t really like it,
+        // Using exceptions for flow control. I don't really like it,
         // but currently it is the only way to go as vfs.ls does not implement an Iterator interface
         try {
             sources.each { vfsURI ->
@@ -58,8 +67,7 @@ class UpToDateCheck {
                 FileName srcRoot = srcFileObject.name
                 def options = [:]
 
-                boolean checkModifiedDate = destHasModifiedDate &&
-                    srcFileObject.fileSystem.hasCapability(Capability.GET_LAST_MODIFIED)
+                boolean checkModifiedDate = !noSourceModifiedDateCheck && destHasModifiedDate && filesystemHasLastModifiedDate(srcFileObject)
 
                 if(vfs.fsCanListFolderContent(src.uri)) {
                     if (src.praxis.filter) {
@@ -83,31 +91,55 @@ class UpToDateCheck {
         return true
     }
 
-    /** Checks whether the source is newer than the destination. Only dayes on files are checked, folders are not.
+    /** Checks whether the source is newer than the destination. Only dates on files are checked, folders are not.
      *
      * @param logger
      * @param vfs
      * @param rootSpec
      * @param destRoot
+     * @param noSourceModifiedDateCheck Don't check the source modification dates
      * @return {@code true} is destination is considered older than source
      */
-    static boolean forCopySpec( Logger logger, VFS vfs, VfsCopySpec rootSpec, VfsURI destRoot ) {
+    static boolean forCopySpec( Logger logger, VFS vfs, VfsCopySpec rootSpec, VfsURI destRoot, boolean noSourceModifiedDateCheck ) {
         VfsURI dest = destRoot.resolve()
         if(!vfs.exists(destRoot.uri)) {
             logger.debug "Target is out of date: ${friendlyURI(vfs,dest)} does not exist."
             return false
         }
 
-        if(!forUriCollection( logger, vfs,rootSpec.uriCollection , destRoot.uri)) {
+        if(!forUriCollection( logger, vfs,rootSpec.uriCollection , destRoot.uri,noSourceModifiedDateCheck)) {
+            logger.debug "Sources for rootSpec has changed"
             return false
         }
 
         for( Object ch : rootSpec.children()) {
             VfsCopySpec child = ch as VfsCopySpec
             VfsURI childDest = ResolvedURI.create([:], vfs, Util.addRelativePath(dest.uri as FileObject, child.relativePath))
-            if(!forUriCollection(logger,vfs,child.uriCollection,childDest.uri)) {
+            if(!forUriCollection(logger,vfs,child.uriCollection,childDest.uri,noSourceModifiedDateCheck)) {
+                logger.debug "Sources targeting child target ${friendlyURI(vfs,childDest)} has changed"
                 return false
             }
+        }
+
+        logger.debug "Target ${friendlyURI(vfs,dest)} is up to date"
+        return true
+    }
+
+    /** Checks whether a single-layer or multi-layered filesystem can chekc the modified date throughout
+     *
+     * @param fo VFS2 FileObject (must not be null)
+     * @return {@code true} is all layers can supprot {@code GET_LAST_MODIFIED_DATE}
+     */
+    private static boolean filesystemHasLastModifiedDate(FileObject fo) {
+        assert fo != null
+        while(fo != null) {
+            FileSystem fs = fo.fileSystem
+
+            if (!fs.hasCapability(Capability.GET_LAST_MODIFIED)) {
+                return false
+            }
+
+            fo = fs.parentLayer
         }
 
         return true
@@ -121,7 +153,7 @@ class UpToDateCheck {
      * @param dest Destination {@code FileObject}
      * @param checkModifiedDate Whether modification dates should be compared
      *
-     * @throw OutOfDateException is destination is deemded out of date
+     * @throw OutOfDateException if destination is deemed out of date
      *
      */
     private static void throwIfOutOfDate( VFS vfs, Object src, FileObject dest, boolean checkModifiedDate) {

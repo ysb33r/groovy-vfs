@@ -41,6 +41,14 @@ import org.ysb33r.groovy.dsl.vfs.VFS
 @CompileStatic
 class VfsCopy extends VfsBaseTask  {
 
+    /** Certain remote systems do not report modified dates correctly, resulting in unnecessary download.
+     * If this is the case date checks can be turned off for as task instance. This will result in files only being
+     * downloaded if the target does not exists or {@code --rerun-tasks} is passed.
+     */
+    @Input
+    boolean noSourceModifiedDateCheck = false
+
+
     /** Checks the state of remote objects and decides whether the object can be up to date.
      * Up to date can be considered for the following considerations
      * <ul>
@@ -55,7 +63,7 @@ class VfsCopy extends VfsBaseTask  {
     boolean isUpToDate() {
         Map<String,Object> opts = getOptions() + getPraxis()
         copySpec.apply( [getOptionMap : { -> opts } ] as VfsOptions )
-        return UpToDateCheck.forCopySpec(logger,super.vfs,copySpec,getDestination())
+        return UpToDateCheck.forCopySpec(logger,super.vfs,copySpec,getDestination(),noSourceModifiedDateCheck)
     }
 
     /** Returns a default set of VFS action options (praxis) in case no task-wide set if defined for all URIs
