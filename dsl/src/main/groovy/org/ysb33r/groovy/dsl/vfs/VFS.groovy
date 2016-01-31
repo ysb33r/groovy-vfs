@@ -156,7 +156,8 @@ class VFS {
 	 */
 	VFS( Map properties=[:], Closure pluginLoader = null ) {
 		fsMgr = new StandardFileSystemManager()
-		
+
+
         Log vfslog = properties.containsKey('logger') ? (properties['logger'] as Log): new NoOpLog()
 
         if(properties.containsKey('defaultProvider')) {
@@ -231,9 +232,10 @@ class VFS {
 	 * 
 	 * @param properties
 	 * @li filter A regex, closure of VFS FileSelector by which to select objects
-	 * @li recursive If set to true will traverse down any subfolders. Ignored if filter is a FileSelector 
+	 * @li recursive If set to true will traverse down any subfolders. Ignored if filter is a FileSelector
+	 * @li closeFilesystem Closes underlying filesystem when returning. Default is not to.
 	 *
-	 * @param uri URI pointing to area for which file listign is to be retrieved
+	 * @param uri URI pointing to area for which file listing is to be retrieved
 	 * @param c Closure that will be a single parameter (VFS FileObject)
 	 * 
 	 * @return If a closure is specified returns the results of passing each file to the
@@ -259,7 +261,8 @@ class VFS {
 	def ls ( Map properties=[:],uri,Closure c ) {
 		assert properties != null
 		def children
-		def ruri=resolveURI(properties,uri)
+		FileObject ruri=resolveURI(properties,uri)
+		AbstractFileSystem afs= properties.closeFilesystem ? ruri.fileSystem as AbstractFileSystem : null
 		boolean recurse = properties.containsKey('recursive') ? (properties['recursive'] as boolean): false
 		
 		if( properties.containsKey('filter') ) {
@@ -297,13 +300,17 @@ class VFS {
 		else {
 			children= ruri.children			
 		}
-		
-		if(c) {
-			Closure newc=c.clone()
-			newc.delegate=this
-			return children.collect { newc.call(it) }
-		} else {
-			return children
+
+		try {
+			if(c) {
+				Closure newc=c.clone()
+				newc.delegate=this
+				return children.collect { newc.call(it) }
+			} else {
+				return children
+			}
+		} finally {
+			afs?.closeCommunicationLink()
 		}
 	}
 
@@ -732,7 +739,12 @@ class VFS {
     @CompileDynamic
 	FileObject resolveURI (Map properties=[:],uri) {
 		if (uri instanceof FileObject) {
-			properties.size() ?	Util.resolveURI(properties,fsMgr,uri.fileSystem.fileSystemOptions,uri.name.getURI()) : uri
+			if( properties.size() ) {
+				Map vfsProperties = Util.selectVfsOptions(properties)
+				vfsProperties.size() ?	Util.resolveURI(vfsProperties,fsMgr,uri.fileSystem.fileSystemOptions,uri.name.getURI()) : uri
+			} else {
+				return uri
+			}
 		} else {
 			Util.resolveURI(properties,fsMgr,defaultFSOptions,uri)
 		} 

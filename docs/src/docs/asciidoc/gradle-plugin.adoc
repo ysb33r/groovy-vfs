@@ -87,7 +87,7 @@ in order to determine whether the task is out of date
 * The source file is newer than the destination (folder timestamps are not checked)
 
 NOTE: In beta-3, beta-4 input-output caching is not working as yet. https://github.com/ysb33r/groovy-vfs/issues/49[#49]. This
-  was rectified in beta-5.
+  was rectified in beta-5. IN was updated again in beta-7 https://github.com/ysb33r/groovy-vfs/issues/64[#64].
 
 === Copy optimisations
 

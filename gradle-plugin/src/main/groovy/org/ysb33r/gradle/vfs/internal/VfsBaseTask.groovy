@@ -92,12 +92,15 @@ abstract class VfsBaseTask extends DefaultTask {
         this.options+= opts
     }
 
-    @Input
-    Map<String,Object> getPraxis() {
+    VFS getVfs() {
+        this.vfs
+    }
+
+    protected Map<String,Object> getPraxis() {
         this.praxis ?: defaultPraxis()
     }
 
-    Map<String,Object> praxis( Map<String,Object> opts) {
+    protected Map<String,Object> praxis( Map<String,Object> opts) {
         if(this.praxis == null) {
             this.praxis = opts
         } else {
@@ -105,12 +108,8 @@ abstract class VfsBaseTask extends DefaultTask {
         }
     }
 
-    Map<String,Object> setPraxis( Map<String,Object> opts) {
+    protected Map<String,Object> setPraxis( Map<String,Object> opts) {
         this.praxis = opts
-    }
-
-    VFS getVfs() {
-        this.vfs
     }
 
     protected VfsURI stage(Object uri)  {

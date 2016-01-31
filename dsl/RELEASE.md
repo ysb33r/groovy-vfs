@@ -12,9 +12,12 @@
 + [Add option to mkdir to not automatically create intermediate paths](https://github.com/ysb33r/groovy-vfs/issues/18)
 + [Send arbitrary content to a remote file](https://github.com/ysb33r/groovy-vfs/issues/39)
 + [uri keyword](https://github.com/ysb33r/groovy-vfs/issues/38)
++ [Up to date check related to GET_LAST_MODIFIED](https://github.com/ysb33r/groovy-vfs/issues/64)
 + Support for `mkdir`
 + `defaultProvider` will be ignored when constructing a `VFS` object. Use `provider` configuration closure instead.
 + Pass `antPattern` to `filter` to use ANT-style patterns when copying files
++ Added boolean property `closeFileSystem` that can be passed to `ls` method.
++ Fixed issue when resolved URI are passed to some methods with additional non-VFS options
 
 ## 0.5
 + Removed standalone use of InputStream when applying `cat`.

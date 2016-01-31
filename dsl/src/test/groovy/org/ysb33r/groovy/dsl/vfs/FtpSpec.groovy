@@ -11,21 +11,10 @@
  *
  * ============================================================================
  */
-// ============================================================================
-// (C) Copyright Schalk W. Cronje 2013
-//
-// This software is licensed under the Apache License 2.0
-// See http://www.apache.org/licenses/LICENSE-2.0 for license details
-//
-// Unless required by applicable law or agreed to in writing, software distributed under the License is
-// distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and limitations under the License.
-//
-// ============================================================================
-
 package org.ysb33r.groovy.dsl.vfs
 
 import org.apache.commons.vfs2.FileObject
+import org.ysb33r.groovy.dsl.vfs.impl.Util
 import spock.lang.*
 import org.ysb33r.groovy.dsl.vfs.services.*
 import org.ysb33r.groovy.dsl.vfs.helpers.*
@@ -69,5 +58,41 @@ class FtpSpec extends SchemaSpec  {
             child instanceof URI
 
    }
+
+    def "Resolving a resolved URI with encoded password must resolve correctly"() {
+        given: "A previously resolved URI"
+        FileObject firstResolve = vfs.resolveURI("ftp://guest:{6D9D9D4A32C1C3F9B0FCDC0162476BAA}@localhost:${server.PORT}/test-subdir?vfs.ftp.passiveMode=1")
+
+        when:
+        def secondResolve = vfs.resolveURI(firstResolve)
+
+        then:
+        secondResolve != null
+
+        when:
+        def thirdResolve = Util.resolveURI(
+            [ filter : ~/.+/ ],
+            firstResolve.fileSystem.fileSystemManager,
+            firstResolve.fileSystem.fileSystemOptions,
+            firstResolve.name.getURI()
+        )
+
+        then:
+        thirdResolve != null
+    }
+
+    def "Listing a directory with a resolved URI and additional non-VFS options"() {
+        given: "A previously resolved URI"
+        def resolvedUri = vfs.resolveURI("ftp://guest:{6D9D9D4A32C1C3F9B0FCDC0162476BAA}@127.0.0.1:${server.PORT}/test-subdir?vfs.ftp.passiveMode=1&vfs.ftp.fooParam=1")
+        List<String> names = []
+
+        when:
+        vfs.ls resolvedUri, filter : ~/.+/, { FileObject fo ->
+            names+= fo.name.baseName
+        }
+
+        then:
+        names.size()
+    }
 
 }
