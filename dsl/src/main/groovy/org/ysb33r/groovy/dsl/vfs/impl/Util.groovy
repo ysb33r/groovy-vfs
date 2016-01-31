@@ -41,8 +41,12 @@ import org.apache.commons.vfs2.provider.TemporaryFileStore
 import org.apache.commons.vfs2.impl.DefaultFileReplicator
 import org.ysb33r.groovy.dsl.vfs.URIException
 
+import java.util.regex.Pattern
+
 @CompileStatic
 class Util {
+
+    static final Pattern OPTION_REGEX = ~/^(?i:vfs\.)(\p{Alpha}\p{Alnum}+)\.(\p{Alpha}\w+)$/
 
 	/** Resolves a file from a URI.
 	 * @param properties Map of 'vfs.SCHEME.OPTION' properties. ANy options passed in here will override options in defaultFSOptions.
@@ -58,6 +62,23 @@ class Util {
 		fsMgr.resolveFile(u.toString(), properties ? this.buildOptions(properties,fsMgr,fo) : fo )
 	}
 
+    /** Returns a map only containing vfs options
+     *
+     * @param options Map with any kinds of options including options starting with vfs.
+     * @return Filtered Map
+     */
+    @CompileDynamic
+    static Map<String,Object> selectVfsOptions(final Map<String,Object> options) {
+        Map<String,Object> filteredMap = [:]
+        options.each { k,v ->
+            def m = k =~ OPTION_REGEX
+            if (m.matches()) {
+                filteredMap[k] = v
+            }
+        }
+        filteredMap
+    }
+
 	/** Traverses a map extracting keys in the form of 'vfs.SCHEME.FSOPTION'.
 	 * Keys not of this form or not supported by the current file system 
 	 * manager will be ignored.
@@ -72,7 +93,7 @@ class Util {
 	static def buildOptions (Map options,FileSystemManager fsMgr, FileSystemOptions baseFSOpt=null) {
 		def fsOpt = baseFSOpt ? baseFSOpt.clone() : new FileSystemOptions() 
 		options.each { k,v ->
-			def m = k =~ /^(?i:vfs\.)(\p{Alpha}\p{Alnum}+)\.(\p{Alpha}\w+)$/
+			def m = k =~ OPTION_REGEX
 			if (m.matches()) {
 				def scheme = m[0][1]
 				def opt = m[0][2]

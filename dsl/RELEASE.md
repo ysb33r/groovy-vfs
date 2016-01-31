@@ -16,6 +16,8 @@
 + Support for `mkdir`
 + `defaultProvider` will be ignored when constructing a `VFS` object. Use `provider` configuration closure instead.
 + Pass `antPattern` to `filter` to use ANT-style patterns when copying files
++ Added boolean property `closeFileSystem` that can be passed to `ls` method.
++ Fixed issue when resolved URI are passed to some methods with additional non-VFS options
 
 ## 0.5
 + Removed standalone use of InputStream when applying `cat`.

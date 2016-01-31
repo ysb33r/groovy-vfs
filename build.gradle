@@ -26,7 +26,7 @@ buildscript {
 
 allprojects {
     ext {
-        versionModifier = 'beta7-SNAPSHOT'
+        versionModifier = 'beta7'
         versionNumber   = '1.0'
         modulesWithGroovyDoc = [
             'dsl',
