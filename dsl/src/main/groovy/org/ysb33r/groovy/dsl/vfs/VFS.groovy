@@ -338,15 +338,21 @@ class VFS {
 	def cat ( Map properties=[:],uri,Closure c ) {
 		assert properties != null
         assert c != null
-        FileObject fo=resolveURI(properties,uri)
-        AbstractFileSystem afs= fo.fileSystem as AbstractFileSystem
 
-        try {
-		    return fo.content.inputStream.withStream(c)
-        }
-        finally {
-            afs.closeCommunicationLink()
-        }
+		if( uri instanceof FileObject && !properties.size()) {
+			return uri.content.inputStream.withStream(c)
+		} else {
+			FileObject fo=resolveURI(properties,uri)
+			AbstractFileSystem afs= fo.fileSystem as AbstractFileSystem
+
+			try {
+				return fo.content.inputStream.withStream(c)
+			}
+			finally {
+				afs.closeCommunicationLink()
+			}
+
+		}
 	}
 
 	/** Write content to a local or remote file object
