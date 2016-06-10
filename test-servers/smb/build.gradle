@@ -1,0 +1,7 @@
+
+
+dependencies {
+    compile fileTree( dir : "${project(':jlan').buildDir}/libs", include: '*.jar' )
+}
+
+classes.dependsOn project(':jlan').tasks.jar

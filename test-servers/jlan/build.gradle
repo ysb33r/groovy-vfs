@@ -1,3 +1,6 @@
+import org.gradle.api.internal.file.copy.CopyAction
+import org.gradle.api.internal.file.copy.CopyActionProcessingStream
+
 // ============================================================================
 // (C) Copyright Schalk W. Cronje 2014
 //
@@ -16,14 +19,15 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.ysb33r.gradle:vfs-gradle-plugin:0.5'
+        classpath 'org.ysb33r.gradle:vfs-gradle-plugin:1.0'
         classpath 'commons-httpclient:commons-httpclient:3.1'
         classpath 'xerces:xercesImpl:2.9.1'
     }
 }
 
 
-apply plugin: 'vfs'
+apply plugin: 'org.ysb33r.vfs'
+apply plugin : LifecycleBasePlugin
 
 configurations {
     jlan
@@ -66,25 +70,13 @@ download {
     }
 }
 
-task clean( type : Delete ) {
-    delete buildDir
-}
-
 task unpack ( type : Copy) {
     from zipTree(new File(buildDir,download.property('archive')))
     into unpackDir
     dependsOn download
 }
 
-task build << {
-    def buildxml = new File(unpackDir,'build.xml')
-    ant.antProject.setBaseDir(unpackDir)
-    ant.antProject.setUserProperty(org.apache.tools.ant.MagicNames.ANT_FILE, buildxml.absolutePath)
-    org.apache.tools.ant.ProjectHelper.configureProject(ant.antProject,buildxml)
-    ant.antProject.executeTarget('createJar')
-}
-
-build {
+task buildJlan {
     inputs.file new File(unpackDir,'build.xml')
     outputs.file new File(unpackDir,'jars/alfresco-jlan.jar')
     outputs.file new File(unpackDir,'libs/cryptix-jce-provider.jar')
@@ -94,10 +86,21 @@ build {
         !new File(unpackDir,'jars/alfresco-jlan.jar').exists() &&
         !new File(unpackDir,'libs/cryptix-jce-provider.jar').exists()
     }
+
+    doLast {
+        def buildxml = new File(unpackDir,'build.xml')
+        ant.antProject.setBaseDir(unpackDir)
+        ant.antProject.setUserProperty(org.apache.tools.ant.MagicNames.ANT_FILE, buildxml.absolutePath)
+        org.apache.tools.ant.ProjectHelper.configureProject(ant.antProject,buildxml)
+        ant.antProject.executeTarget('createJar')
+    }
 }
 
 task jar( type : Copy ) {
-    from build.outputs.files
+    from buildJlan.outputs.files
     into new File(buildDir,'libs')
-    dependsOn build
+    dependsOn buildJlan
 }
+
+
+assemble.dependsOn jar

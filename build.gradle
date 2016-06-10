@@ -10,29 +10,43 @@
 //
 // ============================================================================
 
-buildscript {
-    repositories {
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-        jcenter()
-      }
-      dependencies {
-        classpath 'net.saliman:gradle-cobertura-plugin:2.2.2'
-        classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1'
-        classpath "com.netflix.nebula:gradle-extra-configurations-plugin:2.2.2"
-      }
-}
+
+
+
+//buildscript {
+//    repositories {
+//        maven {
+//            url "https://plugins.gradle.org/m2/"
+//        }
+//        jcenter()
+//      }
+//      dependencies {
+//        classpath 'net.saliman:gradle-cobertura-plugin:2.2.2'
+//        classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1'
+//        classpath "com.netflix.nebula:gradle-extra-configurations-plugin:2.2.2"
+//      }
+//}
 
 allprojects {
+
     ext {
         versionModifier = 'SNAPSHOT'
         versionNumber   = '2.0'
-        modulesWithGroovyDoc = [
+
+        modules = [
+            withGroovyDoc : [
 //            'groovy-vfs',
 //            'gradle-plugin',
 //            'cloud-provider-core',
 //            'smb-provider'
+            ],
+            lgplLicensed : [
+                'smbserver'
+            ],
+            testServers : [
+                'ftpserver',
+                'smbserver'
+            ],
         ]
     }
     version = versionNumber + (versionModifier.size() ? "-${versionModifier}": '')
@@ -43,15 +57,19 @@ subprojects {
     buildscript {
         repositories {
             jcenter()
-            mavenLocal()
+            maven {
+                url "https://plugins.gradle.org/m2/"
+            }
         }
         dependencies {
-            classpath 'org.ysb33r.gradle:bintray:1.6'
-            classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
+//            classpath
+//            classpath 'org.ysb33r.gradle:bintray:1.6'
+//            classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
         }
     }
 
     ext {
+        asciidocVer      = '1.5.3'
         vfsVersion       = '2.1'
         groovyVer        = '2.4.6'
         kotlinVer        = '1.0'
@@ -139,7 +157,16 @@ subprojects {
 //    }
 //}
 
-configure( subprojects.findAll { modulesWithGroovyDoc.contains(it.name) } ) {
+configure( subprojects.findAll { modules.testServers.contains(it.name) } ) {
+    apply plugin: 'groovy'
+
+    dependencies {
+        compile group: 'org.codehaus.groovy', name: 'groovy-all', version: groovyVer
+    }
+}
+
+
+configure( subprojects.findAll { modules.withGroovyDoc.contains(it.name) } ) {
     task installDocs( type : Copy ) {
         group 'documentation'
         description 'Copy groovydocs to an install directory'

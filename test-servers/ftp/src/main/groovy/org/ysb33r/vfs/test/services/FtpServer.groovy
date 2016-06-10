@@ -12,7 +12,7 @@
 
 // After an idea from http://snipplr.com/view/64953/
 
-package org.ysb33r.groovy.vfs.test.services
+package org.ysb33r.vfs.test.services
 
 import org.apache.ftpserver.ConnectionConfigFactory
 import org.apache.ftpserver.FtpServerFactory
