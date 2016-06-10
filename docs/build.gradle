@@ -96,11 +96,12 @@ task updateversionDoc {
         t.outputs.files.singleFile.text.readLines().contains(version) &&
             !version.endsWith('-SNAPSHOT') && !t.outputs.files.singleFile.text.contains('-SNAPSHOT')
     }
+
+    doLast {
+        editCSV outputs.files.singleFile,"link:${version}/docs/product-documentation.html[${version}]"
+    }
 }
 
-updateversionDoc << {
-    editCSV outputs.files.singleFile,"link:${version}/docs/product-documentation.html[${version}]"
-}
 
 //task updateApiVersionDoc {
 //    description 'Updates the local CSV API versions file'

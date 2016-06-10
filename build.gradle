@@ -147,6 +147,8 @@ configure(subprojects.findAll { modulesWithGroovyDoc.contains(it.name) } ) {
         from groovydoc
 
         into { "${websitePublishFolder}/${version}/api/${project.name}" }
+
+        dependsOn groovydoc
     }
 }
 
