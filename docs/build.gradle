@@ -35,13 +35,12 @@ asciidoctor {
         include 'product-documentation.adoc'
     }
 
-    attributes revnumber: "${version}",
-//        dslSrcRoot    : "${project(':dsl').projectDir}/src",
-        dslSrcRoot    : "${project(':groovy-vfs').projectDir}/src",
-        gradleSrcRoot : "${project(':gradle-plugin').projectDir}/src",
-        smbSrcRoot    : "${project(':smb-provider').projectDir}/src",
-        cloudSrcRoot  : "${project(':cloud-provider-core').projectDir}/src",
-        cmdlineSrcRoot: "${project(':cmdline').projectDir}/src"
+    attributes revnumber: "${version}"
+//    attributes dslSrcRoot : "${project(':groovy-vfs').projectDir}/src",
+//        gradleSrcRoot : "${project(':gradle-plugin').projectDir}/src",
+//        smbSrcRoot    : "${project(':smb-provider').projectDir}/src",
+//        cloudSrcRoot  : "${project(':cloud-provider-core').projectDir}/src",
+//        cmdlineSrcRoot: "${project(':cmdline').projectDir}/src"
 }
 
 

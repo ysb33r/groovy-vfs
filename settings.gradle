@@ -1,5 +1,5 @@
 // ============================================================================
-// (C) Copyright Schalk W. Cronje 2013
+// (C) Copyright Schalk W. Cronje 2013-2016
 //
 // This software is licensed under the Apache License 2.0
 // See http://www.apache.org/licenses/LICENSE-2.0 for license details
@@ -10,21 +10,40 @@
 //
 // ============================================================================
 
-rootProject.name = 'groovy-vfs-project'
+rootProject.name = 'vfs-project'
 
-include 'test-servers'
-include 'gradle-plugin'
-include 'jlan'
-//include 'cpio-provider'
-include 'smb-provider'
-include 'cmdline'
-include 'cloud-provider-core'
+// ----------------------------------------------------------------------------
+// Infrastructure
+// ----------------------------------------------------------------------------
+
+include 'test-servers/ftp'
+project(':test-servers/ftp').name = 'ftpserver'
+
+include 'test-servers/jlan'
+project(':test-servers/jlan').name = 'jlan'
+
+// ----------------------------------------------------------------------------
+// Providers
+// ----------------------------------------------------------------------------
+
+//include 'providers/smb'
+//project(':providers/smb').name = 'smb-provider'
+
+//include 'providers/cpio'
+//project(':providers/cpio').name = 'cpio-provider'
+
+//include 'providers/cloud-core'
+//project(':providers/cloud-core').name = 'cloud-core'
+
+// ----------------------------------------------------------------------------
+// DSLs
+// ----------------------------------------------------------------------------
+//include 'dsl/groovy-vfs'
+//project(':dsl/groovy-vfs').name = 'groovy-vfs'
+
+// ----------------------------------------------------------------------------
+// Other
+// ----------------------------------------------------------------------------
 include 'docs'
-
-//include 'dsl'
-//include 'groovy-vfs'
-//project(':groovy-vfs').projectDir = file('dsl')
-include 'dsl'
-project(':dsl').name = 'groovy-vfs'
-
-//rootProject.children.find { it.name = 'dsl' } .name = 'groovy-vfs'
+//include 'gradle-plugin'
+//include 'cmdline'

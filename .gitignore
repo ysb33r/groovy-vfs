@@ -16,3 +16,4 @@ dsl/.*
 .build
 build
 gradle-app.setting
+TMP

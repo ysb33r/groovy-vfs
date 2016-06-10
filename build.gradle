@@ -26,13 +26,13 @@ buildscript {
 
 allprojects {
     ext {
-        versionModifier = ''
-        versionNumber   = '1.0'
+        versionModifier = 'SNAPSHOT'
+        versionNumber   = '2.0'
         modulesWithGroovyDoc = [
-            'dsl',
-            'gradle-plugin',
-            'cloud-provider-core',
-            'smb-provider'
+//            'groovy-vfs',
+//            'gradle-plugin',
+//            'cloud-provider-core',
+//            'smb-provider'
         ]
     }
     version = versionNumber + (versionModifier.size() ? "-${versionModifier}": '')
@@ -53,7 +53,8 @@ subprojects {
 
     ext {
         vfsVersion       = '2.1'
-        groovyVer        = '[2.1,2.3.9]'
+        groovyVer        = '2.4.6'
+        kotlinVer        = '1.0'
         jackrabbitVer    = '1.6.5' // '2.11.1'
         jettyVer         = '8.1.5.v20120716' //'9.3.5.v20151012'
         slf4jVer         = '1.7.5'
@@ -70,73 +71,73 @@ subprojects {
 
 }
 
-configure(subprojects.findAll { ! ['jlan','test-servers','docs'].contains(it.name) } ) {
-
-    apply plugin: 'groovy'
-    apply plugin: 'maven'
-    apply plugin: 'com.github.hierynomus.license'
-
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
-
-    plugins.withType(JavaPlugin) {
-
-        project.tasks.withType(JavaCompile) { task ->
-            task.sourceCompatibility = project.sourceCompatibility
-            task.targetCompatibility = project.targetCompatibility
-        }
-
-        project.tasks.withType(GroovyCompile) { task ->
-            task.sourceCompatibility = project.sourceCompatibility
-            task.targetCompatibility = project.targetCompatibility
-        }
-    }
-
-    dependencies {
-        compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7+'
-        compile ("org.apache.commons:commons-vfs2:${vfsVersion}") {
-            exclude group:'org.apache.maven.scm'
-        }
-        compile 'org.apache.commons:commons-compress:1.9'
-        testCompile 'org.apache.ftpserver:ftpserver-core:1.0.6'
-        testCompile 'commons-io:commons-io:2.4'
-        testCompile 'commons-net:commons-net:3.+'
-        testRuntime 'commons-httpclient:commons-httpclient:3.1'
-        testRuntime "org.slf4j:slf4j-simple:${slf4jVer}"
-
-
-        testCompile ('org.spockframework:spock-core:1.0-groovy-2.3') {
-            exclude module : 'groovy-all'
-        }
-
-    }
-
-    task sourcesJar(type: Jar, dependsOn: classes) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
-    }
-
-    task javadocJar(type: Jar) {
-        description "An archive of the JavaDocs for Maven Central"
-        classifier "javadoc"
-        from javadoc
-    }
-
-    artifacts {
-        archives sourcesJar, javadocJar
-    }
-
-    license {
-        header = rootProject.file('config/apache-header')
-        strictCheck = true
-        ignoreFailures = false
-        mapping {
-            groovy ='SLASHSTAR_STYLE'
-        }
-        ext.year = '2013-2015'
-        excludes(['**/*.ad', '**/*.asciidoc', '**/*.adoc', '**/*.md','**/*.properties', '**/*.txt', '**/*.bz2'])
-    }
-}
+//configure(subprojects.findAll { ! ['jlan','test-servers','docs'].contains(it.name) } ) {
+//
+//    apply plugin: 'groovy'
+//    apply plugin: 'maven'
+//    apply plugin: 'com.github.hierynomus.license'
+//
+//    sourceCompatibility = 1.7
+//    targetCompatibility = 1.7
+//
+//    plugins.withType(JavaPlugin) {
+//
+//        project.tasks.withType(JavaCompile) { task ->
+//            task.sourceCompatibility = project.sourceCompatibility
+//            task.targetCompatibility = project.targetCompatibility
+//        }
+//
+//        project.tasks.withType(GroovyCompile) { task ->
+//            task.sourceCompatibility = project.sourceCompatibility
+//            task.targetCompatibility = project.targetCompatibility
+//        }
+//    }
+//
+//    dependencies {
+//        compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7+'
+//        compile ("org.apache.commons:commons-vfs2:${vfsVersion}") {
+//            exclude group:'org.apache.maven.scm'
+//        }
+//        compile 'org.apache.commons:commons-compress:1.9'
+//        testCompile 'org.apache.ftpserver:ftpserver-core:1.0.6'
+//        testCompile 'commons-io:commons-io:2.4'
+//        testCompile 'commons-net:commons-net:3.+'
+//        testRuntime 'commons-httpclient:commons-httpclient:3.1'
+//        testRuntime "org.slf4j:slf4j-simple:${slf4jVer}"
+//
+//
+//        testCompile ('org.spockframework:spock-core:1.0-groovy-2.3') {
+//            exclude module : 'groovy-all'
+//        }
+//
+//    }
+//
+//    task sourcesJar(type: Jar, dependsOn: classes) {
+//        classifier = 'sources'
+//        from sourceSets.main.allSource
+//    }
+//
+//    task javadocJar(type: Jar) {
+//        description "An archive of the JavaDocs for Maven Central"
+//        classifier "javadoc"
+//        from javadoc
+//    }
+//
+//    artifacts {
+//        archives sourcesJar, javadocJar
+//    }
+//
+//    license {
+//        header = rootProject.file('config/apache-header')
+//        strictCheck = true
+//        ignoreFailures = false
+//        mapping {
+//            groovy ='SLASHSTAR_STYLE'
+//        }
+//        ext.year = '2013-2016'
+//        excludes(['**/*.ad', '**/*.asciidoc', '**/*.adoc', '**/*.md','**/*.properties', '**/*.txt', '**/*.bz2'])
+//    }
+//}
 
 configure( subprojects.findAll { modulesWithGroovyDoc.contains(it.name) } ) {
     task installDocs( type : Copy ) {
@@ -153,6 +154,6 @@ configure( subprojects.findAll { modulesWithGroovyDoc.contains(it.name) } ) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.0'
+    gradleVersion = '2.13'
 }
 
