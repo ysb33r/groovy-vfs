@@ -155,3 +155,4 @@ configure(subprojects.findAll { modulesWithGroovyDoc.contains(it.name) } ) {
 task wrapper(type: Wrapper) {
     gradleVersion = '2.0'
 }
+
