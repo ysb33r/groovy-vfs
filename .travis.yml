@@ -6,6 +6,5 @@ jdk:
  - openjdk8
 os:
  - linux
- - osx
 env: TERM=dumb
 #after_success: ./gradlew coveralls -PbintrayUser= -PbintrayApiKey
