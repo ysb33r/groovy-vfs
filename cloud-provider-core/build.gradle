@@ -11,7 +11,7 @@
 // ============================================================================
 group = 'org.ysb33r.groovy'
 archivesBaseName = 'groovy-vfs-cloud-core'
-version = '0.1' + (versionModifier.size() ? "-${versionModifier}": '')
+//version = '0.1' + (versionModifier.size() ? "-${versionModifier}": '')
 
 ext {
     moduleName = 'groovy-vfs-cloud-core'
