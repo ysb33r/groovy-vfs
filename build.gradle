@@ -138,7 +138,7 @@ configure(subprojects.findAll { ! ['jlan','test-servers','docs'].contains(it.nam
     }
 }
 
-configure(subprojects.findAll { modulesWithGroovyDoc.contains(it.name) } ) {
+configure( subprojects.findAll { modulesWithGroovyDoc.contains(it.name) } ) {
     task installDocs( type : Copy ) {
         group 'documentation'
         description 'Copy groovydocs to an install directory'

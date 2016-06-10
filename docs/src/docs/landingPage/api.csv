@@ -1,6 +1,6 @@
 ,
-VFS DSL,link:1.0-beta5/api/dsl/index.html[1.0-beta5]
-Gradle Plugin,link:1.0-beta5/api/gradle-plugin/index.html[1.0-beta5]
-SMB Provider,link:1.0-beta5/api/smb-provider/index.html[1.0-beta5]
-S3 Provider,link:0.1-beta5/api/cloud-provider-core/index.html[0.1-beta5]
+VFS DSL,link:1.0/api/groovy-vfs/index.html[1.0]
+Gradle Plugin,link:1.0/api/gradle-plugin/index.html[1.0]
+SMB Provider,link:1.0/api/smb-provider/index.html[1.0]
+S3 Provider,link:0.1/api/cloud-provider-core/index.html[1.0]
 ,

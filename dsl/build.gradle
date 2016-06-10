@@ -49,3 +49,14 @@ test {
 apply from : '../gradle/publish.gradle'
 
 
+task installDocs( type : Copy ) {
+    group 'documentation'
+    description 'Copy groovydocs to an install directory'
+    dependsOn 'groovydoc'
+
+    from groovydoc
+
+    into { "${websitePublishFolder}/${version}/api/${project.name}" }
+
+    dependsOn groovydoc
+}
