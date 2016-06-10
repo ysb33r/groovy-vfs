@@ -8,7 +8,7 @@
 + [Allow cookies to be passed to http/https schemas](https://github.com/ysb33r/groovy-vfs/issues/10)
 + [Add append to DSL for multiple files](https://github.com/ysb33r/groovy-vfs/issues/37)
 
-## 1.0 - Roadmap
+## 1.0
 + [Add option to mkdir to not automatically create intermediate paths](https://github.com/ysb33r/groovy-vfs/issues/18)
 + [Send arbitrary content to a remote file](https://github.com/ysb33r/groovy-vfs/issues/39)
 + [uri keyword](https://github.com/ysb33r/groovy-vfs/issues/38)

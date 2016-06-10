@@ -185,6 +185,8 @@ vfs {
   smb://DOMAIN%5cUSERNAME:PASSWORD@HOSTNAME/SHARE/PATH
 ----
 
+NOTE: This provider has a concurrency bug (https://github.com/ysb33r/groovy-vfs/issues/73[#73]).
+
 == S3 provider (EXPERIMENTAL)
 image:https://api.bintray.com/packages/ysb33r/grysb33r/groovy-vfs-cloud-core/images/download.png["Download', link="https://bintray.com/ysb33r/grysb33r/groovy-vfs-cloud-core/_latestVersion"]
 

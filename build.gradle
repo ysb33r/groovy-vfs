@@ -26,7 +26,7 @@ buildscript {
 
 allprojects {
     ext {
-        versionModifier = 'beta8'
+        versionModifier = 'beta9'
         versionNumber   = '1.0'
         modulesWithGroovyDoc = [
             'dsl',
@@ -52,7 +52,7 @@ subprojects {
     }
 
     ext {
-        vfsVersion       = '2.0'
+        vfsVersion       = '2.1'
         groovyVer        = '[2.1,2.3.9]'
         jackrabbitVer    = '1.6.5' // '2.11.1'
         jettyVer         = '8.1.5.v20120716' //'9.3.5.v20151012'
