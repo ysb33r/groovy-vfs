@@ -98,55 +98,9 @@ publishPlugins {
 }
 
 gradleTest {
-    versions '2.0' ,'2.2', '2.3', '2.5', '2.8'
+    versions '2.0' ,'2.2', '2.3', '2.5', '2.8', '2.10', '2.12', '2.13'
 
     onlyIf { !gradle.startParameter.isOffline() }
 }
 
-task foo << {
-
-    def addDependency = { mavenDeps, dep, scope ->
-
-println "+++ ${dep}"
-
-        if(dep instanceof DefaultProjectDependency) {
-            println "   ---- ${(dep as DefaultProjectDependency).dependencyProject.archivesBaseName}"
-        }
-        def mavenDep = new org.gradle.mvn3.org.apache.maven.model.Dependency()
-        mavenDep.setGroupId(dep.getGroup());
-        mavenDep.setArtifactId(dep.getName());
-        mavenDep.setVersion(dep.getVersion());
-        mavenDep.setScope(scope);
-
-println "   *** ${mavenDep}"
-        if (!dep.isTransitive()) {
-            LOGGER.warn(format("Dependency %s:%s:%s is marked as non-transitive, but this is not"
-                + "supported by the underlying Maven publishing mechanism",
-                dep.getGroup(), dep.getName(), dep.getVersion()));
-        }
-        Set<ExcludeRule> excludeRules = dep.getExcludeRules();
-        if (excludeRules != null) {
-            for (ExcludeRule e : excludeRules) {
-                def mavenEx = new org.gradle.mvn3.org.apache.maven.model.Exclusion();
-                mavenEx.setGroupId(e.getGroup());
-                mavenEx.setArtifactId(e.getModule());
-                mavenDep.addExclusion(mavenEx);
-            }
-        }
-        mavenDeps.add(mavenDep);
-    }
-    def addDependencies = { mavenDeps, config, scope ->
-            for(org.gradle.api.artifacts.Dependency dep : config.getDependencies()) {
-                if(dep instanceof ModuleDependency) {
-                    addDependency(mavenDeps, (ModuleDependency) dep, scope);
-                }
-            }
-    }
-
-    def compile = configurations.getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME)
-    List<Dependency> mavenDeps = new ArrayList<Dependency>();
-    addDependencies(mavenDeps, compile, org.gradle.api.artifacts.maven.Conf2ScopeMappingContainer.COMPILE)
-
-    println mavenDeps
-}
 
