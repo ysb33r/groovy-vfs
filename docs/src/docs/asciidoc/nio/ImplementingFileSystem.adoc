@@ -1,0 +1,74 @@
+== Implementing a New File System
+
+=== Things to consider before starting
+
+When are two filesystems the same::
+
+    Is `ftp://user:pass@server/pub/index.txt` the same file as `ftp://user2:pass2@server/pub/index.txt`?
+    Can we consider them to be on the same filesystem at all?
+    Should we treat them to be the same?
+
+Concurrency::
+
+    In order to track whether filesystems on the same provider has been loaded before, it might be necessary
+    to track them in same kind of data store. This means that synchronisation will need to be applied. Try to keep
+    these kind of synchronisation to a minimum as to evade performance and locking issues.
+
+Opaque URIs::
+
+    Does your filesystem need to be capable of handling opaque URIs i.e. `ram:foo` instead of `ram://foo`
+
+=== Operations
+
+There are a number of operations that will need implementing. Besides the techinical implementation details,
+a developer needs to be aware that some of these API operations can be cumbersome and verbose to implement.
+
+.File operations
+|===
+| `checkAccess` | Check if file exists or and optionally what kind of access it has.
+| `createDirectory` | Create a directory.
+| `copy` | Copy one file to another within the same provider. (FileSystem ?).
+| `delete` | Delete a file or an empty directory.
+| `getFileAttributeView` | Create a file attribtue view of a specific type.
+| `isHidden` | Is file considered to be hidden?
+| `isSameFile` | Do two path on the same filesystem point to the same instance?
+| `move` | Move one file to another within the same provider. (FileSystem ?).
+| `newByteChannel` | Open a file in a seekable form
+| `newDirectoryStream` | Create facility by which a directory can be traversed.
+| `readAttributes` | Read file attributes (2 operations).
+| `setAttribute` | Set a file attribute.
+|===
+
+.Filesystem operations
+|===
+| `getFileStore` | The file store where the file is actually located.
+| `getFileSystem` | Returns an existing representation of a filesystem tat was previously created.
+| `newFileSystem` | Creates a new proxy representation of a filesystem.
+|===
+
+.Miscellaneous operations
+|===
+| `getPath` | Convert a URI to a Path object
+|===
+
+=== Create a FileSystemProvider
+
+* Needs to extend `java.nio.file.spi.FileSystemProvider` or something like
+  `org.ysb33r.nio.provider.core.AbstractFileSystemProvider`.
+* Need to place a file `java.nio.file.spi.FileSystemProvider` in `resources/META-INF/services`. The file
+  needs to contain the name of your class.
+* First important method to implement is `newFileSystem`.
+* If the filesystem can support writing implement `newByteChannel` next.
+
+=== Creating a FileSystem
+
+* Needs to extend `java.nio.file.FileSystem` or something like
+  `org.ysb33r.nio.provider.core.AbstractFileSystem`.
+
+=== Adding extra scheme names for the same kind of filesystem
+
+Derive from your provider class and override the `getScheme` method. Note that this will be treated as
+ a different filesystem and paths pointing the same file will not necessarily be interpreted correctly
+ with `isSameFile`.
+
+
