@@ -29,6 +29,12 @@ project(':test-servers/smb').name = 'smbserver'
 // Providers
 // ----------------------------------------------------------------------------
 
+include 'provider-core'
+//project(':providers/ram').name = 'ram-provider'
+
+include 'providers/ram'
+project(':providers/ram').name = 'ram-provider'
+
 //include 'providers/smb'
 //project(':providers/smb').name = 'smb-provider'
 

@@ -10,22 +10,21 @@
 //
 // ============================================================================
 
-
-
-
-//buildscript {
-//    repositories {
-//        maven {
-//            url "https://plugins.gradle.org/m2/"
-//        }
-//        jcenter()
-//      }
-//      dependencies {
-//        classpath 'net.saliman:gradle-cobertura-plugin:2.2.2'
-//        classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1'
-//        classpath "com.netflix.nebula:gradle-extra-configurations-plugin:2.2.2"
-//      }
-//}
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.1.0'
+        classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1'
+        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.3'
+//            classpath 'org.ysb33r.gradle:bintray:1.6'
+//            classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
+    }
+}
 
 allprojects {
 
@@ -43,6 +42,10 @@ allprojects {
             lgplLicensed : [
                 'smbserver'
             ],
+            providers : [
+                'provider-core',
+                'ram-provider'
+            ],
             testServers : [
                 'ftpserver',
                 'smbserver'
@@ -54,27 +57,19 @@ allprojects {
 
 subprojects {
 
-    buildscript {
-        repositories {
-            jcenter()
-            maven {
-                url "https://plugins.gradle.org/m2/"
-            }
-        }
-        dependencies {
-//            classpath
-//            classpath 'org.ysb33r.gradle:bintray:1.6'
-//            classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
-        }
-    }
+
+    apply plugin: 'nebula.provided-base'
+    apply plugin: 'com.github.hierynomus.license'
 
     ext {
         asciidocVer      = '1.5.3'
         vfsVersion       = '2.1'
         groovyVer        = '2.4.6'
+        spockVer         = '1.0-groovy-2.4'
+        spockReportsVer  = '1.2.12'
         kotlinVer        = '1.0'
-        jackrabbitVer    = '1.6.5' // '2.11.1'
-        jettyVer         = '8.1.5.v20120716' //'9.3.5.v20151012'
+//        jackrabbitVer    = '1.6.5' // '2.11.1'
+//        jettyVer         = '8.1.5.v20120716' //'9.3.5.v20151012'
         slf4jVer         = '1.7.5'
         bintrayRepo      = 'grysb33r'
         bintrayUser      = 'ysb33r'
@@ -85,6 +80,71 @@ subprojects {
 
     repositories {
         jcenter()
+    }
+
+
+    license {
+        strictCheck = true
+        ignoreFailures = false
+        mapping {
+            groovy = 'SLASHSTAR_STYLE'
+            java = 'SLASHSTAR_STYLE'
+        }
+        ext.year = '2013-2016'
+        excludes(['**/*.ad', '**/*.asciidoc', '**/*.adoc', '**/*.md','**/*.properties', '**/*.txt', '**/*.bz2'])
+    }
+}
+
+configure(subprojects.findAll { modules.lgplLicensed.contains(it.name) } ) {
+    license {
+        header = rootProject.file('config/lglp2-header')
+    }
+}
+
+configure(subprojects.findAll { !modules.lgplLicensed.contains(it.name) } ) {
+    license {
+        header = rootProject.file('config/apache-header')
+    }
+}
+
+configure(subprojects.findAll { modules.providers.contains(it.name) } ) { cfgProject ->
+
+    apply plugin : 'java'
+
+    group = "org.ysb33r.nio"
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    dependencies {
+        provided "org.codehaus.groovy:groovy-all:${groovyVer}"
+        testCompile ("org.spockframework:spock-core:${spockVer}") {
+            exclude module : 'groovy-all'
+        }
+        testCompile( 'com.athaydes:spock-reports:${spockReportsVer}' ) {
+            transitive = false
+        }
+        testRuntime "org.slf4j:slf4j-simple:${slf4jVer}"
+
+
+        if(cfgProject.name != 'provider-core') {
+            compile project(':provider-core')
+        }
+    }
+
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    task javadocJar(type: Jar) {
+        description "An archive of the JavaDocs for Maven Central"
+        classifier "javadoc"
+        from javadoc
+    }
+
+    artifacts {
+        archives sourcesJar, javadocJar
     }
 
 }
