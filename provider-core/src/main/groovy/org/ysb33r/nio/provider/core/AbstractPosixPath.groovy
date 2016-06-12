@@ -316,7 +316,13 @@ abstract class AbstractPosixPath<T extends FileSystem> extends AbstractPath impl
      */
     @Override
     Path getParent() {
-        (elements.size() < 2) ? (elements.empty || !absolute ? null : root) : subpath(0,elements.size()-1)
+        if(elements.empty) {
+            null
+        } else if(nameCount == 1) {
+            absolute ? root : null
+        } else {
+            followAbsoluteStatus((AbstractPosixPath<T>)subpath(0,nameCount-1))
+        }
     }
 
     /**
@@ -350,10 +356,17 @@ abstract class AbstractPosixPath<T extends FileSystem> extends AbstractPath impl
             throw new IllegalArgumentException("Index cannot be negative (was ${beginIndex},${endIndex})")
         } else if (endIndex <= beginIndex) {
             throw new IllegalArgumentException("endIndex <= beginIndex (was ${beginIndex},${endIndex})")
-        } else if (endIndex >= elements.size()) {
+        } else if (endIndex > elements.size()) {
             throw new IllegalArgumentException("Index is invalid (was ${beginIndex},${endIndex})")
         }
-        createPath(elements[beginIndex],elements[(beginIndex+1)..(endIndex-1)] as String[])
+        int beginMore = beginIndex + 1
+        int endMore = endIndex - 1
+
+        if(endMore == beginIndex) {
+            createPath(elements[beginIndex])
+        } else {
+            createPath(elements[beginIndex],elements[(beginIndex+1)..(endIndex-1)] as String[])
+        }
     }
 
     /**
@@ -476,9 +489,9 @@ abstract class AbstractPosixPath<T extends FileSystem> extends AbstractPath impl
             return false
         }
 
-        int count = otherPath.elements.size()-1
+        int count = -otherPath.elements.size()
 
-        for( int index = count; index >=0 ; --index) {
+        for( int index = -1; index >= count ; --index) {
             if (elements[index] != otherPath.elements[index]) {
                 return false
             }
@@ -594,8 +607,6 @@ abstract class AbstractPosixPath<T extends FileSystem> extends AbstractPath impl
         if(absolute) {
             this.normalize()
         } else {
-//            createPath('/').resolve(this.normalize())
-//            absoluteRoot.resolve(this)
             resolvableRoot.resolve(this.normalize())
         }
     }
@@ -734,8 +745,17 @@ abstract class AbstractPosixPath<T extends FileSystem> extends AbstractPath impl
     }
 
     // Forces a path to be absolute
-    private void markAbsolute() {
+    private Path markAbsolute() {
         this.absolute = true
+        this
+    }
+
+    // Marks the provided path absolute if this instance is also absolute
+    private Path followAbsoluteStatus(AbstractPosixPath<T> path) {
+        if(absolute) {
+            path.markAbsolute()
+        }
+        path
     }
 
     // Splits a path string into segments using the path separator

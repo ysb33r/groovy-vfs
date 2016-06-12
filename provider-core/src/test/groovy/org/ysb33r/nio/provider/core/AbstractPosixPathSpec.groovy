@@ -80,7 +80,7 @@ class AbstractPosixPathSpec extends Specification {
 
         where:
         input      | index || output
-        '/foo/bar' | 0     || '/foo'
+        '/foo/bar' | 0     || 'foo'
         '/foo/bar' | 1     || 'bar'
         'foo/bar'  | 0     || 'foo'
 
@@ -125,21 +125,23 @@ class AbstractPosixPathSpec extends Specification {
     def "A parent path is the path above the current path, but roots do not have parents"() {
         when: "A path is '#pathStr'"
         def path = new TestPosixPath(pathStr)
-        def parent = parentStr == null ? null : new TestPosixPath(parentStr)
+        def expected = expectedParentStr == null ? null : new TestPosixPath(expectedParentStr)
 
-        then: "It's parent is #parentStr"
-        parent == path.parent
+        then: "It's parent is #expectedParentStr"
+        path.parent == expected
 
         where:
-        pathStr    || parentStr
+        pathStr    || expectedParentStr
         '/foo'     || '/'
         'foo/bar'  || 'foo'
         '/foo/bar' || '/foo'
+        '/fo/ba/c' || '/fo/ba'
+        'fo/ba/c'  || 'fo/ba'
         '/'        || null
     }
 
     @Unroll
-    def "A subpath creates a relative path"() {
+    def "A subpath creates a relative path: #pathStr(#start,#end)"() {
 
         when: "A path consisting of '#pathStr'"
         def path = new TestPosixPath(pathStr)
@@ -151,11 +153,13 @@ class AbstractPosixPathSpec extends Specification {
 
         where:
         pathStr      | start | end || newStr
-        '/a/b/c/d/e' | 0     | 2   || 'a/b/c/d/e'
-        '/a/b/c/d/e' | 0     | 2   || 'a/b/c'
-        'a/b/c/d/e'  | 0     | 2   || 'a/b/c'
-        'a/b/c/d/e'  | 1     | 3   || 'b/c/d'
-        'a/b/c/d/e'  | 3     | 4   || 'c/d'
+        '/a/b/c/d/e' | 0     | 5   || 'a/b/c/d/e'
+        '/a/b/c/d/e' | 0     | 2   || 'a/b'
+        '/a/b/c/d/e' | 0     | 2   || 'a/b'
+        'a/b/c/d/e'  | 0     | 2   || 'a/b'
+        'a/b/c/d/e'  | 1     | 3   || 'b/c'
+        'a/b/c/d/e'  | 3     | 4   || 'd'
+        'a/b/c/d/e'  | 1     | 4   || 'b/c/d'
     }
 
     @Unroll
@@ -188,7 +192,7 @@ class AbstractPosixPathSpec extends Specification {
         where:
         index | description
         -1 | 'negative'
-        5  |  'out of bounds'
+        6  |  'out of bounds (+1)'
         9  |  'out of bounds'
         1  |  'less than or equal to start index'
     }
@@ -321,17 +325,19 @@ class AbstractPosixPathSpec extends Specification {
         def sibling = path.resolveSibling(other)
 
         then: "It's absolute equivalent is '#expected'"
-        sibling.absolute == path.absolute
         sibling.toString() == new TestPosixPath(expected).toString()
 
+        and: "If this original parent path was absolute, the result should be absolute"
+        sibling.absolute == absolute
+
         where:
-        input           | other  || expected
-        '/a/b/c'        | 'd/e'  || '/a/b/d/e'
-        'a/b/c'         | 'd/e'  || 'a/b/d/e'
-        '/a/b/c'        | '/d/e' || '/d/e'
-        'a/b/c'         | '/d/e' || '/d/e'
-        '/'             | 'd/e'  || 'd/e'
-        '/'             | '/d/e' || '/d/e'
+        input           | other  || expected    | absolute
+        '/a/b/c'        | 'd/e'  || '/a/b/d/e'  | true
+        'a/b/c'         | 'd/e'  || 'a/b/d/e'   | false
+        '/a/b/c'        | '/d/e' || '/d/e'      | true
+        'a/b/c'         | '/d/e' || '/d/e'      | true
+        '/'             | 'd/e'  || 'd/e'       | false
+        '/'             | '/d/e' || '/d/e'      | true
     }
 
     def "Empty source paths with always return the target in sibling resolve"() {
