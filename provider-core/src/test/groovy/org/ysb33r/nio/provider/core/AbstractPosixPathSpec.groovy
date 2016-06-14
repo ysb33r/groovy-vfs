@@ -365,6 +365,96 @@ class AbstractPosixPathSpec extends Specification {
 
     }
 
+    @Unroll
+    def "Absolute paths sare deterministic on a POSIX-like system"() {
+
+        when:
+        Path relative = new TestPosixPath(path1).relativize(new TestPosixPath(path2))
+        Path resolved = new TestPosixPath(path1).resolve(relative).normalize()
+
+        then:
+        relative.absolute == false
+        relative.toString() == new TestPosixPath(result).toString()
+        resolved.toString() == new TestPosixPath(path2).toString()
+
+        where:
+        path1      | path2      || result
+        '/a/b'     | '/a/b/e/f' || 'e/f'
+        '/a/b/c/d' | '/a/b/e/f' || '../../e/f'
+        'a/b'      | 'a/b/e/f'  || 'e/f'
+        'a/b/c/d'  | 'a/b/e/f'  || '../../e/f'
+        '/a/b/c'   | '/a/b'     || '..'
+    }
+
+    def "Normalised path check for relative paths"() {
+        given: "Two normalised paths of which one is absolute and the second is relative"
+        def path1 = new TestPosixPath('/a/b/c/d').normalize()
+        def path2 = new TestPosixPath('c/d').normalize()
+
+        when: "The relative path is resolved against the absolute path"
+        def resolved = path1.resolve(path2)
+
+        and: "This resolved path is taken relative to the original absolute path"
+        def relative = path1.relativize(resolved)
+
+        then: "The results is the original relative path"
+        relative == path2
+    }
+
+    @Unroll
+    def "Relative path is empty when #reason"() {
+        given: "Source path is '#path1'"
+        def path1 = new TestPosixPath(pathStr1)
+        def path2 = new TestPosixPath(pathStr2)
+
+        when: "Determine relative path to '#path2'"
+        Path result = path1.relativize(path2)
+
+        then: "The resulting path is empty"
+        result.nameCount == 0
+
+        where:
+        pathStr1 | pathStr2 | reason
+        '/a/b/c' | '/a/b/c' | 'both paths are the same and is absolute'
+        '/a/b/c' | 'b/c'    | 'one path is absolute and the other is relative'
+        'a/b/c'  | '/b/c'   | 'one path is absolute and the other is relative'
+        '/c/d/e' | '/a'     | 'there are no common root parts'
+    }
+
+    def "Paths need to be on same filesystem in order to determine relative paths"() {
+
+        given: 'Two paths on different filesystems'
+        def path1 = new TestPosixPath('/a/b/c')
+        def path2 = new File('/a/d/e').toPath()
+
+        when: 'Relative path calculations are attempted'
+        path1.relativize(path2)
+
+        then: "An exception is emitted"
+        thrown(IllegalArgumentException)
+    }
+
+    def "Iterating over path returns segments"() {
+        given: "A path with three parts"
+        def path1 = new TestPosixPath('/a/b/c')
+
+        when: "Applying a collection operation"
+        def parts = path1.collect{ it.toString()}
+
+        then: "Will iterate over all the parts"
+        parts == ['a','b','c']
+
+        when: "Iterating over end of parts will throw exception"
+        Iterator itr = path1.iterator()
+        int correctIterations= 0
+        (1..4).each {itr.next(); correctIterations++}
+
+        then:
+        thrown(NoSuchElementException)
+        correctIterations == 3
+
+    }
+
     static final NULLFS = new NullFileSystem()
     // Expecting the body of this class to shrink
 
@@ -395,13 +485,8 @@ class AbstractPosixPathSpec extends Specification {
         }
 
         @Override
-        Path relativize(Path other) {
-            return null
-        }
-
-        @Override
-        Path toRealPath(LinkOption... options) throws IOException {
-            return null
+        Path toRealPath(LinkOption... options)  {
+            toAbsolutePath()
         }
 
         @Override
@@ -411,11 +496,6 @@ class AbstractPosixPathSpec extends Specification {
 
         @Override
         WatchKey register(WatchService watcher, WatchEvent.Kind<?>... events) throws IOException {
-            return null
-        }
-
-        @Override
-        Iterator<Path> iterator() {
             return null
         }
 

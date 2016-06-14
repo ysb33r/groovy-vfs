@@ -4,6 +4,7 @@ import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
 
 import java.nio.file.FileSystem
+import java.nio.file.LinkOption
 import java.nio.file.Path
 
 /**
@@ -571,6 +572,87 @@ abstract class AbstractPosixPath<T extends FileSystem> extends AbstractPath impl
         normPath
     }
 
+    /**
+     * Constructs a relative path between this path and a given path.
+     *
+     * <p> Relativization is the inverse of {@link #resolve(Path) resolution}.
+     * This method attempts to construct a {@link #isAbsolute relative} path
+     * that when {@link #resolve(Path) resolved} against this path, yields a
+     * path that locates the same file as the given path. For example, on UNIX,
+     * if this path is {@code "/a/b"} and the given path is {@code "/a/b/c/d"}
+     * then the resulting relative path would be {@code "c/d"}. Where this
+     * path and the given path do not have a {@link #getRoot root} component,
+     * then a relative path can be constructed. A relative path cannot be
+     * constructed if only one of the paths have a root component. Where both
+     * paths have a root component then it is implementation dependent if a
+     * relative path can be constructed. If this path and the given path are
+     * {@link #equals equal} then an <i>empty path</i> is returned.
+     *
+     * <p> For any two {@link #normalize normalized} paths <i>p</i> and
+     * <i>q</i>, where <i>q</i> does not have a root component,
+     * <blockquote>
+     *   <i>p</i><tt>.relativize(</tt><i>p</i><tt>.resolve(</tt><i>q</i><tt>)).equals(</tt><i>q</i><tt>)</tt>
+     * </blockquote>
+     *
+     * <p> When symbolic links are supported, then whether the resulting path,
+     * when resolved against this path, yields a path that can be used to locate
+     * the {@link Files#isSameFile same} file as {@code other} is implementation
+     * dependent. For example, if this path is  {@code "/a/b"} and the given
+     * path is {@code "/a/x"} then the resulting relative path may be {@code
+     * "../x"}. If {@code "b"} is a symbolic link then is implementation
+     * dependent if {@code "a/b/../x"} would locate the same file as {@code "/a/x"}.
+     *
+     * The default implementation does not take care of symbolick links. If the
+     * specific filesystem supports links, then this method will need to be overridden.
+     *
+     *
+     * @param other
+     *          the path to relativize against this path
+     *
+     * @return the resulting relative path, or an empty path if both paths are
+     *          equal
+     *
+     * @throws IllegalArgumentException
+     *          if {@code other} is not a {@code Path} that can be relativized
+     *          against this path
+     */
+    @Override
+    Path relativize(Path other) {
+        if(fileSystem != other.fileSystem) {
+            throw new IllegalArgumentException("${this} (${this.class.name}) and ${other} (${other.class.name}) " +
+                "are from different filesystems" )
+        }
+
+        if(this.absolute != other.absolute) {
+            return createPath()
+        }
+
+        AbstractPosixPath<T> otherPath = (AbstractPosixPath<T>)other
+        int segments = nameCount-1
+        int otherSegments = otherPath.nameCount-1
+        for( int index = 0 ; index <= segments ; ++index ) {
+
+            if(index>otherSegments) {
+                if(parentDirAlias.empty || parentDirAlias == null) {
+                    return createPath()
+                } else  {
+                    int parentSteps = segments-index
+                    return parentSteps ? createPath(parentDirAlias,[parentDirAlias].multiply(parentSteps) as String[]) : createPath(parentDirAlias)
+                }
+            }
+            if(otherPath.elements[index] != elements[index]) {
+                if(index > 0) {
+                    return createPath(([parentDirAlias]*(nameCount-index)).join(separator)).
+                        resolve(otherPath.subpath(index, otherPath.nameCount))
+                } else {
+                    return createPath()
+                }
+            }
+        }
+
+        (nameCount < other.nameCount) ? otherPath.subpath(nameCount, otherPath.nameCount) : createPath()
+    }
+
     /** Converts the path instance to a string representation.
      * The default implementation renders a path that will indicate absolute or relative state and will
      * seperate path segements using the path separator.
@@ -675,6 +757,22 @@ abstract class AbstractPosixPath<T extends FileSystem> extends AbstractPath impl
         resolve(createPath(other))
     }
 
+    /**
+     * Returns an iterator over the name elements of this path.
+     *
+     * <p> The first element returned by the iterator represents the name
+     * element that is closest to the root in the directory hierarchy, the
+     * second element is the next closest, and so on. The last element returned
+     * is the name of the file or directory denoted by this path. The {@link
+     * # getRoot root} component, if present, is not returned by the iterator.
+     *
+     * @return an iterator over the name elements of this path.
+     */
+    @Override
+    Iterator<Path> iterator() {
+        new PathIterator(this)
+    }
+
     /** The path separator is whatever the filesystem separator is
      *
      * @return Path separator
@@ -772,4 +870,48 @@ abstract class AbstractPosixPath<T extends FileSystem> extends AbstractPath impl
 
     private final String CURRENT_DIR = '.'
     private final String PARENT_DIR = '..'
+
+    /** Proxy iterator over elements.
+     */
+    static class PathIterator implements Iterator<Path> {
+
+        /** Constructs an iterator from existing Path that extends {@link AbstractPosixPath<T>}
+         *
+         * @param path Valid instance of a Posix path
+         */
+        PathIterator(AbstractPosixPath path) {
+            this.path = path
+        }
+
+        /**
+         * Returns {@code true} if the iteration has more elements.
+         * (In other words, returns {@code true} if {@link #next} would
+         * return an element rather than throwing an exception.)
+         *
+         * @return {@code true} if the iteration has more elements
+         */
+        @Override
+        boolean hasNext() {
+            index < path.nameCount
+        }
+
+        /**
+         * Returns the next element in the iteration.
+         *
+         * @return the next element in the iteration
+         * @throws NoSuchElementException if the iteration has no more elements
+         */
+        @Override
+        Path next() {
+            if(!hasNext()) {
+                throw new NoSuchElementException("Iterated past end of '${path.toString()}'")
+            }
+            Path segment = path.getName(index)
+            ++index
+            segment
+        }
+
+        private AbstractPosixPath path
+        private int index = 0
+    }
 }
