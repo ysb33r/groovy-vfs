@@ -121,11 +121,12 @@ configure(subprojects.findAll { modules.providers.contains(it.name) } ) { cfgPro
         testCompile ("org.spockframework:spock-core:${spockVer}") {
             exclude module : 'groovy-all'
         }
-        testCompile( 'com.athaydes:spock-reports:${spockReportsVer}' ) {
+        testCompile( "com.athaydes:spock-reports:${spockReportsVer}" ) {
             transitive = false
         }
         testRuntime "org.slf4j:slf4j-simple:${slf4jVer}"
-
+        testCompile 'cglib:cglib-nodep:3.2.3'
+        testComile 'org.objenesis:objenesis:2.4'
 
         if(cfgProject.name != 'provider-core') {
             compile project(':provider-core')
