@@ -1,6 +1,6 @@
 /*
  * ============================================================================
- * (C) Copyright Schalk W. Cronje 2013-2015
+ * (C) Copyright Schalk W. Cronje 2013-2016
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,7 +18,6 @@
  *
  * ============================================================================
  */
-
 package org.ysb33r.vfs.test.services
 
 import groovy.transform.CompileStatic

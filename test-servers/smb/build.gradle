@@ -5,3 +5,4 @@ dependencies {
 }
 
 classes.dependsOn project(':jlan').tasks.jar
+
