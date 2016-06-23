@@ -1,3 +1,16 @@
+/*
+ * ============================================================================
+ * (C) Copyright Schalk W. Cronje 2013-2016
+ *
+ * This software is licensed under the Apache License 2.0
+ * See http://www.apache.org/licenses/LICENSE-2.0 for license details
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is
+ * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ *
+ * ============================================================================
+ */
 package org.ysb33r.nio.provider.core
 
 import groovy.transform.EqualsAndHashCode
@@ -61,17 +74,17 @@ class AbstractPosixPathSpec extends Specification {
 
         where:
         pathStr          || count
-        '//foo'          || 1
+        '//foo'          || 2
         '/foo//bar//zoo' || 3
         'foo'            || 1
         'foo//bar'       || 2
         'foo/bar'        || 2
-        'foo/bar/zoo'    || 3
+        'foo/bar/zoo'    || 4
 
     }
 
     @Unroll
-    def "Getting a part of a path as a new path"() {
+    def "Getting a part of a path (#input) as a new path"() {
         when: "The path is '#input'"
         def path = new TestPosixPath(input)
 
@@ -356,7 +369,7 @@ class AbstractPosixPathSpec extends Specification {
         def path = new TestPosixPath(input)
 
         then: "The URI is like SCHEME://AUTHORITY/#expected"
-        path.toUri() == "${TestPosixPath.BASE_URI}/${expected}".toURI()
+        path.toUri() == "test://authority/${expected}".toURI()
 
         where:
         input               || expected
@@ -461,14 +474,12 @@ class AbstractPosixPathSpec extends Specification {
     @EqualsAndHashCode
     static class TestPosixPath extends AbstractPosixPath<NullFileSystem> {
 
-        final static URI BASE_URI = new URI('test','authority',null,null,null)
-
         TestPosixPath(String path, String... more) {
-            super(NULLFS, BASE_URI,path, more)
+            super(NULLFS, 'authority',path, more)
         }
 
         TestPosixPath() {
-            super(NULLFS,BASE_URI)
+            super(NULLFS,'authority')
         }
 
         @Override
