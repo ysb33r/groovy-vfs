@@ -1,3 +1,16 @@
+/*
+ * ============================================================================
+ * (C) Copyright Schalk W. Cronje 2013-2016
+ *
+ * This software is licensed under the Apache License 2.0
+ * See http://www.apache.org/licenses/LICENSE-2.0 for license details
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is
+ * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ *
+ * ============================================================================
+ */
 package org.ysb33r.nio.provider.core
 
 import groovy.transform.CompileStatic
@@ -21,7 +34,7 @@ abstract class AbstractPosixPath<T extends FileSystem> extends AbstractPath impl
      * @param path Base element of path
      * @param more Optional child elements of the path.
      */
-    protected AbstractPosixPath(T fs, final URI baseURI,final String path, final String... more) {
+    protected AbstractPosixPath(T fs, final String authority,final String path, final String... more) {
         fileSystem = fs
         elements = split(fs.separator,path)
 
@@ -33,7 +46,7 @@ abstract class AbstractPosixPath<T extends FileSystem> extends AbstractPath impl
             elements+= split(fs.separator,it)
         }
 
-        authority = baseURI.authority
+        this.authority = authority
     }
 
     /** Constructs an empty path that is tied to the current filesystem T.
@@ -43,7 +56,7 @@ abstract class AbstractPosixPath<T extends FileSystem> extends AbstractPath impl
     protected AbstractPosixPath(T fs, final String authority) {
         fileSystem = fs
         elements = []
-        authority
+        this.authority = authority
     }
 
     /**
