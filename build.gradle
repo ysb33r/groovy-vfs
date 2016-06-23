@@ -26,6 +26,15 @@ buildscript {
     }
 }
 
+plugins {
+    id 'com.gradle.build-scan' version '1.0'
+}
+
+buildScan {
+    licenseAgreementUrl = 'https://gradle.com/terms-of-service'
+    licenseAgree = 'yes'
+}
+
 allprojects {
 
     ext {
@@ -97,7 +106,7 @@ subprojects {
 
 configure(subprojects.findAll { modules.lgplLicensed.contains(it.name) } ) {
     license {
-        header = rootProject.file('config/lglp2-header')
+        header = rootProject.file('config/lgpl2-header')
     }
 }
 
@@ -126,7 +135,7 @@ configure(subprojects.findAll { modules.providers.contains(it.name) } ) { cfgPro
         }
         testRuntime "org.slf4j:slf4j-simple:${slf4jVer}"
         testCompile 'cglib:cglib-nodep:3.2.3'
-        testComile 'org.objenesis:objenesis:2.4'
+        testCompile 'org.objenesis:objenesis:2.4'
 
         if(cfgProject.name != 'provider-core') {
             compile project(':provider-core')
