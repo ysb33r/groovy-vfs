@@ -31,7 +31,7 @@ import groovy.transform.CompileStatic
 
 /**
  * 
- * @author Schalk W. Cronj�
+ * @author Schalk W. Cronjé
  */
 @CompileStatic
 class URIException extends java.net.URISyntaxException {
