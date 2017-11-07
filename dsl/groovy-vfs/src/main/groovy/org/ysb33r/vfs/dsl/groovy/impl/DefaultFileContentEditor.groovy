@@ -77,7 +77,7 @@ class DefaultFileContentEditor implements FileContentEditor {
 
     }
 
-    def with(InputStream strm) {
+    def with(final InputStream strm) {
 
         assertNoDirectory()
 //        AbstractFileSystem afs= file.fileSystem as AbstractFileSystem
