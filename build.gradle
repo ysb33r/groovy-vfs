@@ -99,7 +99,7 @@ subprojects {
             groovy = 'SLASHSTAR_STYLE'
             java = 'SLASHSTAR_STYLE'
         }
-        ext.year = '2013-2016'
+        ext.year = '2013-2017'
         excludes(['**/*.ad', '**/*.asciidoc', '**/*.adoc', '**/*.md','**/*.properties', '**/*.txt', '**/*.bz2'])
     }
 }
@@ -249,9 +249,5 @@ configure( subprojects.findAll { modules.withGroovyDoc.contains(it.name) } ) {
 
         dependsOn groovydoc
     }
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.13'
 }
 
