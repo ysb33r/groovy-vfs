@@ -29,6 +29,7 @@ package org.ysb33r.vfs.core
 
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.CompileStatic
+import org.ysb33r.vfs.dsl.groovy.FileSystemOptions
 
 import java.nio.file.Path
 
@@ -172,6 +173,22 @@ class VfsURI {
 //		Map<String,Object> m = parseString(uri)
 //		new VfsURI(props,m.uriBuilder,m.userInfo,childPath.toString())
 	}
+
+    /** Returns the {@link java.nio.file.Path} object that is associated with this URI.
+     *
+     * @return Path
+     */
+    Path getPath() {
+        null
+    }
+
+    /** Returns the filesystem options that are associated with this URI.
+     *
+     * @return Associated filesystem options. Never {@code null}.
+     */
+    FileSystemOptions getFileSystemOptions() {
+        null
+    }
 
 //	private URIBuilder removeAndUpdateVFSProperties (URIBuilder tmpuri) {
 //		def q= tmpuri.query

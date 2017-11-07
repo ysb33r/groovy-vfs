@@ -20,6 +20,7 @@ import org.codehaus.groovy.runtime.GStringImpl
 import org.ysb33r.vfs.core.URIException
 import org.ysb33r.vfs.core.VfsURI
 import org.ysb33r.vfs.dsl.groovy.impl.AntPatternSelector
+import org.ysb33r.vfs.dsl.groovy.impl.ConfigDelegator
 import org.ysb33r.vfs.dsl.groovy.impl.DefaultFileContentEditor
 
 import java.nio.file.Path
@@ -687,7 +688,8 @@ class VFS {
      * @endcode
     */
     VFS options( Closure cfgDSL ) {
-//        defaultFSOptions = new ConfigDelegator( fsManager : fsMgr, fsOpts : defaultFSOptions ) .bind (cfgDSL)
+        ConfigDelegator cd = new ConfigDelegator(defaultFSOptions)
+        cd.bind(cfgDSL)
         this
     }
     
@@ -705,7 +707,7 @@ class VFS {
      * @endcode
     */
     VFS options( Map properties=[:] ) {
-//        defaultFSOptions = Util.buildOptions(properties, fsMgr, defaultFSOptions) as FileSystemOptions
+        defaultFSOptions.addAll(properties)
         this
     }
 
@@ -921,6 +923,6 @@ class VFS {
 //    }
 
 //    private StandardFileSystemManager fsMgr
-//	private FileSystemOptions defaultFSOptions
+	private FileSystemOptions defaultFSOptions
 
 }
