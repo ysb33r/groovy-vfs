@@ -33,66 +33,68 @@ import org.apache.commons.vfs2.FileObject
 import org.apache.commons.vfs2.FileType
 import org.apache.commons.vfs2.provider.AbstractFileSystem
 import org.ysb33r.groovy.dsl.vfs.FileActionException
+import org.ysb33r.vfs.dsl.groovy.FileContentEditor
+
+import java.util.function.Consumer
 
 /**
  * Created by schalkc on 12/12/14.
  */
 @CompileStatic
 @Canonical
-class DefaultFileContentEditor {
+class DefaultFileContentEditor implements FileContentEditor {
 
-    FileObject file
+//    FileObject file
     boolean append
 
     def with(CharSequence cs) {
 
         assertNoDirectory()
-        AbstractFileSystem afs= file.fileSystem as AbstractFileSystem
-
-        try {
-            (file.content as FileContent).getOutputStream(append) << cs
-            file.close()
-        }
-        finally {
-            afs.closeCommunicationLink()
-        }
+//        AbstractFileSystem afs= file.fileSystem as AbstractFileSystem
+//
+//        try {
+//            (file.content as FileContent).getOutputStream(append) << cs
+//            file.close()
+//        }
+//        finally {
+//            afs.closeCommunicationLink()
+//        }
 
     }
 
-    @CompileDynamic
-    def with(Closure cl) {
+    def with(final Consumer<OutputStream> cl) {
 
         assertNoDirectory()
-        AbstractFileSystem afs= file.fileSystem as AbstractFileSystem
-
-        try {
-            cl(file.content.getOutputStream(append))
-            file.close()
-        }
-        finally {
-            afs.closeCommunicationLink()
-        }
+//        AbstractFileSystem afs= file.fileSystem as AbstractFileSystem
+//
+//        try {
+//            cl(file.content.getOutputStream(append))
+//            file.close()
+//        }
+//        finally {
+//            afs.closeCommunicationLink()
+//        }
 
     }
 
     def with(InputStream strm) {
 
         assertNoDirectory()
-        AbstractFileSystem afs= file.fileSystem as AbstractFileSystem
-
-        try {
-            (file.content as FileContent).getOutputStream(append) << strm
-            file.close()
-        }
-        finally {
-            afs.closeCommunicationLink()
-        }
+//        AbstractFileSystem afs= file.fileSystem as AbstractFileSystem
+//
+//        try {
+//            (file.content as FileContent).getOutputStream(append) << strm
+//            file.close()
+//        }
+//        finally {
+//            afs.closeCommunicationLink()
+//        }
 
     }
 
     private void assertNoDirectory() {
-        if(file.type == FileType.FOLDER) {
-            throw new FileActionException("Cannot write data to ${file.name.friendlyURI} as it is a directory")
-        }
+//        if(file.type == FileType.FOLDER) {
+//            throw new FileActionException("Cannot write data to ${file.name.friendlyURI} as it is a directory")
+//        }
     }
 }

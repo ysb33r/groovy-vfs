@@ -6,4 +6,5 @@ package org.ysb33r.vfs.dsl.groovy
 interface FileContentEditor {
     def with(CharSequence cs)
     def with(Closure cs)
+    def with(InputStream is)
 }

@@ -24,6 +24,7 @@ import org.ysb33r.vfs.dsl.groovy.impl.DefaultFileContentEditor
 
 import java.nio.file.Path
 import java.util.concurrent.Callable
+import java.util.function.Consumer
 
 /**
  *
@@ -316,7 +317,7 @@ class VFS {
      * @throw FileSystemException if files cannot be deleted due to filesystem not supporting deletion or lack of user
      * permission.
      */
-    void rm(final Map properties=[:], final Object uri, Callable<VfsURI> ask) {
+    void rm(final Map properties=[:], final Object uri, Consumer<VfsURI> ask) {
         throw new NotActiveException("rm() needs implementing")
     }
 
