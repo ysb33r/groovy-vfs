@@ -30,7 +30,6 @@ package org.ysb33r.vfs.dsl.groovy
 import groovy.transform.CompileStatic
 
 /**
- * @author Schalk W. Cronj�
  *
  */
 @CompileStatic
