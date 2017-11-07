@@ -47,8 +47,8 @@ rootProject.name = 'vfs-project'
 // ----------------------------------------------------------------------------
 // DSLs
 // ----------------------------------------------------------------------------
-//include 'dsl/groovy-vfs'
-//project(':dsl/groovy-vfs').name = 'groovy-vfs'
+include 'dsl/groovy-vfs'
+project(':dsl/groovy-vfs').name = 'groovy-vfs'
 
 // ----------------------------------------------------------------------------
 // Other

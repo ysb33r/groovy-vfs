@@ -73,8 +73,8 @@ subprojects {
     ext {
         asciidocVer      = '1.5.3'
         vfsVersion       = '2.1'
-        groovyVer        = '2.4.6'
-        spockVer         = '1.0-groovy-2.4'
+        groovyVer        = '2.4.12'
+        spockVer         = '1.1-groovy-2.4'
         spockReportsVer  = '1.2.12'
         kotlinVer        = '1.0'
 //        jackrabbitVer    = '1.6.5' // '2.11.1'
