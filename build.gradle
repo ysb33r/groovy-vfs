@@ -18,7 +18,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.1.0'
+//        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.1.0'
         classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1'
         classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.3'
 //            classpath 'org.ysb33r.gradle:bintray:1.6'
@@ -43,7 +43,7 @@ allprojects {
 
         modules = [
             withGroovyDoc : [
-//            'groovy-vfs',
+            'groovy-vfs',
 //            'gradle-plugin',
 //            'cloud-provider-core',
 //            'smb-provider'
@@ -67,7 +67,7 @@ allprojects {
 subprojects {
 
 
-    apply plugin: 'nebula.provided-base'
+//    apply plugin: 'nebula.provided-base'
     apply plugin: 'com.github.hierynomus.license'
 
     ext {
@@ -238,6 +238,9 @@ configure( subprojects.findAll { modules.testServers.contains(it.name) } ) {
 
 
 configure( subprojects.findAll { modules.withGroovyDoc.contains(it.name) } ) {
+
+    apply plugin : 'groovy'
+
     task installDocs( type : Copy ) {
         group 'documentation'
         description 'Copy groovydocs to an install directory'
