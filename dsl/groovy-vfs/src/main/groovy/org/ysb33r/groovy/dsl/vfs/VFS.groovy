@@ -15,32 +15,16 @@ package org.ysb33r.groovy.dsl.vfs
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import org.apache.commons.vfs2.CacheStrategy
-import org.apache.commons.vfs2.Capability
-import org.apache.commons.vfs2.FileName
-import org.apache.commons.vfs2.FileSelectInfo
-import org.apache.commons.vfs2.FilesCache
-import org.apache.commons.vfs2.provider.FileReplicator
+
 import org.ysb33r.groovy.dsl.vfs.impl.AntPatternSelector
 import org.ysb33r.groovy.dsl.vfs.impl.FileContentEditor
 import org.ysb33r.groovy.dsl.vfs.impl.StandardFileSystemManager
-
 import java.util.regex.Pattern
-import org.apache.commons.logging.impl.NoOpLog
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSelector
-import org.apache.commons.vfs2.FileSystemOptions
-import org.apache.commons.vfs2.Selectors;
-import org.apache.commons.vfs2.provider.AbstractFileSystem
 import org.ysb33r.groovy.dsl.vfs.impl.CopyMoveOperations
 import org.ysb33r.groovy.dsl.vfs.impl.Util
 import org.ysb33r.groovy.dsl.vfs.impl.ConfigDelegator
 import org.ysb33r.groovy.dsl.vfs.impl.ProviderDelegator
-import org.apache.commons.logging.Log
 import org.ysb33r.groovy.dsl.vfs.impl.ProviderSpecification
-import org.apache.commons.vfs2.provider.TemporaryFileStore
-import org.apache.commons.vfs2.FileType
-import static org.apache.commons.vfs2.Selectors.*
 
 /**
  *
@@ -79,43 +63,40 @@ import static org.apache.commons.vfs2.Selectors.*
 @CompileStatic
 class VFS {
 
-    /** A filter that selects all the descendants of the base folder, but does not select the base folder itself.
-     *
-      */
-    final static FileSelector exclude_self = EXCLUDE_SELF
-
-    /** A filter that selects the base file/folder, plus all its descendants.
-     *
-     */
-    final static FileSelector select_all = SELECT_ALL
-
-    /** A filter that selects only the direct children of the base folder.
-     *
-     */
-    final static FileSelector direct_children_only = SELECT_CHILDREN
-
-    /** A filter that selects only files (not folders).
-     *
-      */
-    final static FileSelector only_files = SELECT_FILES
-
-    /** A filter that selects only folders (not files).
-     *
-     */
-    final static FileSelector only_folders	= SELECT_FOLDERS
-
-    /** A filter that select the base plus its direct descendants
-     *
-     */
-    final static FileSelector self_and_direct_children = SELECT_SELF_AND_CHILDREN
-
+//    /** A filter that selects all the descendants of the base folder, but does not select the base folder itself.
+//     *
+//      */
+//    final static FileSelector exclude_self = EXCLUDE_SELF
+//
+//    /** A filter that selects the base file/folder, plus all its descendants.
+//     *
+//     */
+//    final static FileSelector select_all = SELECT_ALL
+//
+//    /** A filter that selects only the direct children of the base folder.
+//     *
+//     */
+//    final static FileSelector direct_children_only = SELECT_CHILDREN
+//
+//    /** A filter that selects only files (not folders).
+//     *
+//      */
+//    final static FileSelector only_files = SELECT_FILES
+//
+//    /** A filter that selects only folders (not files).
+//     *
+//     */
+//    final static FileSelector only_folders	= SELECT_FOLDERS
+//
+//    /** A filter that select the base plus its direct descendants
+//     *
+//     */
+//    final static FileSelector self_and_direct_children = SELECT_SELF_AND_CHILDREN
+//
 	/** An overwrite policy that will only overwrite if the source is newer than the target
 	 * @since 1.0
 	 */
 	final static Closure onlyNewer = CopyMoveOperations.ONLY_NEWER
-
-    private StandardFileSystemManager fsMgr
-	private FileSystemOptions defaultFSOptions
 
 	/** Constructs a Virtual File System.
 	 * 
@@ -780,5 +761,8 @@ class VFS {
     private FileType type( FileObject uri ) {
         uri.type
     }
+
+//    private StandardFileSystemManager fsMgr
+//	private FileSystemOptions defaultFSOptions
 
 }
