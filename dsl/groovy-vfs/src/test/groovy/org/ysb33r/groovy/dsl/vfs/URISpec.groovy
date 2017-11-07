@@ -1,6 +1,6 @@
 /*
  * ============================================================================
- * (C) Copyright Schalk W. Cronje 2013-2015
+ * (C) Copyright Schalk W. Cronje 2013-2017
  *
  * This software is licensed under the Apache License 2.0
  * See http://www.apache.org/licenses/LICENSE-2.0 for license details
@@ -11,7 +11,6 @@
  *
  * ============================================================================
  */
-
 package org.ysb33r.groovy.dsl.vfs
 
 import spock.lang.Specification
