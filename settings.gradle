@@ -16,24 +16,24 @@ rootProject.name = 'vfs-project'
 // Infrastructure
 // ----------------------------------------------------------------------------
 
-include 'test-servers/ftp'
-project(':test-servers/ftp').name = 'ftpserver'
-
-include 'test-servers/jlan'
-project(':test-servers/jlan').name = 'jlan'
-
-include 'test-servers/smb'
-project(':test-servers/smb').name = 'smbserver'
+//include 'test-servers/ftp'
+//project(':test-servers/ftp').name = 'ftpserver'
+//
+//include 'test-servers/jlan'
+//project(':test-servers/jlan').name = 'jlan'
+//
+//include 'test-servers/smb'
+//project(':test-servers/smb').name = 'smbserver'
 
 // ----------------------------------------------------------------------------
 // Providers
 // ----------------------------------------------------------------------------
 
-include 'provider-core'
+// include 'provider-core'
 //project(':providers/ram').name = 'ram-provider'
 
-include 'providers/ram'
-project(':providers/ram').name = 'ram-provider'
+// include 'providers/ram'
+// project(':providers/ram').name = 'ram-provider'
 
 //include 'providers/smb'
 //project(':providers/smb').name = 'smb-provider'
@@ -53,6 +53,6 @@ project(':providers/ram').name = 'ram-provider'
 // ----------------------------------------------------------------------------
 // Other
 // ----------------------------------------------------------------------------
-include 'docs'
+//include 'docs'
 //include 'gradle-plugin'
 //include 'cmdline'
