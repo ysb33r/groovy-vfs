@@ -25,26 +25,17 @@
 // ============================================================================
 //
 
-package org.ysb33r.vfs.dsl.groovy
+package org.ysb33r.vfs.core
 
 import groovy.transform.CompileStatic
 
-/** Thrown for when specific file update actions is not allowed
+/**
  * 
- * @author Schalk W. Cronjé
- *
+ * @author Schalk W. Cronj�
  */
 @CompileStatic
-class FileSystemException extends org.apache.commons.vfs2.FileSystemException {
-	FileSystemException(String s) {
-		super(s)
-	}
-
-    FileSystemException(Throwable e) {
-        super(e)
-    }
-
-    FileSystemException(String s,Object f,Throwable e) {
-		super(s,f,e)
+class URIException extends java.net.URISyntaxException {
+	URIException(String input,String reason) {
+		super(input,reason)
 	}
 }

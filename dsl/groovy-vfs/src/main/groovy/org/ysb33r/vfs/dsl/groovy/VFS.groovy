@@ -15,16 +15,15 @@ package org.ysb33r.vfs.dsl.groovy
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
+import org.codehaus.groovy.runtime.GStringImpl
+import org.ysb33r.vfs.core.URIException
+import org.ysb33r.vfs.core.VfsURI
+import org.ysb33r.vfs.dsl.groovy.impl.AntPatternSelector
+import org.ysb33r.vfs.dsl.groovy.impl.DefaultFileContentEditor
 
-import org.ysb33r.groovy.dsl.vfs.impl.AntPatternSelector
-import org.ysb33r.groovy.dsl.vfs.impl.FileContentEditor
-import org.ysb33r.groovy.dsl.vfs.impl.StandardFileSystemManager
-import java.util.regex.Pattern
-import org.ysb33r.groovy.dsl.vfs.impl.CopyMoveOperations
-import org.ysb33r.groovy.dsl.vfs.impl.Util
-import org.ysb33r.groovy.dsl.vfs.impl.ConfigDelegator
-import org.ysb33r.groovy.dsl.vfs.impl.ProviderDelegator
-import org.ysb33r.groovy.dsl.vfs.impl.ProviderSpecification
+import java.nio.file.Path
+import java.util.concurrent.Callable
 
 /**
  *
@@ -62,6 +61,7 @@ import org.ysb33r.groovy.dsl.vfs.impl.ProviderSpecification
  * @since 0.1
  */
 @CompileStatic
+@Slf4j
 class VFS {
 
 //    /** A filter that selects all the descendants of the base folder, but does not select the base folder itself.
@@ -215,69 +215,117 @@ class VFS {
 	 * }	
 	 * 
 	 */
-    @CompileDynamic
-	def ls ( Map properties=[:],uri,Closure c ) {
-		assert properties != null
-		def children
-		FileObject ruri=resolveURI(properties,uri)
-		AbstractFileSystem afs= properties.closeFilesystem ? ruri.fileSystem as AbstractFileSystem : null
-		boolean recurse = properties.containsKey('recursive') ? (properties['recursive'] as boolean): false
-		
-		if( properties.containsKey('filter') ) {
-			
-			def selector
-			def traverse = { FileSelectInfo fsi -> fsi.depth==0 || recurse }
-			switch (properties.filter) {
-				case Pattern :
-					selector = [
-						'includeFile' : { FileSelectInfo fsi -> fsi.file.name.baseName ==~ properties.filter },
-						'traverseDescendents' : traverse
-					]
-					break
-				case FileSelector:
-					selector=properties.filter
-					break
-				case Closure:
-					selector = [
-						'includeFile' : { FileSelectInfo fsi -> (properties.filter as Closure).call(fsi) },
-						'traverseDescendents' : traverse
-					]
-					break
-				default:
-					selector = [
-						'includeFile' : { FileSelectInfo fsi -> fsi.file.name.baseName ==~ /"${properties.filter.toString()}"/ },
-						'traverseDescendents' : traverse
-					]
-			}
-			
-			children=ruri.findFiles(selector as FileSelector)
-			 	
-		} else if (recurse) {
-			children= ruri.findFiles( Selectors.SELECT_ALL )
-		}
-		else {
-			children= ruri.children			
-		}
-
-		try {
-			if(c) {
-				Closure newc=c.clone()
-				newc.delegate=this
-				return children.collect { newc.call(it) }
-			} else {
-				return children
-			}
-		} finally {
-			afs?.closeCommunicationLink()
-		}
+	def ls ( final Map properties=[:], final String uri, Closure c ) {
+//		assert properties != null
+//		def children
+//		FileObject ruri=resolveURI(properties,uri)
+//		AbstractFileSystem afs= properties.closeFilesystem ? ruri.fileSystem as AbstractFileSystem : null
+//		boolean recurse = properties.containsKey('recursive') ? (properties['recursive'] as boolean): false
+//
+//		if( properties.containsKey('filter') ) {
+//
+//			def selector
+//			def traverse = { FileSelectInfo fsi -> fsi.depth==0 || recurse }
+//			switch (properties.filter) {
+//				case Pattern :
+//					selector = [
+//						'includeFile' : { FileSelectInfo fsi -> fsi.file.name.baseName ==~ properties.filter },
+//						'traverseDescendents' : traverse
+//					]
+//					break
+//				case FileSelector:
+//					selector=properties.filter
+//					break
+//				case Closure:
+//					selector = [
+//						'includeFile' : { FileSelectInfo fsi -> (properties.filter as Closure).call(fsi) },
+//						'traverseDescendents' : traverse
+//					]
+//					break
+//				default:
+//					selector = [
+//						'includeFile' : { FileSelectInfo fsi -> fsi.file.name.baseName ==~ /"${properties.filter.toString()}"/ },
+//						'traverseDescendents' : traverse
+//					]
+//			}
+//
+//			children=ruri.findFiles(selector as FileSelector)
+//
+//		} else if (recurse) {
+//			children= ruri.findFiles( Selectors.SELECT_ALL )
+//		}
+//		else {
+//			children= ruri.children
+//		}
+//
+//		try {
+//			if(c) {
+//				Closure newc=c.clone()
+//				newc.delegate=this
+//				return children.collect { newc.call(it) }
+//			} else {
+//				return children
+//			}
+//		} finally {
+//			afs?.closeCommunicationLink()
+//		}
 	}
 
-	/**
-	 *
-	 * @param uri
-    *
-	 */
-	def ls ( Map properties=[:],uri ) { ls(properties,uri,null) }
+    def ls (final Map properties=[:], final java.net.URI uri, Closure c ) {
+        null
+    }
+
+    def ls (final Map properties=[:], final VfsURI uri, Closure c ) {
+        null
+    }
+
+    def ls (final Map properties=[:], final Path uri, Closure c ) {
+        null
+    }
+
+    def ls (final Map properties=[:], final File uri, Closure c ) {
+        null
+    }
+
+    /** Delete a file or folder on a filesystem.
+     *
+     * <p> Folders will not be deleted unless they are empty or {@code recursive} is set to {@code true}
+     *
+     * @param properties - Optional property map
+     * @param uri
+     * <ul>
+     *     <li> recursive - {@code false} by default
+     * </ul>
+     */
+    void rm(final Map properties=[:], final Object uri) {
+        throw new NotActiveException("rm() needs implementing")
+    }
+
+    /** Delete a file or folder on a filesystem.
+     *
+     * <p> Folders will not be deleted unless they are empty or {@code recursive} is set to {@code true}
+     *
+     * @param properties - Optional property map
+     * @param uri
+     * <ul>
+     *     <li> recursive - {@code false} by default
+     * </ul>
+     * @param ask A closure that can be used to interactively delete a file or not. It will be called for each file
+     * found and for when directories are empty. It should return {@code true} if deletion should proceed.
+     *
+     * @throw FileSystemException if files cannot be deleted due to filesystem not supporting deletion or lack of user
+     * permission.
+     */
+    void rm(final Map properties=[:], final Object uri, Callable<VfsURI> ask) {
+        throw new NotActiveException("rm() needs implementing")
+    }
+
+//    /**
+//	 *
+//	 * @param uri
+//    *
+//	 */
+//	def ls ( Map properties=[:],uri ) { ls(properties,uri,null) }
 	
 	/** Allows for the content of a local or remote file object to be read
      *
@@ -293,25 +341,41 @@ class VFS {
      * }
      * @endcode
      */
-	def cat ( Map properties=[:],uri,Closure c ) {
-		assert properties != null
-        assert c != null
-
-		if( uri instanceof FileObject && !properties.size()) {
-			return uri.content.inputStream.withStream(c)
-		} else {
-			FileObject fo=resolveURI(properties,uri)
-			AbstractFileSystem afs= fo.fileSystem as AbstractFileSystem
-
-			try {
-				return fo.content.inputStream.withStream(c)
-			}
-			finally {
-				afs.closeCommunicationLink()
-			}
-
-		}
+	def cat ( Map properties=[:],final String uri,Closure c ) {
+//		assert properties != null
+//        assert c != null
+//
+//		if( uri instanceof FileObject && !properties.size()) {
+//			return uri.content.inputStream.withStream(c)
+//		} else {
+//			FileObject fo=resolveURI(properties,uri)
+//			AbstractFileSystem afs= fo.fileSystem as AbstractFileSystem
+//
+//			try {
+//				return fo.content.inputStream.withStream(c)
+//			}
+//			finally {
+//				afs.closeCommunicationLink()
+//			}
+//
+//		}
 	}
+
+    def cat (final Map properties=[:], final java.net.URI uri, Closure c ) {
+        null
+    }
+
+    def cat (final Map properties=[:], final VfsURI uri, Closure c ) {
+        null
+    }
+
+    def cat (final Map properties=[:], final Path uri, Closure c ) {
+        null
+    }
+
+    def cat (final Map properties=[:], final File uri, Closure c ) {
+        null
+    }
 
 	/** Write content to a local or remote file object
 	 *
@@ -323,12 +387,28 @@ class VFS {
 	 * vfs.overwrite 'file:///etc/resolv.conf' with 'Some text'
 	 * @endcode
 	 */
-	FileContentEditor overwrite( uri  ) {
-		assert uri != null
-		new FileContentEditor( resolveURI(uri),false )
+	FileContentEditor overwrite( final String uri  ) {
+//		assert uri != null
+//		new DefaultFileContentEditor( resolveURI(uri),false )
 	}
 
-	/** Write content to a local or remote file object
+    FileContentEditor overwrite( final URI uri  ) {
+        null
+    }
+
+    FileContentEditor overwrite( final VfsURI uri  ) {
+        null
+    }
+
+    FileContentEditor overwrite( final Path uri  ) {
+        null
+    }
+
+    FileContentEditor overwrite( final File uri  ) {
+        null
+    }
+
+    /** Write content to a local or remote file object
 	 *
 	 * @param uri
 	 * @param c - Closure that takes an OutputStream as argument
@@ -341,12 +421,29 @@ class VFS {
 	 * }
 	 * @endcode
 	 */
-	def overwrite( uri,Closure c ) {
-		assert uri != null
-		new FileContentEditor( resolveURI(uri),false ).with(c)
+	def overwrite( final String uri, Closure c ) {
+//		assert uri != null
+//		new FileContentEditor( resolveURI(uri),false ).with(c)
 	}
 
-	/** Appends content to a local or remote file object
+    def overwrite( final URI uri, Closure c  ) {
+        null
+    }
+
+    def  overwrite( final VfsURI uri, Closure c  ) {
+        null
+    }
+
+    def  overwrite( final Path uri, Closure c  ) {
+        null
+    }
+
+    def  overwrite( final File uri, Closure c  ) {
+        null
+    }
+
+
+    /** Appends content to a local or remote file object
 	 *
 	 * @param uri
 	 *
@@ -356,12 +453,28 @@ class VFS {
 	 * vfs.append 'file:///etc/resolv.conf' with 'Some text'
 	 * @endcode
 	 */
-	FileContentEditor append ( uri  ) {
-		assert uri != null
-		new FileContentEditor( resolveURI(uri), true )
+	FileContentEditor append ( final String uri  ) {
+//		assert uri != null
+//		new FileContentEditor( resolveURI(uri), true )
 	}
 
-	/** Write content to a local or remote file object
+    FileContentEditor append( final URI uri  ) {
+        null
+    }
+
+    FileContentEditor append( final VfsURI uri  ) {
+        null
+    }
+
+    FileContentEditor append( final Path uri  ) {
+        null
+    }
+
+    FileContentEditor append( final File uri  ) {
+        null
+    }
+
+    /** Write content to a local or remote file object
 	 *
 	 * @param uri
 	 * @param c - Closure that takes an OutputStream as argument
@@ -374,30 +487,62 @@ class VFS {
 	 * }
 	 * @endcode
 	 */
-	def append( uri,Closure c ) {
+	def append( final String uri, Closure c ) {
 		assert uri != null
-		new FileContentEditor( resolveURI(uri),true ).with(c)
+		new DefaultFileContentEditor( resolveURI(uri),true ).with(c)
 	}
 
-	/** Creates a folder on any VFS that allows this functionality
+    def append( final URI uri, Closure c  ) {
+        null
+    }
+
+    def append( final VfsURI uri, Closure c  ) {
+        null
+    }
+
+    def append( final Path uri, Closure c  ) {
+        null
+    }
+
+    def append( final File uri, Closure c  ) {
+        null
+    }
+
+
+    /** Creates a folder on any VFS that allows this functionality
 	 * @param properties Any additional vfs properties
      * @li intermediates. Set to false if intermediate folders should not be created.
 	 * @param uri Folder that needs to be created
 	 */
-    @CompileDynamic
-	def mkdir ( Map properties=[:],uri ) {
-		assert properties != null
-		def fo= resolveURI(properties,uri)
-        if (properties.intermediates != null && properties.intermediates==false) {
-            def parent = fo.parent
-            if(!parent.exists()) {
-                throw new FileActionException("Cannot create directory - '${friendlyURI(parent)}' does not exist and intermediates==false")
-            }
-        }
-        fo.createFolder()
+	void mkdir ( Map properties=[:],final String uri ) {
+        throw new NotActiveException("mkdir needs implementing")
+//		assert properties != null
+//		def fo= resolveURI(properties,uri)
+//        if (properties.intermediates != null && properties.intermediates==false) {
+//            def parent = fo.parent
+//            if(!parent.exists()) {
+//                throw new FileActionException("Cannot create directory - '${friendlyURI(parent)}' does not exist and intermediates==false")
+//            }
+//        }
+//        fo.createFolder()
 	}
 
-	/** Copies files.
+    void mkdir ( Map properties=[:],final URI uri ) {
+        throw new NotActiveException("mkdir needs implementing")
+    }
+
+    void mkdir ( Map properties=[:],final VfsURI uri ) {
+        throw new NotActiveException("mkdir needs implementing")
+    }
+    void mkdir ( Map properties=[:],final Path uri ) {
+        throw new NotActiveException("mkdir needs implementing")
+    }
+
+    void mkdir ( Map properties=[:],final File uri ) {
+        throw new NotActiveException("mkdir needs implementing")
+    }
+
+    /** Copies files.
 	 * @param from URI to copy from. If source is a folder all descendants will be copied recursively.
 	 * See filter property for selectively copying descendants
 	 * @param to URI to copy to. If destination is a folder, it will be placed inside folder. 
@@ -452,17 +597,17 @@ class VFS {
 	 * </table>
 	 *    
 	 */
-	def cp ( Map properties=[:],from,to ) {
-		assert properties != null
-
- 		CopyMoveOperations.copy(
-			resolveURI(properties,from),
-			resolveURI(properties,to),
-			properties.smash as boolean ?: false,
-			properties.overwrite as boolean  ?: false,
-			properties.recursive as boolean  ?: false,
-			properties.filter
-		)
+	void cp ( Map properties=[:],Object from, Object to ) {
+//		assert properties != null
+//
+// 		CopyMoveOperations.copy(
+//			resolveURI(properties,from),
+//			resolveURI(properties,to),
+//			properties.smash as boolean ?: false,
+//			properties.overwrite as boolean  ?: false,
+//			properties.recursive as boolean  ?: false,
+//			properties.filter
+//		)
 	}
 
 	/**
@@ -511,16 +656,16 @@ class VFS {
 	 * </tr>
 	 * </table>
 	 */
-	def mv ( Map properties=[:],from,to ) {
-		assert properties != null
-		
-		CopyMoveOperations.move(
-			resolveURI(properties,from),
-			resolveURI(properties,to),
-			properties.smash as boolean?: false,
-			properties.overwrite as boolean ?: false,
-            properties.intermediates as boolean ?: true
-		)
+	void mv ( Map properties=[:],Object from, Object to ) {
+//		assert properties != null
+//
+//		CopyMoveOperations.move(
+//			resolveURI(properties,from),
+//			resolveURI(properties,to),
+//			properties.smash as boolean?: false,
+//			properties.overwrite as boolean ?: false,
+//            properties.intermediates as boolean ?: true
+//		)
 	}
 
     /** Changes the default virtual file system options
@@ -540,9 +685,9 @@ class VFS {
      * 
      * @endcode
     */
-    @CompileDynamic
-    def options( Closure cfgDSL ) {
-        defaultFSOptions = new ConfigDelegator( fsManager : fsMgr, fsOpts : defaultFSOptions ) .bind (cfgDSL)
+    VFS options( Closure cfgDSL ) {
+//        defaultFSOptions = new ConfigDelegator( fsManager : fsMgr, fsOpts : defaultFSOptions ) .bind (cfgDSL)
+        this
     }
     
     /** Changes the default virtual file system options
@@ -558,17 +703,9 @@ class VFS {
      * 
      * @endcode
     */
-    def options( Map properties=[:] ) {
-        defaultFSOptions = Util.buildOptions(properties, fsMgr, defaultFSOptions) as FileSystemOptions
-    }
-
-    /** Allows to additional scheme providers, operation providers, mime type maps and extension maps to be added
-     *
-     * @param providerDSL
-     * @return
-     */
-    def extend( Closure providerDSL ) {
-        new ProviderDelegator( fsManager : fsMgr ) .bind (providerDSL)
+    VFS options( Map properties=[:] ) {
+//        defaultFSOptions = Util.buildOptions(properties, fsMgr, defaultFSOptions) as FileSystemOptions
+        this
     }
 
 	/** Creates an ANT-style pattern filter.
@@ -592,10 +729,9 @@ class VFS {
 	 *
 	 * @endcode
 	 */
-    @CompileDynamic
 	AntPatternSelector antPattern(Closure cfg) {
 		AntPatternSelector aps = new AntPatternSelector()
-		def c1 = cfg.clone()
+		Closure c1 = (Closure)(cfg.clone())
         c1.delegate = aps
         c1.resolveStrategy = Closure.DELEGATE_FIRST
         c1.call()
@@ -607,29 +743,29 @@ class VFS {
      * @param uri
      * @return
      */
-    def friendlyURI( FileObject uri ) {
-		return uri.name.friendlyURI
-	}
+//    def friendlyURI( FileObject uri ) {
+//		return uri.name.friendlyURI
+//	}
 
     /** Returns a printable URI in which the password is masked
      *
      * @param uri
      * @return
      */
-	def friendlyURI( URI uri ) {
+	CharSequence friendlyURI(VfsURI uri ) {
 		return friendlyURI(resolveURI(uri))
 	}
 
-	/** Creates an unresolved {@code org.ysb33r.groovy.URI} object
-	 *
-	 * @param uriText
-	 * @return URI
-	 * @since 1.0
-	 */
-	URI uri(CharSequence uriText) {
-		stageURI(uriText.toString())
-	}
-
+//	/** Creates an unresolved {@code org.ysb33r.groovy.URI} object
+//	 *
+//	 * @param uriText
+//	 * @return URI
+//	 * @since 1.0
+//	 */
+//	VfsURI uri(CharSequence uriText) {
+//		stageURI(uriText.toString())
+//	}
+//
 	/** Checks if URI is a file.
 	 * This will resolve the URI on the virtual file system.
 	 *
@@ -637,8 +773,9 @@ class VFS {
 	 * @return {@code True} is URI is a folder
      *
      */
-    boolean isFile(uri) {
-        resolveURI(uri).type == FileType.FILE
+    boolean isFile(final Object uri) {
+        throw new NotActiveException("isFile needs implementing")
+//        resolveURI(uri).type == FileType.FILE
     }
 
     /** Checks if URI is a folder.
@@ -647,8 +784,9 @@ class VFS {
 	 * @param uri
 	 * @return {@code True} is URI is a folder
      */
-    boolean isFolder(uri) {
-        resolveURI(uri).type == FileType.FOLDER
+    boolean isFolder(final Object uri) {
+        throw new NotActiveException("isFolder() needs implementing")
+//        resolveURI(uri).type == FileType.FOLDER
     }
 
     /** Checks to see if URI exists.
@@ -657,8 +795,9 @@ class VFS {
 	 * @param uri
 	 * @return {@code True} is URI exists
      */
-    boolean exists(uri) {
-        resolveURI(uri).exists()
+    boolean exists(final Object uri) {
+        throw new NotActiveException("exists() needs implementing")
+//        resolveURI(uri).exists()
     }
 
 	/** Checks to see if URI if local
@@ -666,9 +805,9 @@ class VFS {
 	 * @return {@code True} if URI is a local file URI.
 	 * @since 1.0
 	 */
-	@CompileDynamic
-	boolean local(uri) {
-		Util.localURI(uri,fsMgr)
+	boolean local(final Object uri) {
+        throw new NotActiveException("local() needs implementing")
+//		Util.localURI(uri,fsMgr)
 	}
 
 	/** Returns the last modified time of a URI
@@ -677,21 +816,22 @@ class VFS {
      * @return Number of seconds since epoch
      * @throw FileSystemException if URI does not exist.
      */
-    long mtime(uri) {
-        try {
-            resolveURI(uri).content.lastModifiedTime
-        } catch( final org.apache.commons.vfs2.FileSystemException e) {
-            throw new FileSystemException(e)
-        }
+    long mtime(final Object uri) {
+        throw new NotActiveException("mtime() needs implementing")
+//        try {
+//            resolveURI(uri).content.lastModifiedTime
+//        } catch( final org.apache.commons.vfs2.FileSystemException e) {
+//            throw new FileSystemException(e)
+//        }
     }
 
     /** Returns the logger instance that is used by this VFS
      *
      * @return
      */
-	Log getLogger() {
-		fsMgr.loggerInstance()
-	}
+//	 getLogger() {
+//		fsMgr.loggerInstance()
+//	}
 
 	/** Resolves a URI.
 	 * This involves locating it on the virtual file system and potential network traffic.
@@ -700,18 +840,38 @@ class VFS {
 	 * @param uri
 	 * @return An implementation dependent object
 	 */
-    @CompileDynamic
-	FileObject resolveURI (Map properties=[:],uri) {
-		if (uri instanceof FileObject) {
-			if( properties.size() ) {
-				Map vfsProperties = Util.selectVfsOptions(properties)
-				vfsProperties.size() ?	Util.resolveURI(vfsProperties,fsMgr,uri.fileSystem.fileSystemOptions,uri.name.getURI()) : uri
-			} else {
-				return uri
-			}
-		} else {
-			Util.resolveURI(properties,fsMgr,defaultFSOptions,uri)
-		} 
+	VfsURI resolveURI (Map properties=[:],Object uri) {
+        throw new URIException('',"Needs URI implementation")
+        switch(uri) {
+            case String:
+                break
+            case CharSequence:
+                break
+            case GStringImpl:
+                break
+            case URL:
+                break
+            case URI:
+                break
+            case VfsURI:
+                return (VfsURI)uri
+            case Path:
+                break
+            case File:
+                break
+            default:
+                throw new URIException(uri.toString(),"Object of type ${uri.class.name} is not suitable for resolving as URI.")
+        }
+//		if (uri instanceof FileObject) {
+//			if( properties.size() ) {
+//				Map vfsProperties = Util.selectVfsOptions(properties)
+//				vfsProperties.size() ?	Util.resolveURI(vfsProperties,fsMgr,uri.fileSystem.fileSystemOptions,uri.name.getURI()) : uri
+//			} else {
+//				return uri
+//			}
+//		} else {
+//			Util.resolveURI(properties,fsMgr,defaultFSOptions,uri)
+//		}
 	}
 
 	/** Stages a URI to see if it can be resolved, but does not locate it on the virtual file system.
@@ -723,8 +883,9 @@ class VFS {
 	 * @since 1.0
 	 */
 	@CompileDynamic
-	URI stageURI (Map properties=[:],def uri) {
-		URI u = new URI(uri)
+	VfsURI stageURI (Map properties=[:], def uri) {
+
+		VfsURI u = new VfsURI(uri)
 		Util.validURI(u,fsMgr)
 		u.addProperties(properties)
 	}
@@ -736,7 +897,8 @@ class VFS {
 	 * @since 1.0
 	 */
 	boolean fsCanListFolderContent (uri) {
-		resolveURI(uri).fileSystem.hasCapability(Capability.LIST_CHILDREN)
+        throw new NotActiveException("fsCanListFolderContent() needs implementing")
+//		resolveURI(uri).fileSystem.hasCapability(Capability.LIST_CHILDREN)
 	}
 
 	/** Returns the type of URI - file_uri, folder_uri or non_existent_uri
@@ -744,8 +906,8 @@ class VFS {
      * @param uri
      * @return
      */
-    private FileType type( URI uri ) {
-        this.type(resolveURI(uri))
+    private FileType type(VfsURI uri ) {
+        throw new NotActiveException("type() needs implementing")
     }
 
     /** Returns the type of URI - file_uri, folder_uri or non_existent_uri
@@ -753,9 +915,9 @@ class VFS {
      * @param uri
      * @return
      */
-    private FileType type( FileObject uri ) {
-        uri.type
-    }
+//    private FileType type( FileObject uri ) {
+//        uri.type
+//    }
 
 //    private StandardFileSystemManager fsMgr
 //	private FileSystemOptions defaultFSOptions

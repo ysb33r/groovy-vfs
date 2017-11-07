@@ -25,25 +25,20 @@
 // ============================================================================
 //
 
-package org.ysb33r.vfs.dsl.groovy
+package org.ysb33r.vfs.core
 
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.TypeChecked
 import groovyx.net.http.URIBuilder
-
-import java.net.URISyntaxException
 import groovy.transform.CompileStatic
 import org.apache.commons.vfs2.FileName
-import org.apache.commons.vfs2.FileObject
-
-
 
 /** Holds a URI that has not been located on the virtual file system
  *
  * @author Schalk W. Cronjé
  */
 @EqualsAndHashCode
-class URI {
+class VfsURI {
 	
 	/**
 	 * Creates a URL from a URL string. 
@@ -55,7 +50,7 @@ class URI {
 	 * 
 	 * @param String 
 	 */
-	URI ( String s ) {
+	VfsURI(String s ) {
 		
 		URIBuilder tmpuri
 		String userInfo
@@ -100,7 +95,7 @@ class URI {
 	 * A relative file will be normalised to an absolute file path
 	 * @param File
 	 */
-	URI ( File f ) {
+	VfsURI(File f ) {
 		uri=new URIBuilder(f.toURI().normalize().toString().replaceFirst('file:','file://'))
 	} 
 	
@@ -108,7 +103,7 @@ class URI {
 	 * Creates a URL from a VFS FileName object
 	 * @param f A VFS FileName object
 	 */
-	URI ( FileName f ) {
+	VfsURI(FileName f ) {
 		uri= f.getURI()
 	}
 
@@ -129,7 +124,7 @@ class URI {
 	 * @param properties
 	 * @since 1.0
 	 */
-	URI addProperties(Map<String,Object> properties) {
+	VfsURI addProperties(Map<String,Object> properties) {
 		properties.each { String k,Object v ->
 			if(k ==~ /^(?i:vfs\..+\..+)/) {
 				String schemeAndName = k[4..-1]
@@ -156,9 +151,9 @@ class URI {
 	 * @throw {@link URIException} if additional query parameters or fragments are found.
 	 * @since 1.0
 	 */
-	URI div(CharSequence childPath) {
+	VfsURI div(CharSequence childPath) {
 		Map<String,Object> m = parseString(uri)
-		new URI(props,m.uriBuilder,m.userInfo,childPath.toString())
+		new VfsURI(props,m.uriBuilder,m.userInfo,childPath.toString())
 	}
 
 	private URIBuilder removeAndUpdateVFSProperties (URIBuilder tmpuri) {
@@ -228,7 +223,7 @@ class URI {
 	 * @throw {@link URIException} if additional query parameters or fragments are found.
 	 * @since 1.0
 	 */
-	private URI( Map<String,Map<String,Object>> props, URIBuilder tmpuri, final String userInfo, final String child ) {
+	private VfsURI(Map<String,Map<String,Object>> props, URIBuilder tmpuri, final String userInfo, final String child ) {
 
 		// Construct a basic URI to
 		java.net.URI jnURI = tmpuri.toURI()

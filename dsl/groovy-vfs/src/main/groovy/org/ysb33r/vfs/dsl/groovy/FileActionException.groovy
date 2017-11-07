@@ -27,8 +27,8 @@
 
 package org.ysb33r.vfs.dsl.groovy
 
-import org.apache.commons.vfs2.FileSystemException
 import groovy.transform.CompileStatic
+import org.ysb33r.vfs.core.FileSystemException
 
 /** Thrown for when specific file update actions is not allowed
  * 

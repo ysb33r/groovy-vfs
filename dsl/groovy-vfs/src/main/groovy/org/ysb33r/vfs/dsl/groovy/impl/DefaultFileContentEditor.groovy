@@ -39,7 +39,7 @@ import org.ysb33r.groovy.dsl.vfs.FileActionException
  */
 @CompileStatic
 @Canonical
-class FileContentEditor {
+class DefaultFileContentEditor {
 
     FileObject file
     boolean append
