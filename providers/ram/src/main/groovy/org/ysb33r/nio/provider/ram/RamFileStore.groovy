@@ -48,6 +48,7 @@ class RamFileStore extends FileStore {
      * @return the name of this file store
      */
     @Override
+    @SuppressWarnings(['ConfusingMethodName'])
     String name() {
         this.name
     }
@@ -87,6 +88,7 @@ class RamFileStore extends FileStore {
      *          if an I/O error occurs
      */
     @Override
+    @SuppressWarnings('GetterMethodCouldBeProperty')
     long getTotalSpace() throws IOException {
         return -1
     }
@@ -108,6 +110,7 @@ class RamFileStore extends FileStore {
      *          if an I/O error occurs
      */
     @Override
+    @SuppressWarnings('GetterMethodCouldBeProperty')
     long getUsableSpace() throws IOException {
         return -1
     }
@@ -128,6 +131,7 @@ class RamFileStore extends FileStore {
      *          if an I/O error occurs
      */
     @Override
+    @SuppressWarnings('GetterMethodCouldBeProperty')
     long getUnallocatedSpace() throws IOException {
         return -1
     }

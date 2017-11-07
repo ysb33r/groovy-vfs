@@ -69,7 +69,7 @@ class Attributes implements BasicFileAttributes {
      */
     @Override
     FileTime creationTime() {
-        entry ? creationTime : FileTime.from(Instant.EPOCH)
+        entry ? createTime : FileTime.from(Instant.EPOCH)
     }
 
     /**
@@ -159,10 +159,10 @@ class Attributes implements BasicFileAttributes {
     }
 
     @PackageScope
-    void setModifiedTime(FileTime) {
+    void setModifiedTime(FileTime tm) {
 
     }
 
-    private final FileTime creationTime
-    private FileTime modifiedTime = creationTime
+    private final FileTime createTime
+    private FileTime modifiedTime = createTime
 }

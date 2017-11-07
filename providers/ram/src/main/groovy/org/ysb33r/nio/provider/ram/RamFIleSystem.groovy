@@ -348,6 +348,7 @@ class RamFileSystem extends AbstractFileSystem {
      * @return The {@code UserPrincipalLookupService} for this file system
      */
     @Override
+    @SuppressWarnings('GetterMethodCouldBeProperty')
     UserPrincipalLookupService getUserPrincipalLookupService() {
         return null
     }

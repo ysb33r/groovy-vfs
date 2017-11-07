@@ -15,8 +15,6 @@ package org.ysb33r.nio.provider.ram.internal
 
 import spock.lang.Specification
 
-import java.nio.ByteBuffer
-
 /**
  * @author Schalk W. Cronjé
  */
@@ -66,7 +64,7 @@ class FileSpec extends Specification {
 
         and: "The size of the file will be the same as the number of bytes written"
         testFile.size() == inputArray.size()
-        testFile.currentOffset == inputArray.size()
+        testFile.lastOffset == inputArray.size()
 
         and: "Last block offset will be same as block size"
         testFile.lastBlockOffset == inputArray.size()
@@ -87,7 +85,7 @@ class FileSpec extends Specification {
 
         and: "The size of the file will be the same as the number of bytes written"
         testFile.size() == inputArray.size()
-        testFile.currentOffset == inputArray.size()
+        testFile.lastOffset == inputArray.size()
 
         and: "Last block offset will be same as number of bytes written"
         testFile.lastBlockOffset == inputArray.size()
@@ -108,7 +106,7 @@ class FileSpec extends Specification {
 
         and: "The size of the file will be the same as the number of bytes written"
         testFile.size() == inputArray.size()
-        testFile.currentOffset == inputArray.size()
+        testFile.lastOffset == inputArray.size()
 
         and: "Last block offset will be second position within second block"
         testFile.lastBlockOffset == 1
@@ -129,7 +127,7 @@ class FileSpec extends Specification {
 
         and: "The size of the file will be the same as the number of bytes written"
         testFile.size() == inputArray.size() * 2
-        testFile.currentOffset == inputArray.size() * 2
+        testFile.lastOffset == inputArray.size() * 2
 
         and: "Last block offset will be third position within second block"
         testFile.lastBlockOffset == 2
@@ -153,13 +151,37 @@ class FileSpec extends Specification {
 
         and: "The size of the file will be the largest of the batches of bytes written"
         testFile.size() == inputArray1.size()
-        testFile.currentOffset == inputArray2.size()
+        testFile.lastOffset == inputArray2.size()
 
         and: "Last block offset will be third position within second block"
-        testFile.lastBlockOffset == inputArray11.size()
+        testFile.lastBlockOffset == inputArray1.size()
 
         and: "The data will reflect overwritten bytes"
-        testFile.data[0] == ([7,8,9,4,5,6] as byte [])
+        testFile.data[0] == ([7,8,9,4,5,6,0,0,0,0] as byte [])
     }
 
+    def "Invalid offsets"() {
+        given: "An array of bytes"
+        def inputArray = [1,2,3,4,5,6] as byte[]
+
+        when: "Bytes are written at negative offset"
+        testFile.write(inputArray,-10)
+
+        then: "Exception is thrown"
+        thrown(IOException)
+
+        when: "Bytes are written beyond the current file size"
+        testFile.write(inputArray,10)
+
+        then: "Exception is thrown"
+        thrown(IOException)
+
+        when: "Bytes are written beyond the current file size, after a previous write"
+        testFile.write(inputArray,0)
+        testFile.write(inputArray,10)
+
+        then: "Exception is thrown"
+        thrown(IOException)
+
+    }
 }

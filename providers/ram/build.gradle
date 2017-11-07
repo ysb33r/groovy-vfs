@@ -1,1 +1,2 @@
 apply plugin : 'groovy'
+apply plugin : 'codenarc'

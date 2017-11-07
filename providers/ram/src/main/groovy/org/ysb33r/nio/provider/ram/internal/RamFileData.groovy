@@ -93,15 +93,15 @@ class RamFileData {
         if(!path.nameCount) {
             null
         } else {
-            final String name = path.getName(index).toString()
-            if(directory.hasProperty(name)) {
+            final String NAME = path.getName(index).toString()
+            if(directory.hasProperty(NAME)) {
                 boolean moreSegments = path.nameCount - 1 > index
-                if(moreSegments && directory[name].directory) {
+                if(moreSegments && directory[NAME].directory) {
                     return locateContainerByPath(path,index+1)
-                } else if(moreSegments && directory[name].file) {
+                } else if(moreSegments && directory[NAME].file) {
                     throw new IOException("Found a file where a directory was expected: ${path}")
                 } else {
-                    return new DefaultNamedEntry( name : name, container : this )
+                    return new DefaultNamedEntry( name : NAME, container : this )
                 }
             } else {
                 throw new IOException("Path ${path} lookup failed at index ${index}")

@@ -157,6 +157,7 @@ configure(subprojects.findAll { modules.providers.contains(it.name) } ) { cfgPro
         archives sourcesJar, javadocJar
     }
 
+
 }
 
 //configure(subprojects.findAll { ! ['jlan','test-servers','docs'].contains(it.name) } ) {

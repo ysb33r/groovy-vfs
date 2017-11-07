@@ -41,6 +41,7 @@ class RamFileSystemProviderSpec extends Specification {
         Path targetFile2 = Paths.get('ram://test/foo'.toURI())
 
         then: "The filesystem is expected to be RamFileSystem "
+        fs != nullileSystem "
         fs != null
         fs.isOpen()
         fs instanceof RamFileSystem

@@ -26,8 +26,8 @@ import java.util.concurrent.ConcurrentLinkedDeque
 @CompileStatic
 class File implements Entry {
 
-    static final int OFFSET_BEGIN = -1
-    static final int OFFSET_CURRENT = 0
+    static final int OFFSET_BEGIN = 0
+    static final int OFFSET_CURRENT = -3
     static final int OFFSET_END = -2
 
     Attributes attributes = new Attributes(this)
@@ -93,7 +93,7 @@ class File implements Entry {
     @Synchronized
     int write(byte[] buf, long offset) {
         if(offset==OFFSET_CURRENT) {
-            offset = currentOffset
+            offset = lastOffset
         } else if (offset == OFFSET_END) {
             offset = size()
         } else if(offset < 0) {
@@ -180,6 +180,7 @@ class File implements Entry {
      * @return Returns {@code true} if blocks were added.
      * @throw {@code IOException} if storage limit will be exceeded.
      */
+    @SuppressWarnings('ExplicitCallToMultiplyMethod')
     private boolean addBlocks(int count) {
         if(count>0) {
             if(count+data.size() > maxBlocks) {
@@ -231,7 +232,7 @@ class File implements Entry {
                 }
             }
         }
-        currentOffset = lastWriteEndedAt
+        lastOffset = lastWriteEndedAt
     }
 
     @PackageScope
@@ -243,5 +244,5 @@ class File implements Entry {
 
     @PackageScope ConcurrentLinkedDeque<byte[]> data = new ConcurrentLinkedDeque<byte[]>()
     @PackageScope Integer lastBlockOffset =0
-    @PackageScope long currentOffset = 0
+    @PackageScope long lastOffset = 0
 }
