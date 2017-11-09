@@ -27,11 +27,12 @@
 
 package org.ysb33r.vfs.core
 
+import groovy.transform.CompileDynamic
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.CompileStatic
-import org.ysb33r.vfs.dsl.groovy.FileSystemOptions
 
 import java.nio.file.Path
+import java.util.regex.Matcher
 
 /** Holds a URI that has not been located on the virtual file system
  *
@@ -40,8 +41,28 @@ import java.nio.file.Path
 @EqualsAndHashCode
 @CompileStatic
 class VfsURI {
-	
-	/**
+
+    /**
+     * Creates a URI from a Java URI object
+     *
+     * @param u URI to use.
+     */
+    VfsURI(final URI u ) {
+        configureFromURI(u,null)
+    }
+
+    /** Creates a URI from a Java URI object and seed it with default options.
+     *
+     * <p> Any VFS options foudn in the URI will override the default options
+     *
+     * @param u
+     * @param opts
+     */
+    VfsURI(final URI u,final FileSystemOptions opts) {
+        configureFromURI(u,opts)
+    }
+
+    /**
 	 * Creates a URL from a URL string. 
 	 * As an extension to normal URI syntax, this will also accept a URI
 	 * with a VFS-style encoded password i.e. ftp://ysb33r:{D7B82198B272F5C93790FEB38A73C7B8}@127.0.0.1/path
@@ -52,7 +73,7 @@ class VfsURI {
 	 * @param String 
 	 */
 	VfsURI(final String s) {
-		
+		configureFromURI(toURI(s),null)
 //		URIBuilder tmpuri
 //		String userInfo
 //
@@ -91,40 +112,49 @@ class VfsURI {
 //		}
 	}
 
-    /**
-     * Creates a URI from a Java URI object
-     * A relative file will be normalised to an absolute file path
-     * @param File
-     */
-    VfsURI(final URI u ) {
-//		uri=new URIBuilder(f.toURI().normalize().toString().replaceFirst('file:','file://'))
+    VfsURI(final String s,final FileSystemOptions opts) {
+        configureFromURI(toURI(s),opts)
     }
 
-    /**
-	 * Creates a URL from a local file
-	 * A relative file will be normalised to an absolute file path
-	 * @param File
-	 */
-	VfsURI(final File f ) {
-//		uri=new URIBuilder(f.toURI().normalize().toString().replaceFirst('file:','file://'))
-	}
+    VfsURI(final CharSequence cs) {
+        configureFromURI(toURI(cs.toString()),null)
+    }
+
+    VfsURI(final CharSequence cs,final FileSystemOptions opts) {
+        configureFromURI(toURI(cs.toString()),opts)
+    }
 
     /**
      * Creates a URL from a Path object.
      * A relative file will be normalised to an absolute file path
-     * @param File
+     * @param p Existing NIO2 path.
      */
-    VfsURI(final Path p ) {
-//		uri=new URIBuilder(f.toURI().normalize().toString().replaceFirst('file:','file://'))
+    VfsURI(final Path p) {
+        this.path = p.toAbsolutePath()
+        this.uri = this.path.toUri()
     }
 
     /**
-	 * Creates a URL from a VFS FileName object
-	 * @param f A VFS FileName object
+	 * Creates a URL from a local file
+	 *
+     * <p> A relative file will be normalised to an absolute file path.
+     *
+	 * @param File
 	 */
+	VfsURI(final File f) {
+        this.path = f.toPath().toAbsolutePath()
+        this.uri = this.path.toUri()
+//        configureFromURI(f.absoluteFile.toURI(),null)
+	}
 
+    /** Converts to a printable URI.
+     *
+     * <p> If the URI contains a password it will be masked out.
+     *
+     * @return Printable URI.
+     */
 	String toString() {
-//		return uri
+        UriUtils.friendlyURI(this.uri)
 	}
 
 	/** Returns all of the parsed properties
@@ -179,7 +209,15 @@ class VfsURI {
      * @return Path
      */
     Path getPath() {
-        null
+        this.path
+    }
+
+    URI getURI() {
+        this.uri
+    }
+
+    String getFriendlyURI() {
+        UriUtils.friendlyURI(this.uri)
     }
 
     /** Returns the filesystem options that are associated with this URI.
@@ -187,7 +225,15 @@ class VfsURI {
      * @return Associated filesystem options. Never {@code null}.
      */
     FileSystemOptions getFileSystemOptions() {
-        null
+        this.fsOptions
+    }
+
+    /** Returns basename of file or folder (including any extensions).
+     *
+     * @return Basename as a string
+     */
+    String getName() {
+        path.getName(path.nameCount-1)
     }
 
 //	private URIBuilder removeAndUpdateVFSProperties (URIBuilder tmpuri) {
@@ -277,4 +323,53 @@ class VfsURI {
 //		uri="${jnURI.scheme}://${userInfo?:''}${jnURI.host}${port!='-1'?':'+port:''}${jnURI.rawPath}/${child}${query?'?'+query:''}${fragment?'#'+fragment:''}"
 //		this.props=props
 //	}
+
+    private final FileSystemOptions fsOptions = new FileSystemOptions()
+    private URI uri
+    private Path path
+
+    private Tuple2<URI,Map<String,String>> removeVFSProperties(final URI u) {
+        null
+    }
+
+    /** Configure this object from a Java URI.
+     *
+     * @param u Provided URI with potential VFS options included.
+     * @param opts Default options. Can be null.
+     */
+    private void configureFromURI(final URI u,final FileSystemOptions opts) {
+        Tuple2<URI,Map<String,String>> realURI = removeVFSProperties(u)
+
+        if(opts!=null) {
+            fsOptions.addAll(opts.asMap())
+        }
+
+        realURI
+        this.uri = realURI.first
+    }
+
+    @CompileDynamic
+    private URI toURI(final String s) {
+		if(!s.trim().size()) {
+			throw new URIException("(blank)","Whitespace-only URI is not valid")
+		}
+
+        URI tmpuri
+        String userInfo
+		try {
+			tmpuri = s.toURI()
+		} catch (java.net.URISyntaxException e) {
+		 	// If this contains a VFS-encrypted password, remove it,
+			// then process the rest
+		 	Matcher m= s =~ /^(\p{Alpha}[\p{Alnum}+-.:]*:\/\/)?(.+:\{\p{XDigit}+\}\@)(.+)/
+
+			if (!m || !m.size() || m[0].size()!=4) {
+				throw e
+			}
+		    tmpuri="${m[0][1]}${m[0][3]}".toURI()
+
+			userInfo=m[0][2]
+		}
+
+    }
 }

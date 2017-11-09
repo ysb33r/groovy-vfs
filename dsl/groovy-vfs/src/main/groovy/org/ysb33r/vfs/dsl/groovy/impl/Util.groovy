@@ -29,14 +29,11 @@ package org.ysb33r.vfs.dsl.groovy.impl
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import org.codehaus.groovy.runtime.GStringImpl
 import org.ysb33r.vfs.core.URIException
 import org.ysb33r.vfs.core.VfsURI
-import org.ysb33r.vfs.dsl.groovy.FileSystemOptions
+import org.ysb33r.vfs.core.FileSystemOptions
 
-import java.nio.file.FileSystem
 import java.nio.file.FileSystems
-import java.nio.file.Path
 import java.util.regex.Pattern
 
 @CompileStatic

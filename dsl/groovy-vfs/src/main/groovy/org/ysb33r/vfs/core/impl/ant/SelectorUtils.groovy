@@ -31,7 +31,7 @@
  *
  */
 
-package org.ysb33r.vfs.dsl.groovy.impl.ant;
+package org.ysb33r.vfs.core.impl.ant;
 
 
 

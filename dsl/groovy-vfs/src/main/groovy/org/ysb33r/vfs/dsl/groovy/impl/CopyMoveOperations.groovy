@@ -14,20 +14,17 @@
 package org.ysb33r.vfs.dsl.groovy.impl
 
 import org.apache.commons.vfs2.Capability
+import org.ysb33r.vfs.core.AntPatternSelector
 
 import java.util.regex.Pattern;
 
 import org.apache.commons.vfs2.FileObject
 import static org.apache.commons.vfs2.FileType.*
 import org.apache.commons.vfs2.FileSelector
-import org.apache.commons.vfs2.AllFileSelector
 import org.apache.commons.vfs2.FileSystemException
 import org.ysb33r.groovy.dsl.vfs.FileActionException
 import org.ysb33r.groovy.dsl.vfs.FilterException;
 import org.apache.commons.vfs2.Selectors
-
-
-import groovy.transform.TypeChecked
 import groovy.transform.CompileStatic
 
 

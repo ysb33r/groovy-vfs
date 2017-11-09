@@ -17,15 +17,20 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.runtime.GStringImpl
+import org.ysb33r.vfs.core.FileSelectInfo
+import org.ysb33r.vfs.core.FileSelector
+import org.ysb33r.vfs.core.Selectors
 import org.ysb33r.vfs.core.URIException
+import org.ysb33r.vfs.core.VfsEngine
 import org.ysb33r.vfs.core.VfsURI
-import org.ysb33r.vfs.dsl.groovy.impl.AntPatternSelector
+import org.ysb33r.vfs.core.AntPatternSelector
 import org.ysb33r.vfs.dsl.groovy.impl.ConfigDelegator
 import org.ysb33r.vfs.dsl.groovy.impl.DefaultFileContentEditor
 
 import java.nio.file.Path
-import java.util.concurrent.Callable
 import java.util.function.Consumer
+import java.util.function.Predicate
+import java.util.regex.Pattern
 
 /**
  *
@@ -64,7 +69,7 @@ import java.util.function.Consumer
  */
 @CompileStatic
 @Slf4j
-class VFS {
+class Vfs {
 
 //    /** A filter that selects all the descendants of the base folder, but does not select the base folder itself.
 //     *
@@ -104,7 +109,8 @@ class VFS {
 	/** Constructs a Virtual File System.
 	 * 
 	 * During construction a number of properties can be passed to the underlying Apache VFS system.
-	 * <p> 
+	 * <p>
+     * <li> classLoader - ClassLoader
      * <li> cacheStrategy - Sets the cache strategy to use when dealing with file object data
      * <li> defaultProvider - Default provider for unknown schemas
      * <li> filesCache - Sets the file cache implementation
@@ -120,7 +126,10 @@ class VFS {
      * 
      * @param properties Default properties for initialising the system 
 	 */
-	VFS( Map properties=[:]) {
+	Vfs(Map properties=[:]) {
+
+        this.vfsEngine = properties.containsKey('classLoader') ? new VfsEngine(properties['classLoader'] as ClassLoader) : new VfsEngine()
+
 //		fsMgr = new StandardFileSystemManager()
 //
 //
@@ -179,7 +188,7 @@ class VFS {
      * @param c
      * @return
      */
-    def call ( @DelegatesTo(VFS) Closure c) {
+    def call ( @DelegatesTo(Vfs) Closure c) {
         Closure newc=(Closure)(c.clone())
         newc.delegate=this
         newc.call()
@@ -191,15 +200,12 @@ class VFS {
 	 * each instance found
 	 * 
 	 * @param properties
-	 * @li filter A regex, closure of VFS FileSelector by which to select objects
+	 * @li filter A regex, closure of {@link FileSelectInfo} by which to select objects
 	 * @li recursive If set to true will traverse down any subfolders. Ignored if filter is a FileSelector
-	 * @li closeFilesystem Closes underlying filesystem when returning. Default is not to.
+     * @li followSymlinks Set to {@code false} to not follow symlinks. Default is to follow symbolic links.
 	 *
 	 * @param uri URI pointing to area for which file listing is to be retrieved
-	 * @param c Closure that will be a single parameter (VFS FileObject)
-	 * 
-	 * @return If a closure is specified returns the results of passing each file to the
-	 * provided closure, otherwise just return VFS FileObject[] 
+	 * @param c Closure that will be a single parameter ({@link VfsURI}). It should return {@code false} is traversal should be stopped.
 	 * 
 	 * @code{
 	 *   def vfs = new VFS()
@@ -217,7 +223,59 @@ class VFS {
 	 * }	
 	 * 
 	 */
-	def ls ( final Map properties=[:], final String uri, Closure c ) {
+	void ls ( final Map properties=[:], final String uri, Closure c ) {
+
+        FileSelector selector = null
+        int maxDepth = 1
+        boolean followSymlinks = true
+
+        if(properties.containsKey('recursive')) {
+            maxDepth = ((Boolean)(properties['recursive'])) ? -1 : 1
+        }
+
+        if(properties.containsKey('followSymlinks')) {
+            followSymlinks = (Boolean)(properties['followSymlinks'])
+        }
+
+        if(properties.containsKey('filter')) {
+            switch(properties['filter']) {
+                case FileSelector:
+                    selector = (FileSelector)(properties['filter'])
+                    break
+                case Pattern:
+                    selector = Selectors.byRegex(
+                        (Pattern)(properties['filter']),
+                        maxDepth,
+                        followSymlinks
+                    )
+                    break
+                case Closure:
+					selector = [
+						include : (Closure)(properties['filter']),
+						descend : { FileSelectInfo fsi ->
+                            -1 == maxDepth|| fsi.depth <= maxDepth
+                        },
+                        follow : followSymlinks
+					] as FileSelector
+                    break
+                case Predicate:
+                    selector = [
+                        include : (Predicate<FileSelectInfo>)(properties['filter']),
+                        descend : { FileSelectInfo fsi ->
+                            -1 == maxDepth|| fsi.depth <= maxDepth
+                        },
+                        follow : followSymlinks
+                    ] as FileSelector
+                    break
+                default:
+                    selector = Selectors.byRegex(
+                        ~/"${properties['filter'].toString()}"/,
+                        maxDepth,
+                        followSymlinks
+                    )
+            }
+        }
+        vfsEngine.ls(new VfsURI(uri),c as Predicate<VfsURI>,selector)
 //		assert properties != null
 //		def children
 //		FileObject ruri=resolveURI(properties,uri)
@@ -687,7 +745,7 @@ class VFS {
      * 
      * @endcode
     */
-    VFS options( Closure cfgDSL ) {
+    Vfs options(Closure cfgDSL ) {
         ConfigDelegator cd = new ConfigDelegator(defaultFSOptions)
         cd.bind(cfgDSL)
         this
@@ -706,7 +764,7 @@ class VFS {
      * 
      * @endcode
     */
-    VFS options( Map properties=[:] ) {
+    Vfs options(Map properties=[:] ) {
         defaultFSOptions.addAll(properties)
         this
     }
@@ -896,7 +954,7 @@ class VFS {
 	/** Enquires whether the URI is on a file system that is capable of listing the contents of folder content.
 	 *
 	 * @param uri
-	 * @return {@code true} is children of fodlers can be listed.
+	 * @return {@code true} is children of folders can be listed.
 	 * @since 1.0
 	 */
 	boolean fsCanListFolderContent (uri) {
@@ -923,6 +981,6 @@ class VFS {
 //    }
 
 //    private StandardFileSystemManager fsMgr
-	private FileSystemOptions defaultFSOptions
+    private final VfsEngine vfsEngine
 
 }

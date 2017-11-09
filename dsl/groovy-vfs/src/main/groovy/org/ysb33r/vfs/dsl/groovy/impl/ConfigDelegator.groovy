@@ -15,7 +15,7 @@
 package org.ysb33r.vfs.dsl.groovy.impl
 
 import groovy.transform.CompileStatic
-import org.ysb33r.vfs.dsl.groovy.FileSystemOptions
+import org.ysb33r.vfs.core.FileSystemOptions
 import org.ysb33r.vfs.dsl.groovy.SyntaxException
 
 

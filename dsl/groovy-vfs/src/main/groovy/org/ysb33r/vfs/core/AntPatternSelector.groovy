@@ -11,29 +11,31 @@
  *
  * ============================================================================
  */
-package org.ysb33r.vfs.dsl.groovy.impl
+package org.ysb33r.vfs.core
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
-import org.apache.commons.vfs2.FileSelectInfo
-import org.apache.commons.vfs2.FileSelector
-import org.ysb33r.groovy.dsl.vfs.impl.ant.SelectorUtils
+import org.ysb33r.vfs.core.impl.ant.SelectorUtils
 
-/** Allows for Ant-style patterns to be used for selecting files. If no include patterns are specified
+/** Allows for Ant-style patterns to be used for selecting files.
+ *
+ * <p> If no include patterns are specified
  * then everything will be included. If some include patterns are specifed only matching files and folders
- * will be included.  If exlcude patterns are specified, files and folders are only included, if they do
+ * will be included.  If exclude patterns are specified, files and folders are only included, if they do
  * not match any exclude patterns.
  *
  * Patterns may include:
+ * <ul>
  *  <li> to match any number of characters
  *  <li> to match any single character
  *  <li> '**' to match any number of directories or files
- *  <p>
- *  Unlike GRadle or Ant '\' cannot be used for folder separation. Only '/' is allowed as all references
+ * </ul>
+ *
+ * <p>
+ *  Unlike Gradle or Ant '\' cannot be used for folder separation. Only '/' is allowed as all references
  *  are relative URIs
- *  </p>
- * @author Schalk W. Cronjé
+ *
  */
 @CompileStatic
 class AntPatternSelector implements FileSelector, Cloneable {
@@ -43,10 +45,15 @@ class AntPatternSelector implements FileSelector, Cloneable {
      */
     boolean excludeSelf = true
 
-    /** Whether case sentive matching should be used. {@code true} by default
+    /** Whether case sensitive matching should be used. {@code true} by default
      *
      */
     boolean caseSensitive = true
+
+    /** Whether symlinks shoul dbe followed. {@code true} by default
+     *
+     */
+    boolean followSymlinks = true
 
     /**
      * Determines if a file or folder should be selected.  This method is
@@ -58,7 +65,7 @@ class AntPatternSelector implements FileSelector, Cloneable {
      * @throws Exception if an error occurs.
      */
     @Override
-    boolean includeFile(FileSelectInfo fileInfo)  {
+    boolean include(final FileSelectInfo fileInfo)  {
         if(fileInfo.depth == 0 && excludeSelf ) {
             return false
         }
@@ -67,10 +74,10 @@ class AntPatternSelector implements FileSelector, Cloneable {
 
     /**
      * Determines whether a folder should be traversed.  If this method returns
-     * true, {@link #includeFile} is called for each of the children of
+     * true, {@link #include} is called for each of the children of
      * the folder, and each of the child folders is recursively traversed.
      * <p/>
-     * <p>This method is called on a folder before {@link #includeFile}
+     * <p>This method is called on a folder before {@link #include}
      * is called.
      *
      * @param fileInfo the file or folder to select.
@@ -78,16 +85,28 @@ class AntPatternSelector implements FileSelector, Cloneable {
      * @throws Exception if an error occurs.
      */
     @Override
-    boolean traverseDescendents(FileSelectInfo fileInfo)  {
+    boolean descend(final FileSelectInfo fileInfo)  {
         allowed(fileInfo)
     }
 
+    /** Determines whether symbolic links shoudl be followed.
+     *
+     * <p> The return value will be what ever was with on the {@code SetFollowSymlinks()}.
+     * The default is to follow symbolic links.
+     *
+     * @param fsi Ignored.
+     * @return {@code true} if symbolic links should be followed.
+     */
+    @Override
+    boolean follow(final FileSelectInfo fsi) {
+        this.followSymlinks
+    }
 
     /** Adds one of more exclude patterns
      *
      * @return
      */
-    AntPatternSelector 	exclude(Iterable<String> excludes) {
+    AntPatternSelector 	exclude(final Iterable<String> excludes) {
         addToPatternSet(this.excludes,excludes)
     }
 
@@ -95,7 +114,7 @@ class AntPatternSelector implements FileSelector, Cloneable {
      *
      * @return
      */
-    AntPatternSelector 	exclude(String... excludes) {
+    AntPatternSelector 	exclude(final String... excludes) {
         addToPatternSet(this.excludes,excludes as List)
     }
 
@@ -116,7 +135,7 @@ class AntPatternSelector implements FileSelector, Cloneable {
      * @param includes One or more ANT patterns
      * @return
      */
-    AntPatternSelector 	include(Iterable<String> includes){
+    AntPatternSelector 	include(final Iterable<String> includes){
         addToPatternSet(this.includes,includes)
     }
 
@@ -125,7 +144,7 @@ class AntPatternSelector implements FileSelector, Cloneable {
      * @param includes One or more ANT patterns
      * @return
      */
-    AntPatternSelector 	include(String... includes) {
+    AntPatternSelector 	include(final String... includes) {
         addToPatternSet(this.includes,includes as List)
     }
 
@@ -134,7 +153,7 @@ class AntPatternSelector implements FileSelector, Cloneable {
      * @param excludes One of more ANT patterns
      * @return
      */
-    AntPatternSelector 	setExcludes(Iterable<String> excludes) {
+    AntPatternSelector 	setExcludes(final Iterable<String> excludes) {
         this.excludes.clear()
         addToPatternSet(this.excludes,excludes)
     }
@@ -144,16 +163,16 @@ class AntPatternSelector implements FileSelector, Cloneable {
      * @param includes One of more ANT patterns
      * @return
      */
-    AntPatternSelector 	setIncludes(Iterable<String> includes) {
+    AntPatternSelector 	setIncludes(final Iterable<String> includes) {
         this.includes.clear()
         addToPatternSet(this.includes,includes)
     }
 
     @PackageScope
-    boolean allowed(FileSelectInfo fileInfo) {
+    boolean allowed(final FileSelectInfo fileInfo) {
         // Strip fileInfo.baseFolder from fileInfo.file, meaning get a relative path,
         // which can be used for pattern matching.
-        allowed(fileInfo.file.name.friendlyURI - fileInfo.baseFolder.name.friendlyURI)
+        allowed(fileInfo.current.friendlyURI - fileInfo.parent.friendlyURI)
     }
 
     @PackageScope
@@ -194,7 +213,6 @@ class AntPatternSelector implements FileSelector, Cloneable {
         SelectorUtils.tokenizePathAsArray(subject)
     }
 
-    @CompileDynamic
     private AntPatternSelector addToPatternSet(Map<String,String[] > patternSet,def iterableList) {
         iterableList.collect {
             patternSet[it.toString()]= SelectorUtils.tokenizePathAsArray(it)

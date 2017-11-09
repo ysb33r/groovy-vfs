@@ -8,40 +8,52 @@
 
 == Introduction
 
-include::How-groovy-vfs-differs-from-apache-vfs.adoc[]
+// include::version2-vs-version1][
 
-include::Instantiating-a-vfs.adoc[]
+
+= Groovy DSL
+
+// include::groovy/instantiating-a-vfs.adoc[]
+
+// include::groovy/list.adoc[]
+
+// include::groovy/copy.adoc[]
+
+// include::groovy/move.adoc[]
+
+// include::groovy/delete.adoc[]
 
 == Copying Files
 
-include::VFS-Copy-Behaviour.adoc[]
+
+//include::VFS-Copy-Behaviour.adoc[]
 
 == Moving Files
 
-include::VFS-Move-Behaviour.adoc[]
+//include::VFS-Move-Behaviour.adoc[]
 
-include::Protocol-Options.adoc[]
+= Kotlin DSL
 
-= Providers
+// include::kotlin-dsl.adoc[]
 
-== Adding Providers
+= Java DSL
 
-include::Add-Providers.adoc[]
-
-////
-include::cloud.adoc[]
-
-include::smb.adoc[]
-
-include::nfs.adoc[]
-////
+// include::java-dsl.adoc[]
 
 = Gradle Plugin
 
-include::gradle-plugin.adoc[]
+//include::gradle-plugin.adoc[]
 
 ////
 = Commandline VFS
 
 ////
+
+= Adding a DSL for a new language
+
+// include::adding-new-expressive-dsl.adoc[]
+
+// include::vfs-engine.adoc[]
+
+// include::selectors.adoc[]
 
