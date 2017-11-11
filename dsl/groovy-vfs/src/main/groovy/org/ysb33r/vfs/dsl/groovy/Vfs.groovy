@@ -19,6 +19,7 @@ import groovy.util.logging.Slf4j
 import org.codehaus.groovy.runtime.GStringImpl
 import org.ysb33r.vfs.core.FileSelectInfo
 import org.ysb33r.vfs.core.FileSelector
+import org.ysb33r.vfs.core.FileSystemOptions
 import org.ysb33r.vfs.core.Selectors
 import org.ysb33r.vfs.core.URIException
 import org.ysb33r.vfs.core.VfsEngine
@@ -71,36 +72,38 @@ import java.util.regex.Pattern
 @Slf4j
 class Vfs {
 
-//    /** A filter that selects all the descendants of the base folder, but does not select the base folder itself.
-//     *
-//      */
-//    final static FileSelector exclude_self = EXCLUDE_SELF
-//
-//    /** A filter that selects the base file/folder, plus all its descendants.
-//     *
-//     */
-//    final static FileSelector select_all = SELECT_ALL
-//
-//    /** A filter that selects only the direct children of the base folder.
-//     *
-//     */
-//    final static FileSelector direct_children_only = SELECT_CHILDREN
-//
-//    /** A filter that selects only files (not folders).
-//     *
-//      */
-//    final static FileSelector only_files = SELECT_FILES
-//
-//    /** A filter that selects only folders (not files).
-//     *
-//     */
-//    final static FileSelector only_folders	= SELECT_FOLDERS
-//
-//    /** A filter that select the base plus its direct descendants
-//     *
-//     */
-//    final static FileSelector self_and_direct_children = SELECT_SELF_AND_CHILDREN
-//
+
+    /** A filter that selects all the descendants of the base folder, but does not select the base folder itself.
+     *
+      */
+    final static FileSelector exclude_self = Selectors.EXCLUDE_SELF
+
+    /** A filter that selects the base file/folder, plus all its descendants.
+     *
+     */
+    final static FileSelector select_all = Selectors.SELECT_ALL
+
+    /** A filter that selects only the direct children of the base folder.
+     *
+     */
+    final static FileSelector direct_children_only = Selectors.CHILDREN_ONLY
+
+    /** A filter that selects only files (not folders).
+     *
+      */
+    final static FileSelector only_files = Selectors.FILES_ONLY
+
+    /** A filter that selects only folders (not files).
+     *
+     */
+    final static FileSelector only_folders	= Selectors.FOLDERS_ONLY
+
+    /** A filter that select the base plus its direct descendants
+     *
+     */
+    final static FileSelector self_and_direct_children = Selectors.CHILDREN_AND_SELF
+
+
 	/** An overwrite policy that will only overwrite if the source is newer than the target
 	 * @since 1.0
 	 */
@@ -130,57 +133,26 @@ class Vfs {
 
         this.vfsEngine = properties.containsKey('classLoader') ? new VfsEngine(properties['classLoader'] as ClassLoader) : new VfsEngine()
 
-//		fsMgr = new StandardFileSystemManager()
-//
-//
-//        Log vfslog = properties.containsKey('logger') ? (properties['logger'] as Log): new NoOpLog()
-//
-//        if(properties.containsKey('defaultProvider')) {
-//            vfslog.debug "'defaultProvider' ignored as from v1.0. Use Provider configuration closure instead."
-//        }
-//
-//        TemporaryFileStore tfs
-//        if(properties.containsKey('temporaryFileStore')) {
-//            switch(properties.temporaryFileStore) {
-//                case File:
-//                    tfs= Util.tempFileStoreFromPath(properties.temporaryFileStore as File)
-//                    break
-//
-//                case String:
-//                    tfs= Util.tempFileStoreFromPath(properties.temporaryFileStore as String)
-//                    break
-//
-//                case TemporaryFileStore:
-//                    tfs= properties.temporaryFileStore as TemporaryFileStore
-//                    break
-//
-//                default:
-//                    throw new FileSystemException('temporaryFileStore needs to be File/String/TemporaryFileStore')
-//            }
-//        }
-//
-//        boolean legacy = properties.legacyPluginLoader
-//        boolean scanForVfsXml = legacy ?: properties.scanForVfsProviderXml
-//        ProviderSpecification ps = ProviderSpecification.DEFAULT_PROVIDERS
-//        if( properties.containsKey('ignoreDefaultProviders') && properties.ignoreDefaultProviders != false ) {
-//            ps = new ProviderSpecification()
-//            legacy = false
-//            scanForVfsXml = false
-//        }
-//
-//
-//		fsMgr.init (
-//            ps,
-//            legacy,
-//            scanForVfsXml,
-//            tfs,
-//            properties.replicator as FileReplicator,
-//            vfslog,
-//            properties.cacheStrategy as CacheStrategy,
-//            properties.filesCache as FilesCache
-//        )
-//
-//		defaultFSOptions = Util.buildOptions(properties,fsMgr) as FileSystemOptions
+        //        TemporaryFileStore tfs
+        //        if(properties.containsKey('temporaryFileStore')) {
+        //            switch(properties.temporaryFileStore) {
+        //                case File:
+        //                    tfs= Util.tempFileStoreFromPath(properties.temporaryFileStore as File)
+        //                    break
+        //
+        //                case String:
+        //                    tfs= Util.tempFileStoreFromPath(properties.temporaryFileStore as String)
+        //                    break
+        //
+        //                case TemporaryFileStore:
+        //                    tfs= properties.temporaryFileStore as TemporaryFileStore
+        //                    break
+        //
+        //                default:
+        //                    throw new FileSystemException('temporaryFileStore needs to be File/String/TemporaryFileStore')
+        //            }
+        //        }
+        //
   	}
 
     /** Executes a sequence of operations on the same VFS
@@ -189,16 +161,11 @@ class Vfs {
      * @return
      */
     def call ( @DelegatesTo(Vfs) Closure c) {
-        Closure newc=(Closure)(c.clone())
-        newc.delegate=this
-        newc.call()
+        delegate(c).call()
     }
     
-	/**
-	 * If used without a closure it will return an of VFS FileObject[]. 
-	 * If a closure is passed to it, then the closure will be called with a FileObject for
-	 * each instance found
-	 * 
+	/** List files or folders.
+	 *
 	 * @param properties
 	 * @li filter A regex, closure of {@link FileSelectInfo} by which to select objects
 	 * @li recursive If set to true will traverse down any subfolders. Ignored if filter is a FileSelector
@@ -223,7 +190,31 @@ class Vfs {
 	 * }	
 	 * 
 	 */
-	void ls ( final Map properties=[:], final String uri, Closure c ) {
+	void ls ( final Map properties=[:], final String uri, final Closure c ) {
+		ls(properties,new VfsURI(uri),c)
+	}
+
+    void ls (final Map properties=[:], final CharSequence uri, final Closure c ) {
+		ls(properties,new VfsURI(uri),c)
+	}
+
+    void ls (final Map properties=[:], final URI uri, final Closure c ) {
+		ls(properties,new VfsURI(uri),c)
+	}
+
+    void ls (final Map properties=[:], final URL uri, final Closure c ) {
+        ls(properties,new VfsURI(uri),c)
+    }
+
+    void ls (final Map properties=[:], final Path uri, final Closure c ) {
+		ls(properties,new VfsURI(uri),c)
+	}
+
+    void ls (final Map properties=[:], final File uri, final Closure c ) {
+		ls(properties,new VfsURI(uri),c)
+	}
+
+    void ls ( final Map properties=[:], final VfsURI uri, Closure c ) {
 
         FileSelector selector = null
         int maxDepth = 1
@@ -275,77 +266,50 @@ class Vfs {
                     )
             }
         }
-        vfsEngine.ls(new VfsURI(uri),c as Predicate<VfsURI>,selector)
-//		assert properties != null
-//		def children
-//		FileObject ruri=resolveURI(properties,uri)
-//		AbstractFileSystem afs= properties.closeFilesystem ? ruri.fileSystem as AbstractFileSystem : null
-//		boolean recurse = properties.containsKey('recursive') ? (properties['recursive'] as boolean): false
-//
-//		if( properties.containsKey('filter') ) {
-//
-//			def selector
-//			def traverse = { FileSelectInfo fsi -> fsi.depth==0 || recurse }
-//			switch (properties.filter) {
-//				case Pattern :
-//					selector = [
-//						'includeFile' : { FileSelectInfo fsi -> fsi.file.name.baseName ==~ properties.filter },
-//						'traverseDescendents' : traverse
-//					]
-//					break
-//				case FileSelector:
-//					selector=properties.filter
-//					break
-//				case Closure:
-//					selector = [
-//						'includeFile' : { FileSelectInfo fsi -> (properties.filter as Closure).call(fsi) },
-//						'traverseDescendents' : traverse
-//					]
-//					break
-//				default:
-//					selector = [
-//						'includeFile' : { FileSelectInfo fsi -> fsi.file.name.baseName ==~ /"${properties.filter.toString()}"/ },
-//						'traverseDescendents' : traverse
-//					]
-//			}
-//
-//			children=ruri.findFiles(selector as FileSelector)
-//
-//		} else if (recurse) {
-//			children= ruri.findFiles( Selectors.SELECT_ALL )
-//		}
-//		else {
-//			children= ruri.children
-//		}
-//
-//		try {
-//			if(c) {
-//				Closure newc=c.clone()
-//				newc.delegate=this
-//				return children.collect { newc.call(it) }
-//			} else {
-//				return children
-//			}
-//		} finally {
-//			afs?.closeCommunicationLink()
-//		}
+        vfsEngine.ls(uri,delegate(c) as Predicate<VfsURI>,selector)
+
 	}
 
-    def ls (final Map properties=[:], final java.net.URI uri, Closure c ) {
-        null
+    Iterable<VfsURI> ls(final Map properties=[:], final VfsURI uri) {
+        Set<VfsURI> foundURIs = []
+
+        Predicate<VfsURI> addItemsToContainer = { VfsURI encountered ->
+            foundURIs.add(encountered)
+            true
+        } as Predicate<VfsURI>
+
+        ls(properties,uri) { VfsURI encountered ->
+            foundURIs.add(encountered)
+            true
+        }
+
+        foundURIs
     }
 
-    def ls (final Map properties=[:], final VfsURI uri, Closure c ) {
-        null
+    Iterable<VfsURI> ls(final Map properties=[:], final String uri) {
+        ls(properties,new VfsURI(uri))
     }
 
-    def ls (final Map properties=[:], final Path uri, Closure c ) {
-        null
+    Iterable<VfsURI> ls(final Map properties=[:], final CharSequence uri) {
+        ls(properties,new VfsURI(uri))
     }
 
-    def ls (final Map properties=[:], final File uri, Closure c ) {
-        null
+    Iterable<VfsURI> ls(final Map properties=[:], final Path uri) {
+        ls(properties,new VfsURI(uri))
     }
+
+    Iterable<VfsURI> ls(final Map properties=[:], final File uri) {
+        ls(properties,new VfsURI(uri))
+    }
+
+    Iterable<VfsURI> ls(final Map properties=[:], final URI uri) {
+        ls(properties,new VfsURI(uri))
+    }
+
+    Iterable<VfsURI> ls(final Map properties=[:], final URL uri) {
+        ls(properties,new VfsURI(uri))
+    }
+
 
     /** Delete a file or folder on a filesystem.
      *
@@ -969,6 +933,13 @@ class Vfs {
      */
     private FileType type(VfsURI uri ) {
         throw new NotActiveException("type() needs implementing")
+    }
+
+    private Closure delegate(Closure c) {
+        Closure newc=(Closure)(c.clone())
+        newc.delegate= this
+        newc.resolveStrategy = Closure.DELEGATE_FIRST
+        newc
     }
 
     /** Returns the type of URI - file_uri, folder_uri or non_existent_uri
