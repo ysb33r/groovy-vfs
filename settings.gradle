@@ -16,15 +16,14 @@ rootProject.name = 'vfs-project'
 // Infrastructure
 // ----------------------------------------------------------------------------
 
+include 'test-servers/jlan'
+project(':test-servers/jlan').name = 'jlan'
+
 include 'test-servers/ftp'
 project(':test-servers/ftp').name = 'test-server-ftp'
 
-//
-//include 'test-servers/jlan'
-//project(':test-servers/jlan').name = 'jlan'
-//
-//include 'test-servers/smb'
-//project(':test-servers/smb').name = 'smbserver'
+include 'test-servers/smb'
+project(':test-servers/smb').name = 'test-server-smb'
 
 // ----------------------------------------------------------------------------
 // Core

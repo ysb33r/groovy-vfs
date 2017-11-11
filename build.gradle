@@ -21,13 +21,26 @@ buildscript {
 //        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.1.0'
         classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1'
         classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.3'
+        classpath 'commons-httpclient:commons-httpclient:3.1'
 //            classpath 'org.ysb33r.gradle:bintray:1.6'
 //            classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
     }
 }
 
+//buildscript {
+//    repositories {
+//        jcenter()
+//    }
+//
+//    dependencies {
+//    }
+//}
+
+
+
 plugins {
     id 'com.gradle.build-scan' version '1.0'
+    id 'org.ysb33r.vfs' version '1.0' apply false
 }
 
 buildScan {
@@ -63,7 +76,7 @@ allprojects {
             ],
             testServers : [
                 'test-server-ftp',
-//                'test-server-smb'
+                'test-server-smb'
             ],
         ]
     }
@@ -84,6 +97,7 @@ subprojects {
         kotlinVer        = '1.0'
         ftpserverVer     = '1.0.6'
         slf4jVer         = '1.7.5'
+        xercesVer        = '2.9.1'
         bintrayRepo      = 'grysb33r'
         bintrayUser      = 'ysb33r'
         bintrayLicense   = 'Apache-2.0'

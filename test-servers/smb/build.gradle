@@ -1,8 +1,10 @@
 
 
 dependencies {
-    compile fileTree( dir : "${project(':jlan').buildDir}/libs", include: '*.jar' )
+    implementation project(path : ':jlan', configuration : 'jlan')// fileTree( dir : "${project(':jlan').buildDir}/libs", include: '*.jar' )
+    implementation "org.codehaus.groovy:groovy-xml:${groovyVer}"
+
 }
 
-classes.dependsOn project(':jlan').tasks.jar
+//classes.dependsOn project(':jlan').tasks.jar
 
