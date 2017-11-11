@@ -31,8 +31,6 @@ import groovy.transform.CompileStatic
 
 /** Thrown for when specific file update actions is not allowed
  * 
- * @author Schalk W. Cronjé
- *
  */
 @CompileStatic
 class FileSystemException extends Exception {

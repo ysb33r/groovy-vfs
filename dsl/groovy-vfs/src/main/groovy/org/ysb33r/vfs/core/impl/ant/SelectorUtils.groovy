@@ -31,7 +31,9 @@
  *
  */
 
-package org.ysb33r.vfs.core.impl.ant;
+package org.ysb33r.vfs.core.impl.ant
+
+import groovy.transform.CompileStatic;
 
 
 
@@ -44,7 +46,8 @@ package org.ysb33r.vfs.core.impl.ant;
  * <p>This is a Singleton.</p>
  *
  */
- final class SelectorUtils {
+@CompileStatic
+final class SelectorUtils {
 
      /**
       * The pattern that matches an arbitrary number of directories.
@@ -177,8 +180,8 @@ package org.ysb33r.vfs.core.impl.ant;
      * or <code>false</code> otherwise.
      */
      static boolean match(String pattern, String str, boolean caseSensitive) {
-        Character[] patArr = pattern.toCharArray()
-        Character[] strArr = str.toCharArray()
+        char[] patArr = pattern.toCharArray()
+        char[] strArr = str.toCharArray()
         int patIdxStart = 0
         int patIdxEnd = patArr.length - 1
         int strIdxStart = 0
@@ -309,7 +312,16 @@ package org.ysb33r.vfs.core.impl.ant;
         return allStars(patArr, patIdxStart, patIdxEnd)
     }
 
-    private static boolean allStars(Character[] chars, int start, int end) {
+     /** Tokenizes a path path upon '/' as seperator.
+      *
+      * @param path Path to tokenize
+      * @return COmponents of path. Never null.
+      */
+     static String[] tokenizePathAsArray(final String path) {
+         path.split('/').findAll { it.size() } as String []
+     }
+
+    private static boolean allStars(final char[] chars, int start, int end) {
         !chars[start..end].any { it != '*' }
     }
 
@@ -317,10 +329,4 @@ package org.ysb33r.vfs.core.impl.ant;
         caseSensitive ? ch != other : (Character.toUpperCase(ch) != Character.toUpperCase(other))
     }
 
-    /**
-     * Same as {@link #tokenizePath tokenizePath} but hopefully faster.
-     */
-     static String[] tokenizePathAsArray(final String path) {
-        path.split('/').findAll { it.size() } as String []
-    }
  }

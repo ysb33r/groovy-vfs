@@ -12,7 +12,7 @@
  * ============================================================================
  */
 // ============================================================================
-// (C) Copyright Schalk W. Cronje 2014
+// (C) Copyright Schalk W. Cronje 2013
 //
 // This software is licensed under the Apache License 2.0
 // See http://www.apache.org/licenses/LICENSE-2.0 for license details
@@ -23,36 +23,29 @@
 //
 // ============================================================================
 
-package org.ysb33r.groovy.dsl.vfs.impl
+package org.ysb33r.vfs.core.helpers
+
+import org.ysb33r.vfs.core.Selectors
+import org.ysb33r.vfs.core.VfsEngine
+import org.ysb33r.vfs.core.VfsURI
+
+import java.util.function.Predicate
 
 
-import spock.lang.*
+final class ListFolderTestHelper {
+    static def assertListable = { VfsEngine vfs, VfsURI rootUrl ->
+        Map<String,Integer> listing = [:]
+        Predicate<VfsURI> apply = { VfsURI it ->
+            listing."${it.name}"= 1
+        } as Predicate<VfsURI>
 
+        vfs.ls (rootUrl,apply,Selectors.SELECT_ALL)
 
-class ProviderSpecificationSpec extends Specification  {
-
-    def "Default ProviderSpec only has a default provider specified"() {
-        given:
-            def vfsps = new ProviderSpecification()
-
-        expect:
-            vfsps.defaultProvider.className == 'org.apache.commons.vfs2.provider.url.UrlFileProvider'
-            vfsps.defaultProvider.schemes.size() == 0
-    }
-
-    def "A ProviderSpec must be constructable with a list of providers and the order must be maintained"() {
-        given:
-            def vfsps = new ProviderSpecification(
-                    providers : [
-                        new Provider( className : 'a.b.c.d', schemes : ['ab','cd'] ),
-                        new Provider( className : 'e.f', schemes : ['ef'] ),
-                    ]
-            )
-
-        expect:
-            vfsps.providers.size() == 2
-            vfsps.providers[0].className == 'a.b.c.d'
-            vfsps.providers[1].schemes[0] == 'ef'
-
+        assert listing.'file1.txt' == 1
+        assert listing.'file2.txt' == 1
+        assert listing.'test-subdir' == 1
+        
+        true
     }
 }
+

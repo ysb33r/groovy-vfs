@@ -13,17 +13,12 @@
  */
 package org.ysb33r.groovy.dsl.vfs.impl
 
-import org.apache.commons.vfs2.VFS
-import org.ysb33r.groovy.dsl.vfs.URI
-import org.ysb33r.groovy.dsl.vfs.URIException
-import org.ysb33r.groovy.dsl.vfs.services.FtpServer
+import org.ysb33r.vfs.dsl.groovy.Vfs
+import org.ysb33r.vfs.test.services.FtpServer
 import spock.lang.Shared
 import spock.lang.Specification
 
 
-/**
- * @author Schalk W. Cronjé
- */
 class AppendFileObjectChildPathSpec extends Specification {
 
     @Shared def server
@@ -38,7 +33,7 @@ class AppendFileObjectChildPathSpec extends Specification {
     void setupSpec() {
         server = new FtpServer()
         server.start()
-        vfs= VFS.manager
+        vfs= new Vfs()
         parent = vfs.resolveFile("${server.READROOT}")
     }
 

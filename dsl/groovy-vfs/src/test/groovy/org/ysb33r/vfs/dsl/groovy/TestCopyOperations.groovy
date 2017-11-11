@@ -17,7 +17,9 @@
 // This software is licensed under the Apche License 2.0
 // See http://www.apache.org/licenses/LICENSE-2.0 for license details
 // ============================================================================
-package org.ysb33r.groovy.dsl.vfs.impl
+package org.ysb33r.vfs.dsl.groovy
+
+import org.ysb33r.vfs.core.impl.CopyMoveOperations
 
 import static org.junit.Assert.*
 import org.junit.Ignore
@@ -26,11 +28,6 @@ import org.junit.AfterClass
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
-import org.ysb33r.groovy.dsl.vfs.FileActionException
-import org.apache.commons.vfs2.Selectors
-import org.apache.commons.vfs2.VFS
-import org.apache.commons.vfs2.FileType
-import org.apache.commons.vfs2.AllFileSelector
 
 class TestCopyOperations {
 

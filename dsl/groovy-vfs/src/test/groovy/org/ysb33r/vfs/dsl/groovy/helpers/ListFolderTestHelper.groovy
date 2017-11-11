@@ -23,22 +23,25 @@
 //
 // ============================================================================
 
-package org.ysb33r.groovy.dsl.vfs.helpers
+package org.ysb33r.vfs.dsl.groovy.helpers
 
-import org.apache.commons.logging.impl.SimpleLog
-import org.ysb33r.groovy.dsl.vfs.VFS
+import org.ysb33r.vfs.dsl.groovy.Vfs
 
-/** Creates VFS instances used for testing schemas
- * 
- * @author schalkc
- *
- */
-class VFSBuilder {
-    
-    static def build( def properties=[:],String testName) {
-        def simpleLog = new SimpleLog(testName)
-        simpleLog.setLevel( SimpleLog.LOG_LEVEL_ALL )
-        new VFS( logger: simpleLog )
+
+final class ListFolderTestHelper {
+    static def assertListable = { Vfs vfs, rootUrl ->
+        def listing = [:]
+        vfs {
+            ls (rootUrl) {
+                listing."${it.name}"= 1
+            }
+        }
+        
+        assert listing.'file1.txt' == 1
+        assert listing.'file2.txt' == 1
+        assert listing.'test-subdir' == 1
+        
+        true
     }
-    
 }
+

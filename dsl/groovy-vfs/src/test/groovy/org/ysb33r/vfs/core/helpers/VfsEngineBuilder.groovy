@@ -12,7 +12,7 @@
  * ============================================================================
  */
 // ============================================================================
-// (C) Copyright Schalk W. Cronje 2014
+// (C) Copyright Schalk W. Cronje 2013
 //
 // This software is licensed under the Apache License 2.0
 // See http://www.apache.org/licenses/LICENSE-2.0 for license details
@@ -23,22 +23,17 @@
 //
 // ============================================================================
 
-package org.ysb33r.groovy.dsl.vfs.impl
+package org.ysb33r.vfs.core.helpers
 
+import org.ysb33r.vfs.core.VfsEngine
 
-import spock.lang.*
-
-
-class ProviderSpec extends Specification  {
-
-    def "Specifying a provider with a dependency on existing classes"() {
-        given:
-            def provider = new Provider(
-                    className : 'org.apache.commons.vfs2.provider.ftp.FtpFileProvider',
-                    schemes : ['ftp','foo'],
-                    dependsOnClasses : [ 'non.existing.class' ]
-            )
-        expect:
-            provider.dependsOnClasses.size() == 1
+/** Creates VFS instances used for testing schemas in the core package.
+ * 
+ */
+class VfsEngineBuilder {
+    
+    static VfsEngine build(def properties=[:], String testName) {
+        new VfsEngine()
     }
+    
 }

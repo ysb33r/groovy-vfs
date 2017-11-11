@@ -709,8 +709,8 @@ class Vfs {
      * 
      * @endcode
     */
-    Vfs options(Closure cfgDSL ) {
-        ConfigDelegator cd = new ConfigDelegator(defaultFSOptions)
+    Vfs options(final Closure cfgDSL ) {
+        ConfigDelegator cd = new ConfigDelegator(vfsEngine.fileSystemOptions)
         cd.bind(cfgDSL)
         this
     }
@@ -728,8 +728,8 @@ class Vfs {
      * 
      * @endcode
     */
-    Vfs options(Map properties=[:] ) {
-        defaultFSOptions.addAll(properties)
+    Vfs options(final Map<String,?> properties=[:] ) {
+        vfsEngine.fileSystemOptions.addAll(properties)
         this
     }
 

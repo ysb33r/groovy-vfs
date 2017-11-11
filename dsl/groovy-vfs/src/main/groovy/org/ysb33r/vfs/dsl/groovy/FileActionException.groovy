@@ -42,6 +42,6 @@ class FileActionException extends FileSystemException {
 	}
 	
 	FileActionException(String s,Object f,Throwable e) {
-		super(s,f,e)
+		super("$s: ${f.toString()}",e)
 	}
 }

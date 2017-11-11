@@ -23,17 +23,12 @@
 //
 // ============================================================================
 
-package org.ysb33r.groovy.dsl.vfs.impl
+package org.ysb33r.vfs.core.impl
 
+import org.ysb33r.vfs.core.VfsEngine
 import spock.lang.*
 
-import org.ysb33r.groovy.dsl.vfs.FileActionException
-import org.apache.commons.vfs2.Selectors
-import org.apache.commons.vfs2.VFS
-import org.apache.commons.vfs2.FileType
-import org.apache.commons.vfs2.AllFileSelector
-import org.apache.commons.io.FileUtils
-import static org.ysb33r.groovy.dsl.vfs.impl.CopyMoveOperations.move
+import static CopyMoveOperations.move
 
 class MoveOperationsSpec extends Specification {
 
@@ -41,7 +36,7 @@ class MoveOperationsSpec extends Specification {
 	@Shared def testFsReadRoot = new File( "${System.getProperty('TESTFSWRITEROOT') ?: 'build/tmp/test-files'}/impl_move/src")
 	@Shared def testFsWriteRoot = new File( "${System.getProperty('TESTFSWRITEROOT') ?: 'build/tmp/test-files'}/impl_move/dest")
 
-    def vfs=VFS.manager
+    def vfs=new VfsEngine()
 
     
     def expectedFiles= ['file1.txt','file2.txt','test-subdir/file3.txt','test-subdir/file4.txt']

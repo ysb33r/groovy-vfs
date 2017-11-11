@@ -213,8 +213,8 @@ class AntPatternSelector implements FileSelector, Cloneable {
         SelectorUtils.tokenizePathAsArray(subject)
     }
 
-    private AntPatternSelector addToPatternSet(Map<String,String[] > patternSet,def iterableList) {
-        iterableList.collect {
+    private AntPatternSelector addToPatternSet(Map<String,String[] > patternSet,Iterable<String> iterableList) {
+        iterableList.collect {  String it ->
             patternSet[it.toString()]= SelectorUtils.tokenizePathAsArray(it)
         }
         this

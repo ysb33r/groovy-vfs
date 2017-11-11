@@ -64,8 +64,13 @@ class Util {
             opts = defaultFSOptions
         }
 
-        new VfsURI(uri,opts)
+        _resolveURI(uri,opts)
 	}
+
+    @CompileDynamic
+    private static VfsURI _resolveURI(final Object uri,final FileSystemOptions opts) {
+        new VfsURI(uri,opts)
+    }
 
     /** Returns a map only containing vfs options
      *
@@ -160,9 +165,9 @@ class Util {
      * @throw {@link org.ysb33r.vfs.core.URIException} if additional query parameters or fragments are found.
      * @since 1.0
      */
-    static URI addRelativePath(URI uri,CharSequence cs) {
-        uri / cs
-    }
+//    static VfsURI addRelativePath(VfsURI uri,CharSequence cs) {
+//        uri / cs
+//    }
 
 //    /** Checks whether the URI is valid within the context of the given file system manager.
 //     *

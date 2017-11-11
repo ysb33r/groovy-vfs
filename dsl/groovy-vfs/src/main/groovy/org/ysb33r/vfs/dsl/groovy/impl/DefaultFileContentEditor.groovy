@@ -26,13 +26,8 @@
 package org.ysb33r.vfs.dsl.groovy.impl
 
 import groovy.transform.Canonical
-import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import org.apache.commons.vfs2.FileContent
-import org.apache.commons.vfs2.FileObject
-import org.apache.commons.vfs2.FileType
-import org.apache.commons.vfs2.provider.AbstractFileSystem
-import org.ysb33r.groovy.dsl.vfs.FileActionException
+import org.ysb33r.vfs.core.VfsURI
 import org.ysb33r.vfs.dsl.groovy.FileContentEditor
 
 import java.util.function.Consumer
@@ -44,8 +39,13 @@ import java.util.function.Consumer
 @Canonical
 class DefaultFileContentEditor implements FileContentEditor {
 
-//    FileObject file
-    boolean append
+    DefaultFileContentEditor(final VfsURI uri, append) {
+        this.append = append
+        this.file = uri
+    }
+
+    private VfsURI file
+    private boolean append
 
     def with(CharSequence cs) {
 

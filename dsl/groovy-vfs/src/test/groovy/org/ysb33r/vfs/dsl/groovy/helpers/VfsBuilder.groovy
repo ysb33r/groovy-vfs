@@ -23,22 +23,17 @@
 //
 // ============================================================================
 
-package org.ysb33r.groovy.dsl.vfs.helpers
+package org.ysb33r.vfs.dsl.groovy.helpers
 
-class ListFolderTestHelper {
-    static def assertListable = { vfs, rootUrl ->
-        def listing = [:]
-        vfs {
-            ls (rootUrl) {
-                listing."${it.name.baseName}"= 1
-            }
-        }
-        
-        assert listing.'file1.txt' == 1
-        assert listing.'file2.txt' == 1
-        assert listing.'test-subdir' == 1
-        
-        true
+import org.ysb33r.vfs.dsl.groovy.Vfs
+
+/** Creates VFS instances used for testing schemas in the core package.
+ * 
+ */
+class VfsBuilder {
+    
+    static Vfs build(def properties=[:], String testName) {
+        new Vfs()
     }
+    
 }
-
