@@ -15,12 +15,12 @@ apply plugin : LifecycleBasePlugin
 
 configurations {
     jlan
-    jlanInternal
+//    jlanInternal
 }
 
-dependencies {
-    jlanInternal "xerces:xercesImpl:${xercesVer}"
-}
+//dependencies {
+////    jlanInternal "xerces:xercesImpl:${xercesVer}"
+//}
 
 ext {
     unpackDir = new File(buildDir,'alfresco')
@@ -79,16 +79,6 @@ task buildJlan {
         ant.antProject.executeTarget('createJar')
     }
 }
-
-//task jar( type : Jar ) {
-//    [ 'jars/alfresco-jlan.jar', 'libs/cryptix-jce-provider.jar'].each { jlanJar ->
-//        from zipTree("${unpackDir}/${jlanJar}")
-//    }
-//
-//    archiveName = 'jlan.jar'
-//    destinationDir = file("${buildDir}/libs")
-//    dependsOn buildJlan
-//}
 
 artifacts {
     jlan file("${unpackDir}/jars/alfresco-jlan.jar"), {
