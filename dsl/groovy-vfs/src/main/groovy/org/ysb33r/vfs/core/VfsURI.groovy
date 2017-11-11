@@ -62,6 +62,16 @@ class VfsURI {
         configureFromURI(u,opts)
     }
 
+    /** Creates a URI from a Java URL object and seed it with default options.
+     *
+     * <p> Any VFS options foudn in the URL will override the default options
+     *
+     * @param u
+     */
+    VfsURI(final URL u) {
+        configureFromURI(u.toURI(),null)
+    }
+
     /**
 	 * Creates a URL from a URL string. 
 	 * As an extension to normal URI syntax, this will also accept a URI
