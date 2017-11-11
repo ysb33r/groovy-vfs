@@ -158,9 +158,9 @@ class Vfs {
     /** Executes a sequence of operations on the same VFS
      * 
      * @param c
-     * @return
+     * @return Whatever the closure returns.
      */
-    def call ( @DelegatesTo(Vfs) Closure c) {
+    def call ( final @DelegatesTo(Vfs) Closure c) {
         delegate(c).call()
     }
     
@@ -908,11 +908,9 @@ class Vfs {
 	 * @since 1.0
 	 */
 	@CompileDynamic
-	VfsURI stageURI (Map properties=[:], def uri) {
-
-		VfsURI u = new VfsURI(uri)
-		Util.validURI(u,fsMgr)
-		u.addProperties(properties)
+    @Deprecated
+	VfsURI stageURI (Map properties=[:], Object uri) {
+        resolveURI(properties,uri)
 	}
 
 	/** Enquires whether the URI is on a file system that is capable of listing the contents of folder content.

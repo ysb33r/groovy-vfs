@@ -31,16 +31,18 @@ dependencies {
     compile group: 'org.codehaus.groovy',   name: 'groovy', version: groovyVer
     compile "org.slf4j:slf4j-api:${slf4jVer}"
 
-    testRuntime "org.codehaus.groovy:groovy-xml:${groovyVer}"
     testCompile ("org.spockframework:spock-core:${spockVer}") {
         exclude module : 'groovy-all'
     }
+
     testCompile( "com.athaydes:spock-reports:${spockReportsVer}" ) {
         transitive = false
     }
 
 //        testCompile 'commons-io:commons-io:2.4'
 //        testCompile 'commons-net:commons-net:3.+'
+    testRuntime "org.codehaus.groovy:groovy-xml:${groovyVer}"
+    testRuntime "org.codehaus.groovy:groovy-json:${groovyVer}"
     testRuntime "org.slf4j:slf4j-simple:${slf4jVer}"
 
     // TODO: Move to testing package

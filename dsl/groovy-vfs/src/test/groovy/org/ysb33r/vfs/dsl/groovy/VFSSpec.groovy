@@ -13,38 +13,30 @@
  */
 package org.ysb33r.vfs.dsl.groovy
 
+import org.ysb33r.vfs.core.VfsURI
+import org.ysb33r.vfs.dsl.groovy.helpers.GroovyDslBaseSpecification
 import spock.lang.PendingFeature
-import spock.lang.Specification
 
 
-class VFSSpec extends Specification {
+class VFSSpec extends GroovyDslBaseSpecification {
 
-    static final File testFsReadOnlyRoot = new File("${System.getProperty('TESTFSREADROOT')}/src/test/resources/test-files")
-    static final String testFsURI = new URI(testFsReadOnlyRoot).toString()
-    static final File testFsWriteRoot = new File( "${System.getProperty('TESTFSWRITEROOT') ?: 'build/tmp/test-files'}/file")
-    static final String testFsWriteURI = new URI(testFsWriteRoot).toString()
+    static final File testFsReadOnlyRoot = GroovyDslBaseSpecification.testFsReadOnlyRoot
+    static final File testFsWriteRoot = GroovyDslBaseSpecification.testFsWriteRoot
 
-    Vfs vfs
+    Vfs vfs = setupVfs()
 
-    void setup() {
-        vfs=new Vfs()
-
-        if(testFsWriteRoot.exists()) {
-            testFsWriteRoot.deleteDir()
-        }
-        testFsWriteRoot.mkdirs()
-    }
-
-    def "Char sequences must convert to URI instances"() {
+    void "Char sequences must convert to URI instances"() {
         given:
-          def result
-          vfs {
-              result = uri 'sftp://user:pass@server/dir?vfs.sftp.userDirIsRoot=1'
-          }
+        VfsURI result
 
-        expect:
-            result.properties.sftp.userDirIsRoot == '1'
-            result.toString() == 'sftp://user:pass@server/dir'
+        when:
+        vfs {
+            result = resolveURI 'sftp://user:pass@server/dir?vfs.sftp.userDirIsRoot=1'
+        }
+
+        then:
+        result.properties.sftp.userDirIsRoot == '1'
+        result.toString() == 'sftp://user:pass@server/dir'
     }
 
     @PendingFeature
