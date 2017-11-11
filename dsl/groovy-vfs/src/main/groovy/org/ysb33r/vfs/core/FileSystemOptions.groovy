@@ -22,6 +22,13 @@ class FileSystemOptions {
 
     static final Pattern OPTION_REGEX = ~/^(?i:vfs\.)(\p{Alpha}\p{Alnum}+)\.(\p{Alpha}\w+)$/
 
+    FileSystemOptions() {
+
+    }
+
+    FileSystemOptions(final FileSystemOptions other) {
+    }
+
     void add(final String optName,final Object optValue) {
         throw new FileSystemException("add(name,value) needs an implementation")
     }
