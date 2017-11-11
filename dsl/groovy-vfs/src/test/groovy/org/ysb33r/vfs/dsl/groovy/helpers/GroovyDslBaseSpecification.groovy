@@ -5,10 +5,13 @@ import spock.lang.Specification
 
 class GroovyDslBaseSpecification extends Specification {
 
-    static final File testFsReadOnlyRoot = new File("${System.getProperty('TESTFSREADROOT')}/src/test/resources/test-files")
-    static final File testFsWriteRoot = new File( "${System.getProperty('TESTFSWRITEROOT') ?: 'build/tmp/test-files'}/file")
-//    static final String testFsURI = testFsReadOnlyRoot.toURI().toString()
-//    static final String testFsWriteURI = testFsWriteRoot.toURI()..toString()
+    static final File testFsReadOnlyRoot =      new File(
+        System.getProperty('TESTFSREADROOT') ?: 'core/src/test/resources/test-files'
+    ).absoluteFile
+    static private final File testFsWriteRoot = new File(
+        System.getProperty('TESTFSWRITEROOT') ?: 'dsl/groovy-vfs/build/tmp/test-files',
+        'groovy-vfs'
+    ).absoluteFile
 
     void setup() {
         if(testFsWriteRoot.exists()) {
