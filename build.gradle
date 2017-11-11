@@ -13,34 +13,17 @@
 buildscript {
     repositories {
         jcenter()
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
     }
     dependencies {
-//        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.1.0'
-        classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1'
-        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.3'
         classpath 'commons-httpclient:commons-httpclient:3.1'
-//            classpath 'org.ysb33r.gradle:bintray:1.6'
-//            classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
     }
 }
-
-//buildscript {
-//    repositories {
-//        jcenter()
-//    }
-//
-//    dependencies {
-//    }
-//}
-
-
 
 plugins {
     id 'com.gradle.build-scan' version '1.0'
     id 'org.ysb33r.vfs' version '1.0' apply false
+    id 'org.asciidoctor.gradle.asciidoctor' version '1.5.3' apply false
+    id 'com.github.hierynomus.license' version '0.12.1' apply false
 }
 
 buildScan {
@@ -91,6 +74,7 @@ subprojects {
 
     ext {
         asciidocVer      = '1.5.3'
+        commonsCliVer    = '1.2'
         groovyVer        = '2.4.12'
         spockVer         = '1.1-groovy-2.4'
         spockReportsVer  = '1.2.12'
@@ -287,8 +271,8 @@ configure( subprojects.findAll { subprojectGroups.groovyLib.contains(it.name) } 
     }
 
     test {
-        systemProperties TESTFSREADROOT  : "${projectDir}"
-        systemProperties TESTFSWRITEROOT : "${buildDir}"
+        systemProperties TESTFSREADROOT  : "${project(':core-vfs').projectDir}/src/test/resources/test-files"
+        systemProperties TESTFSWRITEROOT : "${buildDir}/tmp/test-files"
     }
 
 }
