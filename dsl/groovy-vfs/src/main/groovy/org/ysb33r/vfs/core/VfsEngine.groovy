@@ -61,6 +61,17 @@ class VfsEngine {
         foundURIs
     }
 
+//    /** Deletes files according to a selection criteria
+//     *
+//     * @param uri
+//     * @param confirmation A predicate that should return {@code true} if a file must be deleted.
+//     * @param selector Selects files for deletion. Can be null in which case it will be the equivalent of
+//     *   {@link Selectors.SELECT_SELF} if {@code uri} is a file or {@link Selector.FILES_ONLY} if {@code }
+//     */
+//    void rm(final VfsURI uri, final Predicate<VfsURI> confirmation, final FileDeletionSelector selector) {
+//        throw new FileSystemException("rm() NEEDS IMPLEMENTATION")
+//    }
+
     private final ClassLoader classLoader
     private final FileSystemOptions defaultFSOptions = new FileSystemOptions()
 
