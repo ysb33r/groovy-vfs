@@ -3,8 +3,9 @@
 *.iml
 *.iws
 *.ipr
-*/out
-*/build
+out/
+build/
+BACKUP/
 */bin
 */dist
 dsl/.*
@@ -12,8 +13,6 @@ dsl/.*
 .classpath
 .project
 .DS_Store
-.gradle
-.build
-build
+.gradle/
 gradle-app.setting
 TMP
