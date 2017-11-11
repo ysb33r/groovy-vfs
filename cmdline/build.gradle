@@ -9,17 +9,6 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ============================================================================
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-
-    dependencies {
-        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.3'
-    }
-}
-
-
 apply plugin : 'application'
 apply plugin : 'org.asciidoctor.gradle.asciidoctor'
 
@@ -30,7 +19,6 @@ applicationName = 'vfs'
 applicationDefaultJvmArgs=["-Dvfs.scriptname=${applicationName}"]
 
 ext {
-    moduleName = 'vfs'
     bintrayDescription = 'A command-line utility for file operations on various local & remote virtual filesystems'
     bintrayTags = ['groovy', 'vfs']
     bintrayRepo = 'nanook'
@@ -47,17 +35,17 @@ repositories {
 }
 
 dependencies {
-    compile "org.codehaus.groovy:groovy-all:${groovyVer}"
-    compile 'commons-cli:commons-cli:1.2'
-    runtime 'commons-io:commons-io:2.4'
-    runtime 'commons-net:commons-net:3.+'
-    runtime 'commons-httpclient:commons-httpclient:3.1'
-    runtime 'org.slf4j:slf4j-simple:1.7.5'
-    runtime 'com.jcraft:jsch:0.1.48'
-    compile project(':groovy-vfs')
-//    compile project(':dsl')
-    runtime project(':smb-provider')
-    runtime project(':cloud-provider-core')
+    compile "org.codehaus.groovy:groovy:${groovyVer}"
+    compile "commons-cli:commons-cli:${commonCliVer}"
+    runtime "org.slf4j:slf4j-simple:${slf4jVer}"
+    compile project(':core-vfs')
+    // runtime 'org.ysb33r.nio:nio-gz-provider-commons:${nioProvidersVer}"
+    // runtime 'org.ysb33r.nio:nio-bz2-provider-commons:${nioProvidersVer}"
+    // runtime sftp
+    // runtime smb
+    // runtime ftp(s)
+    // runtime http(s)
+    // runtime s3
 }
 
 test {
@@ -67,7 +55,6 @@ test {
 
 asciidoctor {
     backends 'html5'
-    options eruby: 'erubis'
 
     attributes  icons: 'font', 'source-highlighter': 'prettify',
                 experimental: true, copycss: true,
@@ -115,13 +102,3 @@ uploadArchives {
 
     dependsOn distZip, distTar, sourcesZip
 }
-
-//bintray {
-//    filesSpec { //When uploading any arbitrary files ('filesSpec' is a standard Gradle CopySpec)
-//        from distZip.outputs.files
-//        from distTar.outputs.files
-//        from sourcesZip.outputs.files
-////        into 'standalone_files/level1'
-////        rename '(.+)\\.(.+)', '$1-suffix.$2'
-//    }
-//}
