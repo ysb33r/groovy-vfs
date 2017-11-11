@@ -1,12 +1,16 @@
-package org.ysb33r.vfs.dsl.groovy.helpers
+package org.ysb33r.vfs.core.helpers
 
-import org.ysb33r.vfs.dsl.groovy.Vfs
+import org.ysb33r.vfs.core.VfsEngine
 import spock.lang.Specification
 
-class GroovyDslBaseSpecification extends Specification {
+class CoreBaseSpecification extends Specification {
 
     static final File testFsReadOnlyRoot = new File("${System.getProperty('TESTFSREADROOT')}/src/test/resources/test-files")
     static final File testFsWriteRoot = new File( "${System.getProperty('TESTFSWRITEROOT') ?: 'build/tmp/test-files'}/file")
+
+    static File identifyWriteRoot(final String name) {
+        new File(testFsWriteRoot,name)
+    }
 //    static final String testFsURI = testFsReadOnlyRoot.toURI().toString()
 //    static final String testFsWriteURI = testFsWriteRoot.toURI()..toString()
 
@@ -17,8 +21,8 @@ class GroovyDslBaseSpecification extends Specification {
         testFsWriteRoot.mkdirs()
     }
 
-    Vfs setupVfs() {
-        VfsBuilder.build('Standard Vfs Test')
+    VfsEngine setupVfs() {
+        VfsEngineBuilder.build('Standard Vfs Test')
     }
 
 }
