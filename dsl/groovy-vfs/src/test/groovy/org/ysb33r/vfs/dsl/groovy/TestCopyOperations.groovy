@@ -11,12 +11,6 @@
  *
  * ============================================================================
  */
-// ============================================================================
-// Copyright (C) Schalk W. Cronje 2012
-//
-// This software is licensed under the Apche License 2.0
-// See http://www.apache.org/licenses/LICENSE-2.0 for license details
-// ============================================================================
 package org.ysb33r.vfs.dsl.groovy
 
 import org.ysb33r.vfs.core.impl.CopyMoveOperations
