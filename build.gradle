@@ -41,23 +41,29 @@ allprojects {
         versionModifier = 'SNAPSHOT'
         versionNumber   = '2.0'
 
-        modules = [
-            withGroovyDoc : [
-            'groovy-vfs',
+        subprojectGroups = [
+            groovyLib : [
+                'core-vfs',
+                'groovy-vfs'
+            ],
+            
+            publishGroovyDoc : [
+                'core-vfs',
+                'groovy-vfs',
 //            'gradle-plugin',
 //            'cloud-provider-core',
 //            'smb-provider'
             ],
             lgplLicensed : [
-                'smbserver'
+                'test-server-smb'
             ],
             providers : [
                 'provider-core',
                 'ram-provider'
             ],
             testServers : [
-                'ftpserver',
-                'smbserver'
+                'test-server-ftp',
+//                'test-server-smb'
             ],
         ]
     }
@@ -72,13 +78,11 @@ subprojects {
 
     ext {
         asciidocVer      = '1.5.3'
-        vfsVersion       = '2.1'
         groovyVer        = '2.4.12'
         spockVer         = '1.1-groovy-2.4'
         spockReportsVer  = '1.2.12'
         kotlinVer        = '1.0'
-//        jackrabbitVer    = '1.6.5' // '2.11.1'
-//        jettyVer         = '8.1.5.v20120716' //'9.3.5.v20151012'
+        ftpserverVer     = '1.0.6'
         slf4jVer         = '1.7.5'
         bintrayRepo      = 'grysb33r'
         bintrayUser      = 'ysb33r'
@@ -104,61 +108,61 @@ subprojects {
     }
 }
 
-configure(subprojects.findAll { modules.lgplLicensed.contains(it.name) } ) {
+configure(subprojects.findAll { subprojectGroups.lgplLicensed.contains(it.name) } ) {
     license {
         header = rootProject.file('config/lgpl2-header')
     }
 }
 
-configure(subprojects.findAll { !modules.lgplLicensed.contains(it.name) } ) {
+configure(subprojects.findAll { !subprojectGroups.lgplLicensed.contains(it.name) } ) {
     license {
         header = rootProject.file('config/apache-header')
     }
 }
 
-configure(subprojects.findAll { modules.providers.contains(it.name) } ) { cfgProject ->
-
-    apply plugin : 'java'
-
-    group = "org.ysb33r.nio"
-
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
-
-    dependencies {
-        provided "org.codehaus.groovy:groovy-all:${groovyVer}"
-        testCompile ("org.spockframework:spock-core:${spockVer}") {
-            exclude module : 'groovy-all'
-        }
-        testCompile( "com.athaydes:spock-reports:${spockReportsVer}" ) {
-            transitive = false
-        }
-        testRuntime "org.slf4j:slf4j-simple:${slf4jVer}"
-        testCompile 'cglib:cglib-nodep:3.2.3'
-        testCompile 'org.objenesis:objenesis:2.4'
-
-        if(cfgProject.name != 'provider-core') {
-            compile project(':provider-core')
-        }
-    }
-
-    task sourcesJar(type: Jar, dependsOn: classes) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
-    }
-
-    task javadocJar(type: Jar) {
-        description "An archive of the JavaDocs for Maven Central"
-        classifier "javadoc"
-        from javadoc
-    }
-
-    artifacts {
-        archives sourcesJar, javadocJar
-    }
-
-
-}
+//configure(subprojects.findAll { subprojectGroups.providers.contains(it.name) } ) { cfgProject ->
+//
+//    apply plugin : 'java'
+//
+//    group = "org.ysb33r.nio"
+//
+//    sourceCompatibility = 1.8
+//    targetCompatibility = 1.8
+//
+//    dependencies {
+//        provided "org.codehaus.groovy:groovy-all:${groovyVer}"
+//        testCompile ("org.spockframework:spock-core:${spockVer}") {
+//            exclude module : 'groovy-all'
+//        }
+//        testCompile( "com.athaydes:spock-reports:${spockReportsVer}" ) {
+//            transitive = false
+//        }
+//        testRuntime "org.slf4j:slf4j-simple:${slf4jVer}"
+//        testCompile 'cglib:cglib-nodep:3.2.3'
+//        testCompile 'org.objenesis:objenesis:2.4'
+//
+//        if(cfgProject.name != 'provider-core') {
+//            compile project(':provider-core')
+//        }
+//    }
+//
+//    task sourcesJar(type: Jar, dependsOn: classes) {
+//        classifier = 'sources'
+//        from sourceSets.main.allSource
+//    }
+//
+//    task javadocJar(type: Jar) {
+//        description "An archive of the JavaDocs for Maven Central"
+//        classifier "javadoc"
+//        from javadoc
+//    }
+//
+//    artifacts {
+//        archives sourcesJar, javadocJar
+//    }
+//
+//
+//}
 
 //configure(subprojects.findAll { ! ['jlan','test-servers','docs'].contains(it.name) } ) {
 //
@@ -183,7 +187,7 @@ configure(subprojects.findAll { modules.providers.contains(it.name) } ) { cfgPro
 //    }
 //
 //    dependencies {
-//        compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7+'
+//        compile 'org.codehaus.groovy.subprojectGroups.http-builder:http-builder:0.7+'
 //        compile ("org.apache.commons:commons-vfs2:${vfsVersion}") {
 //            exclude group:'org.apache.maven.scm'
 //        }
@@ -228,18 +232,71 @@ configure(subprojects.findAll { modules.providers.contains(it.name) } ) { cfgPro
 //    }
 //}
 
-configure( subprojects.findAll { modules.testServers.contains(it.name) } ) {
+configure( subprojects.findAll { subprojectGroups.testServers.contains(it.name) } ) {
+
     apply plugin: 'groovy'
+    apply plugin: 'com.github.hierynomus.license'
 
     dependencies {
-        compile group: 'org.codehaus.groovy', name: 'groovy-all', version: groovyVer
+        compile group: 'org.codehaus.groovy',   name: 'groovy', version: groovyVer
     }
 }
 
-
-configure( subprojects.findAll { modules.withGroovyDoc.contains(it.name) } ) {
+configure( subprojects.findAll { subprojectGroups.groovyLib.contains(it.name) } ) {
 
     apply plugin : 'groovy'
+    apply plugin: 'com.github.hierynomus.license'
+
+    dependencies {
+        compile group: 'org.codehaus.groovy',   name: 'groovy', version: groovyVer
+        compile "org.slf4j:slf4j-api:${slf4jVer}"
+
+        testCompile ("org.spockframework:spock-core:${spockVer}") {
+            exclude module : 'groovy-all'
+        }
+
+        testCompile( "com.athaydes:spock-reports:${spockReportsVer}" ) {
+            transitive = false
+        }
+
+        testRuntime "org.codehaus.groovy:groovy-xml:${groovyVer}"
+        testRuntime "org.codehaus.groovy:groovy-json:${groovyVer}"
+        testRuntime "org.slf4j:slf4j-simple:${slf4jVer}"
+
+        if( project.name != 'core-vfs') {
+            compile project(":core-vfs")
+        }
+
+        for( String service : subprojectGroups.testServers) { 
+            testCompile project(":${service}")
+        }
+    }
+
+    test {
+        systemProperties TESTFSREADROOT  : "${projectDir}"
+        systemProperties TESTFSWRITEROOT : "${buildDir}"
+    }
+
+}
+
+configure( subprojects.findAll { subprojectGroups.publishGroovyDoc.contains(it.name) } ) {
+
+    apply plugin : 'groovy'
+
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    task javadocJar(type: Jar) {
+        description "An archive of the JavaDocs for Maven Central"
+        classifier "javadoc"
+        from javadoc
+    }
+
+    artifacts {
+        archives sourcesJar, javadocJar
+    }
 
     task installDocs( type : Copy ) {
         group 'documentation'

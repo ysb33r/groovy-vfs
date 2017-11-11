@@ -10,5 +10,5 @@
 // ============================================================================
 
 dependencies {
-    compile 'org.apache.ftpserver:ftpserver-core:1.0.6'
+    implementation "org.apache.ftpserver:ftpserver-core:${ftpserverVer}"
 }

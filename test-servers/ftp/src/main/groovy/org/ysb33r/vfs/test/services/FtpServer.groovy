@@ -1,6 +1,6 @@
 /*
  * ============================================================================
- * (C) Copyright Schalk W. Cronje 2013-2016
+ * (C) Copyright Schalk W. Cronje 2013-2017
  *
  * This software is licensed under the Apache License 2.0
  * See http://www.apache.org/licenses/LICENSE-2.0 for license details
@@ -27,6 +27,7 @@
 
 package org.ysb33r.vfs.test.services
 
+import groovy.transform.CompileStatic
 import org.apache.ftpserver.ConnectionConfigFactory
 import org.apache.ftpserver.FtpServerFactory
 import org.apache.ftpserver.ftplet.Authority
@@ -35,14 +36,15 @@ import org.apache.ftpserver.usermanager.PropertiesUserManagerFactory
 import org.apache.ftpserver.usermanager.impl.BaseUser
 import org.apache.ftpserver.usermanager.impl.WritePermission
 
+@CompileStatic
 class FtpServer {
 
-    static final def PORT  = System.getProperty('FTPPORT') ?: 50021   
-    static final def READROOT    = "ftp://guest:guest@localhost:${PORT}"
-    static final def ARCHIVEROOT = "ftp://archive:archive@localhost:${PORT}"
-    static final def WRITEROOT   = "ftp://root:root@localhost:${PORT}"
+    static final Integer PORT        = System.getProperty('FTPPORT')?.toInteger() ?: 50021
+    static final String READROOT    = "ftp://guest:guest@localhost:${PORT}"
+    static final String ARCHIVEROOT = "ftp://archive:archive@localhost:${PORT}"
+    static final String WRITEROOT   = "ftp://root:root@localhost:${PORT}"
 
-    def server
+    org.apache.ftpserver.FtpServer server
     
     FtpServer( File readRoot, File archiveReadRoot, File writeRoot ) {
         
@@ -74,7 +76,7 @@ class FtpServer {
        serverFactory.connectionConfig = configFactory.createConnectionConfig()
        factory.setPort( PORT )
        serverFactory.addListener("default", factory.createListener())
-        
+
        server = serverFactory.createServer();
     } 
     
