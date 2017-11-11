@@ -145,7 +145,7 @@ class VfsURI {
     }
 
     /**
-	 * Creates a URL from a local file
+	 * Creates a URI from a local file
 	 *
      * <p> A relative file will be normalised to an absolute file path.
      *
@@ -156,6 +156,26 @@ class VfsURI {
         this.uri = this.path.toUri()
 //        configureFromURI(f.absoluteFile.toURI(),null)
 	}
+
+    /** Creates a URI from an existing URI and a relative path.
+     *
+     * @param uri Root URI
+     * @param relativePath relativePath
+     */
+    VfsURI(final VfsURI uri,final CharSequence relativePath) {
+        this.path = uri.path.resolve(relativePath.toString())
+        this.uri = this.path.toUri()
+        this.fsOptions = new FileSystemOptions(uri.fileSystemOptions)
+    }
+
+    /** Resolves a URI from a path relative to this URI.
+     *
+     * @param relativePath relativePath.
+     * @return New URI.
+     */
+    VfsURI resolve(final CharSequence relativePath) {
+        new VfsURI(this,relativePath)
+    }
 
     /** Converts to a printable URI.
      *
@@ -209,7 +229,7 @@ class VfsURI {
 	 * @throw {@link URIException} if additional query parameters or fragments are found.
 	 * @since 1.0
 	 */
-	VfsURI div(CharSequence childPath) {
+	VfsURI div(final CharSequence childPath) {
 //		Map<String,Object> m = parseString(uri)
 //		new VfsURI(props,m.uriBuilder,m.userInfo,childPath.toString())
 	}

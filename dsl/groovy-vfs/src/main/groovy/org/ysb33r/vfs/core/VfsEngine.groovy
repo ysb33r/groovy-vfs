@@ -23,6 +23,26 @@ class VfsEngine {
         this.defaultFSOptions
     }
 
+    /** Resolves a new URI relative to a root URI.
+     *
+     * @param root Root URI
+     * @param relativePath Path relative to root
+     * @return New URI.
+     * @throw {@link URIException} is path cannot be resolved.
+     *
+     */
+    VfsURI resolveURI(final VfsURI root,final CharSequence relativePath) {
+        null
+    }
+
+    boolean isFile(final VfsURI uri) {
+        false
+    }
+
+    boolean isFolder(final VfsURI uri) {
+        false
+    }
+
     /** Lists the contents of a URI.
      *
      * <p> If the URI points to a file, only the file is returned. If the URI points to a folder all of the direct
