@@ -28,17 +28,6 @@ jar {
 }
 
 dependencies {
-    compile group: 'org.codehaus.groovy',   name: 'groovy', version: groovyVer
-    compile "org.slf4j:slf4j-api:${slf4jVer}"
-
-    testCompile ("org.spockframework:spock-core:${spockVer}") {
-        exclude module : 'groovy-all'
-    }
-
-    testCompile( "com.athaydes:spock-reports:${spockReportsVer}" ) {
-        transitive = false
-    }
-
 //        testCompile 'commons-io:commons-io:2.4'
 //        testCompile 'commons-net:commons-net:3.+'
     testRuntime "org.codehaus.groovy:groovy-xml:${groovyVer}"
@@ -51,7 +40,8 @@ dependencies {
 }
 
 test {
-    systemProperties TESTFSREADROOT : "${projectDir}"   
+    systemProperties TESTFSREADROOT  : "${projectDir}"
+    systemProperties TESTFSWRITEROOT : "${buildDir}"
 //    systemProperties "ratpack.port" : 9999
 }
 

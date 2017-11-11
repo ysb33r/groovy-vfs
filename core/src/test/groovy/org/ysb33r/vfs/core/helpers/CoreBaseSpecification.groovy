@@ -5,8 +5,8 @@ import spock.lang.Specification
 
 class CoreBaseSpecification extends Specification {
 
-    static final File testFsReadOnlyRoot = new File("${System.getProperty('TESTFSREADROOT')}/src/test/resources/test-files")
-    static final File testFsWriteRoot = new File( "${System.getProperty('TESTFSWRITEROOT') ?: 'build/tmp/test-files'}/file")
+    static final File testFsReadOnlyRoot = new File(System.getProperty('TESTFSREADROOT') ?: './dsl/groovy-vfs','src/test/resources/test-files').absoluteFile
+    static private final File testFsWriteRoot = new File( System.getProperty('TESTFSWRITEROOT') ?: './dsl/groovy-vfs/build','tmp/test-files').absoluteFile
 
     static File identifyWriteRoot(final String name) {
         new File(testFsWriteRoot,name)

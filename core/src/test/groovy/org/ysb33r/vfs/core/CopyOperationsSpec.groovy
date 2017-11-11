@@ -48,7 +48,7 @@ class CopyOperationsSpec extends CoreBaseSpecification {
 	// ------------------------------------------------------------------------
 	// File -> Directory, No Filter
 	// ------------------------------------------------------------------------
-	void 'Copying a file to existing directory adds to directory if non-existing filename is upplied'() {
+	void 'Copying a file to existing directory adds to directory if non-existing filename is supplied'() {
 
         given:
 		VfsURI from=vfs.resolveURI( readRootURI,expectedFiles[0])
@@ -187,7 +187,6 @@ class CopyOperationsSpec extends CoreBaseSpecification {
         given:
         final VfsURI from = new VfsURI(testFsReadOnlyRoot)
         final VfsURI to = new VfsURI(testFsWriteRoot)
-        final String targetDir="${testFsWriteRoot}/${from.name.baseName}"
 
         when:
 		CopyMoveOperations.copy(from,to,false,false,false)
@@ -200,7 +199,6 @@ class CopyOperationsSpec extends CoreBaseSpecification {
         given:
         final VfsURI from = new VfsURI(testFsReadOnlyRoot)
         final VfsURI to = new VfsURI(testFsWriteRoot)
-        final String targetDir="${testFsWriteRoot}/${from.name.baseName}"
 
         when:
 		CopyMoveOperations.copy(from,to,false,true,false)
@@ -250,7 +248,7 @@ class CopyOperationsSpec extends CoreBaseSpecification {
 		final String targetDir="${testFsWriteRoot}/${from.name}"
 		
 		println "Copying from folder '${from}' to folder '${to}'"
-		println "Final result should be '${to}/${from.name.baseName}"
+		println "Final result should be '${to}/${from.name}"
 		assertFalse "Target directory must not exist at this point",new File(targetDir).exists()
 
         when:
@@ -267,36 +265,33 @@ class CopyOperationsSpec extends CoreBaseSpecification {
 
 	}
 
+	// TODO: Like to update this test to include deeper directory copies
+	void 'Copying directory to existing directory which contains a same-named subfolder with recurisve set and overwrite + smash off, will populate subfolder'() {
+        given:
+        final VfsURI from = readRootURI.resolve('test-subdir')
+        final VfsURI to = writeRootURI
+		final String targetDir = "${testFsWriteRoot}/test-subdir"
 
-//	// TODO: Like to update this test to include deeper directory copies
-//	@Test
-//	void copyDirectoryToExistingDirectoryWithSameNamedSubfolder_RecursiveOnOverwriteOffSmashOff_PopulatesSubFolder() {
-//		def vfs=VFS.manager
-//		def from=vfs.toFileObject(new File("${testFsReadOnlyRoot}/test-subdir"))
-//		def to=vfs.toFileObject(testFsWriteRoot)
-//		def targetDir="${testFsWriteRoot}/test-subdir"
-//		new File(targetDir).mkdirs()
-//
-//		assertTrue "Target dir '${to}' must exist prior to testing copy function",to.exists()
-//
-//		println "Copying from folder '${from}' to existing folder '${to}'"
-//		println "Expecting to see file[34].txt to appear in ${to.resolveFile('test-subdir')}"
-//
-//		CopyMoveOperations.copy(from,to,false,false,true)
-//
-//		(3..4) .each {
-//			def expected=to.resolveFile("test-subdir/file${it}.txt")
-//			assertTrue "Expected ${targetDir}/file${it}.txt",expected.exists()
-//			assertTrue "Expected ${targetDir}/file${it}.txt",new File("${targetDir}/file${it}.txt").exists()
-//			assertEquals FileType.FILE,expected.type
-//
-//			// The reason for this next assertion is that a bug in the code also
-//			// caused duplication of file[34] in the parent directory
-//			expected=to.resolveFile("file${it}.txt")
-//			assertFalse "Don't want ${targetDir}/../file${it}.txt",expected.exists()
-//		}
-//	}
-//
+        when: 'Copying from source to existing subfolder'
+		new File(targetDir).mkdirs()
+        CopyMoveOperations.copy(from,to,false,false,true)
+        VfsURI expected = to.resolve("test-subdir/file${fileNumber}.txt")
+
+        then: "Target file will appear in subfolder"
+        exists expected.path.toFile()
+        exists new File("${targetDir}/file${fileNumber}.txt")
+        vfs.isFile(expected)
+
+        and: "The file will not appear in the parent folder"
+        // The reason for this next assertion is that a bug in the code also
+        // caused duplication of file[34] in the parent directory
+        ! exists( "${targetDir}/../file${it}.txt" )
+
+        where:
+        fileNumber << [3,4]
+
+	}
+
 //    @Test
 //    void treeCopyOverExistingTree_RecursiveOnOverwriteOnSmashOff_OverwritesFiles() {
 //        def vfs=VFS.manager
