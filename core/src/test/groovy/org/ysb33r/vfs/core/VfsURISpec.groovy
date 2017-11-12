@@ -16,6 +16,7 @@ package org.ysb33r.vfs.core
 import org.ysb33r.vfs.auth.BasicCredentials
 import org.ysb33r.vfs.auth.CredentialsSupplier
 import org.ysb33r.vfs.core.helpers.CoreBaseSpecification
+import spock.lang.PendingFeature
 import spock.lang.Unroll
 
 class VfsURISpec extends CoreBaseSpecification {
@@ -56,6 +57,7 @@ class VfsURISpec extends CoreBaseSpecification {
         'File'   | testFsReadOnlyRoot                                 | false
     }
 
+    @PendingFeature
     void 'URI with password should not display passwords'() {
         when:
         VfsURI uri = new VfsURI( 'http://foo:bar@example.com/path/to/file')
@@ -134,6 +136,7 @@ class VfsURISpec extends CoreBaseSpecification {
         root.credentials.password == 'bar'
     }
 
+    @PendingFeature
     void 'A URI with userinfo will automatically add credentials'() {
         when: 'A URI is supplied with username & password'
         VfsURI root = new VfsURI( 'http://foo:bar@example.com/path/to/file')
@@ -148,6 +151,7 @@ class VfsURISpec extends CoreBaseSpecification {
         root.uri == 'http://example.com/path/to/file'
     }
 
+    @PendingFeature
     void 'When credentials are of basic credentials it can be added to URI'() {
         when: 'A URI is supplied without username & password'
         VfsURI root = new VfsURI( 'http://example.com/path/to/file')

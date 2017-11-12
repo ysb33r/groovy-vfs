@@ -15,6 +15,8 @@ package org.ysb33r.vfs.auth
 
 import groovy.transform.CompileStatic
 
+import java.security.InvalidParameterException
+
 /** A collection of basic, probably useful, and potentially naive implementations of credentials.
  *
  * @since 2.0
@@ -38,6 +40,11 @@ class Credentials {
     private static class Basic implements BasicCredentials {
 
         Basic(final CharSequence user,final CharSequence pass) {
+
+            if(user == null || user.size() == 0) {
+                throw new InvalidParameterException('Username cannot be null or empty')
+            }
+
             this.user = new String(user.toString())
             this.pass = pass?.toString()?.toCharArray()
         }
