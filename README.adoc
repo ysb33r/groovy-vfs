@@ -208,7 +208,7 @@ vfs {
 }
 ----
 
-*NOTE:* Although S# does not actually support folders, this is simulated through the use of folder names containing `/`
+*NOTE:* Although S3 does not actually support folders, this is simulated through the use of folder names containing `/`
 characters.
 
 
