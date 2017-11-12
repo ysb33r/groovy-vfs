@@ -8,9 +8,9 @@ import java.util.regex.Pattern
  * can be openeded on the filesystem.
  *
  * <p> The container itself is very generic and the conversion of the option to something on the
- * underlying filesystem is very sepcifc to the NIO2 provider.
+ * underlying filesystem is very specific to the NIO2 provider.
  *
- * <p> The VFS object for the specific language DSL will need to provide amethod for registering translators
+ * <p> The VFS object for the specific language DSL will need to provide a method for registering translators
  * from the generic options here to deal with specific providers. The translators will need to be
  * created/registered by the users of the DSL as they will be the only ones with possible knowledge of the
  * target opertational environment.
@@ -23,25 +23,33 @@ class FileSystemOptions {
     static final Pattern OPTION_REGEX = ~/^(?i:vfs\.)(\p{Alpha}\p{Alnum}+)\.(\p{Alpha}\w+)$/
 
     FileSystemOptions() {
-
     }
 
     FileSystemOptions(final FileSystemOptions other) {
+        addAll(other)
     }
 
     void add(final String optName,final Object optValue) {
-        throw new FileSystemException("add(name,value) needs an implementation")
+
+        if(optName =~ OPTION_REGEX) {
+            this.options.put(optName.toLowerCase(),optValue)
+        }
     }
 
     void addAll(final FileSystemOptions opts) {
-        throw new FileSystemException("addAll(FSO) needs an implementation")
+        this.options.putAll(opts.asMap())
     }
 
     void addAll(final Map<String,?> properties) {
-        throw new FileSystemException("addAll(Map) needs an implementation")
+        properties.each { final String key, final Object value ->
+            add(key,value)
+        }
     }
 
     Map<String,Object> asMap() {
-        null
+        this.options
     }
+
+
+    private final Map<String,Object> options = [:]
 }

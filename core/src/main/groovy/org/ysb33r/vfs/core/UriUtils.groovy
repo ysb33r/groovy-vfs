@@ -37,4 +37,97 @@ class UriUtils {
             uri.toString()
         }
     }
+
+    /** Splits out the user information but leave it encoded.
+     *
+     * @param uri URI potentially containing user info
+     * @return User information containing either just a username or a username and password. Can be null
+     * if no user information was present in the URI.
+     */
+    static String[] splitRawUserInfo(final URI uri) {
+        uri.rawUserInfo?.split(':')
+    }
+
+    /** Splits the query part out into separate elements
+     *
+     * @param uri An instance of an URI that might have a query path.
+     * @return A map of raw query parts. Can be empty, but never null
+     */
+    static Map<String,String> splitRawQuery(final URI uri) {
+        Map<String,String> params = [:]
+        uri.rawQuery.split('&').each { String rawPart ->
+            String[] subparts = rawPart.split('=')
+            params[ subparts[0] ] = subparts.size() > 1 ? subparts[1..-1].join('=') : ''
+        }
+
+        params
+    }
+
+    /** Splits the query part out into separate elements
+     *
+     * @param uri An instancr of an URI tha might have a query patr.
+     * @return A map of decoded query parts. Can be empty, but never null
+     */
+    static Map<String,String> splitQuery(final URI uri) {
+        Map<String,String> params = [:]
+        splitRawQuery(uri).each { String key,String value ->
+            params.put(UriUtils.decode(key),decode(value))
+        }
+        params
+    }
+
+    /** URI decode a string
+     *
+     * @param value Encoded string
+     * @return Decoded URI string
+     */
+    static String decode(final String value) {
+        URLDecoder.decode(value,'UTF-8')
+    }
+
+    /** URI decode a string
+     *
+     * @param value Encoded string
+     * @return Decoded URI string
+     */
+    static String decode(final CharSequence value) {
+        decode(value.toString())
+    }
+
+    /** URI decode a string
+     *
+     * @param value Encoded string
+     * @return Decoded URI string
+     */
+    static String decode(final char[] value) {
+        decode(value.toString())
+    }
+
+    /** Encodes a string suitable for URI query or fragment part.
+     *
+     * @param value URI query or fragment part to be encoded.
+     * @return Encoded string part
+     */
+    static String encode(final String value) {
+        URLEncoder.encode(value,'UTF-8')
+    }
+
+    /** Encodes a string suitable for URI query or fragment part.
+     *
+     * @param value URI query or fragment part to be encoded.
+     * @return Encoded string part
+     */
+    static String encode(final CharSequence  value) {
+        encode(value.toString())
+    }
+
+    /** Encodes a string suitable for URI query or fragment part.
+     *
+     * @param value URI query or fragment part to be encoded.
+     * @return Encoded string part
+     */
+    static String encode(final char[] value) {
+        encode(value.toString())
+    }
+
 }

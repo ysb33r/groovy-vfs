@@ -92,6 +92,17 @@ class VfsEngine {
 //        throw new FileSystemException("rm() NEEDS IMPLEMENTATION")
 //    }
 
+    // cp
+    // mv
+    // cat
+    // mkdir
+    // append
+    // overwrite
+    // mtime
+    // local
+    // exists
+    // canListFolder
+
     private final ClassLoader classLoader
     private final FileSystemOptions defaultFSOptions = new FileSystemOptions()
 

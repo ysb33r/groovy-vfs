@@ -858,7 +858,22 @@ class Vfs {
 //		fsMgr.loggerInstance()
 //	}
 
-	/** Resolves a URI.
+    /** Allows a child path to be appended to an existing URI.
+     * Additional query parameters or fragments are not allowed and will result in an exception.
+     *
+     * @param root Root URI
+     * @param childPath Relative path to be appended.
+     *
+     * @return A new path with the child path appended. All non-VFS query string parameters will remain intact and
+     * all existing properties will be inherited.
+     * @throw {@link URIException} if additional query parameters or fragments are found.
+     */
+    VfsURI div(final VfsURI root,final CharSequence childPath) {
+        vfsEngine.resolveURI(root,childPath)
+    }
+
+
+    /** Resolves a URI.
 	 * This involves locating it on the virtual file system and potential network traffic.
 	 *
 	 * @param properties
@@ -890,7 +905,7 @@ class Vfs {
 //		if (uri instanceof FileObject) {
 //			if( properties.size() ) {
 //				Map vfsProperties = Util.selectVfsOptions(properties)
-//				vfsProperties.size() ?	Util.resolveURI(vfsProperties,fsMgr,uri.fileSystem.fileSystemOptions,uri.name.getURI()) : uri
+//				vfsProperties.size() ?	Util.resolveURI(vfsProperties,fsMgr,uri.fileSystem.fileSystemOptions,uri.name.getUri()) : uri
 //			} else {
 //				return uri
 //			}
@@ -913,7 +928,7 @@ class Vfs {
         resolveURI(properties,uri)
 	}
 
-	/** Enquires whether the URI is on a file system that is capable of listing the contents of folder content.
+	/** Enquires whether the URI is on a file system that is capable of listing the contents of folder.
 	 *
 	 * @param uri
 	 * @return {@code true} is children of folders can be listed.

@@ -13,7 +13,6 @@
  */
 package org.ysb33r.vfs.core
 
-import org.ysb33r.vfs.core.AntPatternSelector
 import spock.lang.Specification
 import spock.lang.Unroll
 

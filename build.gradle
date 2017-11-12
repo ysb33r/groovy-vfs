@@ -24,6 +24,7 @@ plugins {
     id 'org.ysb33r.vfs' version '1.0' apply false
     id 'org.asciidoctor.gradle.asciidoctor' version '1.5.3' apply false
     id 'com.github.hierynomus.license' version '0.12.1' apply false
+    id 'com.bmuschko.clover' version '2.1.3' apply false
 }
 
 buildScan {
@@ -243,7 +244,8 @@ configure( subprojects.findAll { subprojectGroups.testServers.contains(it.name) 
 configure( subprojects.findAll { subprojectGroups.groovyLib.contains(it.name) } ) {
 
     apply plugin : 'groovy'
-    apply plugin: 'com.github.hierynomus.license'
+    apply plugin : 'com.github.hierynomus.license'
+    apply plugin : 'com.bmuschko.clover'
 
     dependencies {
         compile group: 'org.codehaus.groovy',   name: 'groovy', version: groovyVer

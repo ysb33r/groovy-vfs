@@ -11,15 +11,11 @@
  *
  * ============================================================================
  */
-package org.ysb33r.vfs.core
+package org.ysb33r.vfs.core.impl
 
-import org.junit.*
+import org.ysb33r.vfs.core.VfsEngine
+import org.ysb33r.vfs.core.VfsURI
 import org.ysb33r.vfs.core.helpers.CoreBaseSpecification
-import org.ysb33r.vfs.core.helpers.VfsEngineBuilder
-import org.ysb33r.vfs.core.impl.CopyMoveOperations
-import org.ysb33r.vfs.dsl.groovy.FileActionException
-import org.ysb33r.vfs.dsl.groovy.FileType
-import spock.lang.PendingFeature
 
 import static org.junit.Assert.*
 

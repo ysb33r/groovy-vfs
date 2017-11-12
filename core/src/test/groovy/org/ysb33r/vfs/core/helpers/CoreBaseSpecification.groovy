@@ -17,15 +17,6 @@ class CoreBaseSpecification extends Specification {
     static File identifyWriteRoot(final String name) {
         new File(testFsWriteRoot,name)
     }
-//    static final String testFsURI = testFsReadOnlyRoot.toURI().toString()
-//    static final String testFsWriteURI = testFsWriteRoot.toURI()..toString()
-
-    void setup() {
-        if(testFsWriteRoot.exists()) {
-            testFsWriteRoot.deleteDir()
-        }
-        testFsWriteRoot.mkdirs()
-    }
 
     VfsEngine setupVfs() {
         VfsEngineBuilder.build('Standard Vfs Test')
