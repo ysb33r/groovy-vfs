@@ -11,7 +11,7 @@
  *
  * ============================================================================
  */
-package org.ysb33r.vfs.dsl.groovy
+package org.ysb33r.vfs.core
 
 import groovy.transform.CompileStatic
 

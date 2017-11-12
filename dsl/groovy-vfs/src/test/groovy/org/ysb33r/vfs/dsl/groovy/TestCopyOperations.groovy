@@ -13,10 +13,11 @@
  */
 package org.ysb33r.vfs.dsl.groovy
 
+import org.ysb33r.vfs.core.FileType
 import org.ysb33r.vfs.core.impl.CopyMoveOperations
 
 import static org.junit.Assert.*
-import org.junit.Ignore
+
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Before

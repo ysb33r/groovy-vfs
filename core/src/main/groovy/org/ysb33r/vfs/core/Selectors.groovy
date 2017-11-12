@@ -30,7 +30,7 @@ class Selectors {
      * @param regex Regex to apply to basename of file or folder.
      * @param maxDepth Set to 0 or 1 if child folders should not be traversed, -1 for infinite traversal or any other value
      * for depth-limited traversal.
-     * @param followSymlinks If symoblic links are encountered whether they should be followed.
+     * @param followSymlinks If symbolic links are encountered whether they should be followed.
      * @return {@link FileSelector} instance.
      */
     static FileSelector byRegex(final Pattern regex, int maxDepth, boolean followSymlinks) {

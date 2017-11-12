@@ -19,7 +19,7 @@ import groovy.util.logging.Slf4j
 import org.codehaus.groovy.runtime.GStringImpl
 import org.ysb33r.vfs.core.FileSelectInfo
 import org.ysb33r.vfs.core.FileSelector
-import org.ysb33r.vfs.core.FileSystemOptions
+import org.ysb33r.vfs.core.FileType
 import org.ysb33r.vfs.core.Selectors
 import org.ysb33r.vfs.core.URIException
 import org.ysb33r.vfs.core.VfsEngine
