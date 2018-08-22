@@ -32,7 +32,7 @@
  *
  */
 
-package org.ysb33r.groovy.dsl.vfs.impl.ant;
+package org.ysb33r.groovy.dsl.vfs.impl.ant
 
 
 
@@ -45,20 +45,20 @@ package org.ysb33r.groovy.dsl.vfs.impl.ant;
  * <p>This is a Singleton.</p>
  *
  */
- final class SelectorUtils {
+final class SelectorUtils {
 
-     /**
-      * The pattern that matches an arbitrary number of directories.
-      *
-      * @since Ant 1.8.0
-      */
-     static final String DEEP_TREE_MATCH = "**"
+    /**
+     * The pattern that matches an arbitrary number of directories.
+     *
+     * @since Ant 1.8.0
+     */
+    static final String DEEP_TREE_MATCH = "**"
 
     /**
      * Core implementation of matchPath.  It is isolated so that it
      * can be called from TokenizedPattern.
      */
-     static boolean matchPath(String[] tokenizedPattern, String[] strDirs, boolean isCaseSensitive) {
+    static boolean matchPath(String[] tokenizedPattern, String[] strDirs, boolean isCaseSensitive) {
         int patIdxStart = 0
         int patIdxEnd = tokenizedPattern.length - 1
         int strIdxStart = 0
@@ -159,7 +159,7 @@ package org.ysb33r.groovy.dsl.vfs.impl.ant;
             strIdxStart = foundIdx + patLength
         }
 
-         !((patIdxStart..patIdxEnd).any { tokenizedPattern[it] != DEEP_TREE_MATCH } )
+        !((patIdxStart..patIdxEnd).any { tokenizedPattern[it] != DEEP_TREE_MATCH } )
     }
 
     /**
@@ -177,7 +177,7 @@ package org.ysb33r.groovy.dsl.vfs.impl.ant;
      * @return <code>true</code> if the string matches against the pattern,
      * or <code>false</code> otherwise.
      */
-     static boolean match(String pattern, String str, boolean caseSensitive) {
+    static boolean match(String pattern, String str, boolean caseSensitive) {
         Character[] patArr = pattern.toCharArray()
         Character[] strArr = str.toCharArray()
         int patIdxStart = 0
@@ -271,7 +271,7 @@ package org.ysb33r.groovy.dsl.vfs.impl.ant;
 
             if (patIdxTmp == patIdxStart + 1) {
                 // Two stars next to each other, skip the first one.
-                patIdxStart = patIdxStart++
+                patIdxStart++
                 continue
             }
 
@@ -284,13 +284,9 @@ package org.ysb33r.groovy.dsl.vfs.impl.ant;
             for (int i = 0; i <= strLength - patLength; i++) {
                 for (int j = 0; j < patLength; j++) {
                     ch = patArr[patIdxStart + j + 1]
-                    if (!ch == '?') {
-                        if (different(caseSensitive, ch, strArr[strIdxStart + i + j])) {
-                            continue strLoop
-                        }
-
+                    if (ch != '?' && different(caseSensitive, ch, strArr[strIdxStart + i + j])) {
+                        continue strLoop
                     }
-
                 }
 
                 foundIdx = strIdxStart + i
@@ -321,7 +317,7 @@ package org.ysb33r.groovy.dsl.vfs.impl.ant;
     /**
      * Same as {@link #tokenizePath tokenizePath} but hopefully faster.
      */
-     static String[] tokenizePathAsArray(final String path) {
+    static String[] tokenizePathAsArray(final String path) {
         path.split('/').findAll { it.size() } as String []
     }
- }
+}

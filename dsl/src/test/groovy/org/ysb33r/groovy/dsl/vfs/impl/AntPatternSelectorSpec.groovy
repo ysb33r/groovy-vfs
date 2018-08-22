@@ -72,6 +72,26 @@ class AntPatternSelectorSpec extends Specification {
             ]
         ],
 
+        'Select files by multiple *-wildcard' : [
+            filter : {
+                include 'subdirA/subdirB/*ile7*.txt'
+            },
+            included : [
+                'subdirA/subdirB/file777.txt'
+            ]
+        ],
+
+        'Select files in wildcarded subfolder by *-wildcard' : [
+            filter : {
+                include 'subdirA/*dir*/*.txt'
+            },
+            included : [
+                'subdirA/subdirB/file5.txt',
+                'subdirA/subdirB/file6.txt',
+                'subdirA/subdirB/file777.txt'
+            ]
+        ],
+
         'Select everything recursively' : [
             filter : {
                 include '**'
