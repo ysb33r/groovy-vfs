@@ -15,7 +15,7 @@ image:https://api.bintray.com/packages/ysb33r/grysb33r/groovy-vfs/images/downloa
 [source,groovy]
 ----
 @Grapes([
-	@Grab( 'org.ysb33r.groovy:groovy-vfs:0.5' ),
+	@Grab( 'org.ysb33r.groovy:groovy-vfs:1.0.1' ),
 	@Grab( 'commons-net:commons-net:3.+' ), // If you want to use ftp 
     @Grab( 'commons-httpclient:commons-httpclient:3.1'), // If you want http/https
     @Grab( 'com.jcraft:jsch:0.1.48' ) // If you want sftp
@@ -92,7 +92,7 @@ buildscript {
         mavenCentral()
       }
       dependencies {
-        classpath 'org.ysb33r.gradle:vfs-gradle-plugin:0.5.1'
+        classpath 'org.ysb33r.gradle:vfs-gradle-plugin:1.0.1'
         classpath 'commons-net:commons-net:3.+'  // If you want to use ftp 
         classpath 'commons-httpclient:commons-httpclient:3.1' // If you want http/https
         classpath 'com.jcraft:jsch:0.1.48'  // If you want sftp
