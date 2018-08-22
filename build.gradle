@@ -27,7 +27,7 @@ buildscript {
 allprojects {
     ext {
         versionModifier = ''
-        versionNumber   = '1.0'
+        versionNumber   = '1.0.1'
         modulesWithGroovyDoc = [
             'dsl',
             'gradle-plugin',
